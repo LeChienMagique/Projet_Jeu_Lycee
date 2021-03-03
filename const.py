@@ -6,8 +6,8 @@ customSizeFont = lambda n : pg.font.SysFont('Alef', n)
 myFont = pg.font.SysFont('Alef', 25)
 bigFont = pg.font.SysFont('Alef', 40)
 
-sc_width = 1000
-sc_height = 1000
+sc_width = 1300
+sc_height = 1300
 
 bg = None
 
