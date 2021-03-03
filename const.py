@@ -1,5 +1,4 @@
 import pygame as pg
-import os
 
 pg.init()
 
@@ -7,8 +6,8 @@ customSizeFont = lambda n : pg.font.SysFont('Alef', n)
 myFont = pg.font.SysFont('Alef', 25)
 bigFont = pg.font.SysFont('Alef', 40)
 
-sc_width = 1000
-sc_height = 1000
+sc_width = 1200
+sc_height = 1200
 
 bg = None
 

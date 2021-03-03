@@ -1,7 +1,0 @@
-1 : Tile normal
-2 : Jumper
-3 : spike en haut
-4 : spike a droite
-5 : spike en bas
-6 : spike a gauche
-7 : bloc de fin
