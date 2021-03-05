@@ -39,13 +39,13 @@ class LevelSelection:
                            pg.Color(0, 100, 255), pg.Color(0, 200, 0), lambda: self.change_mode('edit'), text='Edit', textColor=pg.Color(0, 0, 0))
 
         self.create_button('gui', 6 * const.sc_width / 8, button_height / 2, button_width, button_height,
-                            pg.Color(150,0,250), pg.Color(0,200,0), lambda: self.create_level_to_edit(), text='Creer niveau', textColor=pg.Color(0,0,0))
+                           pg.Color(150, 0, 250), pg.Color(0, 200, 0), lambda: self.create_level_to_edit(), text='Creer niveau', textColor=pg.Color(0, 0, 0))
 
         self.make_buttons()
 
     def make_buttons(self):
         const.refresh_number_of_levels()
-        for text, group, mode in [('Custom', 'edit', 'editing'),('Level','play', 'playing')]:
+        for text, group, mode in [('Custom', 'edit', 'editing'), ('Level', 'play', 'playing')]:
             button_width = const.sc_width / 4
             button_height = const.sc_height / 10
             left_column_x = const.sc_width / 10
@@ -67,7 +67,6 @@ class LevelSelection:
         f.write('{}')
         self.change_mode('edit')
         self.select_level(const.number_of_edited_levels + 1, 'editing')
-
 
     def change_mode(self, mode: str):
         self.mode = mode

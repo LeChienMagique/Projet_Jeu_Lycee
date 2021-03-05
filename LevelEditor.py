@@ -24,8 +24,8 @@ class LevelEditor:
 
     def create_grid_background(self) -> pg.Surface:
         back = pg.Surface((25 * self.grid_square_side, 16 * self.grid_square_side))
-        #back.fill(pg.Color(0, 0, 0))
-        back.blit(self.background, (0,0))
+        # back.fill(pg.Color(0, 0, 0))
+        back.blit(self.background, (0, 0))
         self.draw_grid(back)
         return back
 
@@ -168,7 +168,7 @@ class LevelEditor:
                 if ind >= len(tiles_sprites):
                     break
                 sprite = const.load_sprite(tiles_sprites[ind])
-                self.create_button(x, y, 2, 2, pg.Color(255, 255, 255), pg.Color(0, 0, 0), lambda i=ind: self.change_selected_building_tile(tiles_sprites[i]),
+                self.create_button(x, y, 2, 2, pg.Color(0, 0, 0), pg.Color(50, 50, 50), lambda i=ind: self.change_selected_building_tile(tiles_sprites[i]),
                                    image=sprite)
                 ind += 1
 

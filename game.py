@@ -183,8 +183,8 @@ class Game:
             else:
                 self.pause_menu.update(pg.mouse.get_pos(), False)
 
-            #self.sc.fill((0, 0, 0))
-            self.sc.blit(self.background, (0,0))
+            # self.sc.fill((0, 0, 0))
+            self.sc.blit(self.background, (0, 0))
             const.display_infos(self.sc, 15, 15,
                                 f"x : {self.player.rect.x}, y : {self.player.rect.y}, dy : {round(self.player.dy, 1)}, dx : {self.player.dx}, onGround : {self.player.onGround}")
             self.player_group.draw(self.sc)
@@ -201,8 +201,8 @@ class Player(pg.sprite.DirtySprite):
         super().__init__()
         self.game = game
         self.image_side = const.player_side
-        #self.image = pg.Surface([self.image_side, self.image_side])
-        #self.image.fill(pg.Color(255, 255, 255))
+        # self.image = pg.Surface([self.image_side, self.image_side])
+        # self.image.fill(pg.Color(255, 255, 255))
         self.image = const.load_sprite('player')
         self.rect = self.image.get_rect()
         self.mask = pg.mask.from_surface(self.image)
@@ -293,8 +293,8 @@ class Player(pg.sprite.DirtySprite):
         collidedS = pg.sprite.spritecollideany(self, self.game.tile_group)
         if collidedS is not None:
             if isinstance(collidedS, ent.EndTile):
-                    self.game.end_level()
-                    return
+                self.game.end_level()
+                return
 
             if const.scrolling_forward:
                 if self.rect.right > collidedS.rect.left:  # Quand le joueur entre en collision avec un mur

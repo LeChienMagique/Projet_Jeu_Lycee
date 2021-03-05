@@ -3,7 +3,7 @@ import os
 
 pg.init()
 
-customSizeFont = lambda n : pg.font.SysFont('Alef', n)
+customSizeFont = lambda n: pg.font.SysFont('Alef', n)
 myFont = pg.font.SysFont('Alef', 25)
 bigFont = pg.font.SysFont('Alef', 40)
 
@@ -32,6 +32,7 @@ mode = 'level_selection'
 
 scrolling_forward = True
 
+
 def next_level():
     global level
     if number_of_levels <= level + 1:
@@ -39,10 +40,12 @@ def next_level():
         return True
     return False
 
+
 def refresh_number_of_levels():
     global number_of_levels, number_of_edited_levels
     number_of_levels = len(os.listdir('Levels/'))
     number_of_edited_levels = len(os.listdir('Edited_Levels/'))
+
 
 def load_sprite(sprite_name):
     if sprite_name == 'player':
@@ -51,10 +54,13 @@ def load_sprite(sprite_name):
         side = tile_side
     return pg.transform.scale(pg.image.load('Blocks_Sprites/' + sprite_name + '.png'), (side, side))
 
+
 def load_background():
-    return pg.transform.scale(pg.image.load('black_background.png'), (sc_width, sc_height))
+    return pg.transform.scale(pg.image.load('background.png'), (sc_width, sc_height))
+
 
 background = load_background()
+
 
 def display_infos(screen: pg.Surface, x: int, y: int, *args):
     infos = "".join(args)
