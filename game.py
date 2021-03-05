@@ -26,10 +26,25 @@ class Game:
         for e in pg.event.get():
             if e.type == pg.QUIT:
                 sys.exit()
-            if self.paused and e.type == pg.MOUSEBUTTONDOWN:
-                if e.button == 1:
-                    self.pause_menu.update(pg.mouse.get_pos(), True)
-            if e.type == pg.KEYDOWN:
+
+            if self.level_ended:
+                if e.type == pg.KEYUP:
+                    if e.key == pg.K_ESCAPE:
+                        self.next_level()
+
+            elif self.paused:
+                if e.type == pg.MOUSEMOTION:
+                    self.pause_menu.update(pg.mouse.get_pos(), False)
+                elif e.type == pg.MOUSEBUTTONDOWN:
+                    if e.button == 1:
+                        self.pause_menu.update(pg.mouse.get_pos(), True)
+                elif e.type == pg.KEYUP:
+                    if e.key == pg.K_ESCAPE:
+                        self.toggle_pause()
+                    elif e.key == pg.K_f:
+                        self.advance_frame()
+
+            elif e.type == pg.KEYDOWN:
                 if e.key == pg.K_UP:
                     self.player.jump()
                 elif e.key == pg.K_r:
@@ -39,8 +54,6 @@ class Game:
             elif e.type == pg.KEYUP:
                 if e.key == pg.K_ESCAPE:
                     self.toggle_pause()
-                elif e.key == pg.K_f:
-                    self.advance_frame()
 
     def toggle_pause(self):
         self.paused = not self.paused
@@ -137,6 +150,7 @@ class Game:
                                               self.tile_group)
 
     def change_mode(self, mode: str):
+        print('changed mode from playing')
         self.reset_all_vars()
         const.change_mode(mode)
         self.running = False
@@ -169,7 +183,8 @@ class Game:
                     self.next_level()
             else:
                 clock.tick(framerate)
-                self.handle_keys()
+
+            self.handle_keys()
 
             if not self.paused:
                 self.player.handle_gravity()
@@ -180,8 +195,6 @@ class Game:
                 self.tile_group.update()
                 self.player.handle_x_axis_collisions()
                 self.player.handle_x_offset()
-            else:
-                self.pause_menu.update(pg.mouse.get_pos(), False)
 
             # self.sc.fill((0, 0, 0))
             self.sc.blit(self.background, (0, 0))

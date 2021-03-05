@@ -17,11 +17,11 @@ level = 1
 number_of_levels = len(os.listdir('Levels/'))
 number_of_edited_levels = len(os.listdir('Edited_Levels/'))
 
-startx = sc_width // 10
-starty = 0
-
 tile_side = sc_width // 25
 player_side = sc_width // 35
+
+startx = 2 * tile_side
+starty = 0
 
 scrolling_speed = sc_width // 140
 jump_height = -(tile_side / 2)
@@ -48,7 +48,7 @@ def delete_edited_level():
 
 def next_level():
     global level
-    if number_of_levels <= level + 1:
+    if level + 1 <= number_of_levels:
         level += 1
         return True
     return False
@@ -83,6 +83,7 @@ def display_infos(screen: pg.Surface, x: int, y: int, *args):
 
 def change_mode(mode_name: str):
     global mode, previous_mode
+    print(mode, '->', mode_name)
     previous_mode = mode
     if mode_name == 'editing':
         mode = 'editing'

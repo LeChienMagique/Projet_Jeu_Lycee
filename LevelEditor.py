@@ -79,7 +79,6 @@ class LevelEditor:
         :param tile_type:
         :return:
         """
-        # print('Placing at :', x, y)
         screen_x, screen_y = ((world_x - self.worldx) * self.grid_square_side + 1), (
                 (world_y + self.worldy) * self.grid_square_side + 1)
         new_tile = self.building_tiles[tile_type](screen_x, screen_y, world_x, world_y, group=self.tiles, editing=True)
@@ -136,7 +135,7 @@ class LevelEditor:
                 elif e.key == pg.K_p:
                     self.change_mode('playing')
                 elif e.key == pg.K_ESCAPE:
-                    sys.exit()
+                    self.change_mode('level_selection')
 
     def highlight_square(self, mousepos):
         squarex, squarey = self.get_square_on_pos(mousepos)[0:2]
@@ -187,10 +186,10 @@ class LevelEditor:
 
     def delete_level(self):
         const.delete_edited_level()
-        self.change_mode('level_selection')
+        self.change_mode('level_selection', save=False)
 
-    def change_mode(self, mode: str):
-        self.save_level()
+    def change_mode(self, mode: str, save=True):
+        self.save_level() if save else None
         const.change_mode(mode)
         self.running = False
 
@@ -210,7 +209,6 @@ class LevelEditor:
     def save_level(self):
         with open(f'Edited_Levels/level_{const.level}.json', 'w') as j:
             json.dump(self.level, j, indent=0)
-            print('Level saved !')
 
     def load_level(self, n):
         self.tiles.empty()
