@@ -191,7 +191,7 @@ class Game:
             self.tile_group.draw(self.sc)
             if self.paused:
                 self.pause_menu.draw(self.sc)
-                textsurf = const.bigFont.render('Pause', True, pg.Color(255, 255, 255), pg.Color(0, 0, 0))
+                textsurf = const.bigFont.render('PAUSE', True, pg.Color(255, 255, 255))
                 self.sc.blit(textsurf, (const.sc_width // 2 - textsurf.get_rect().width // 2, const.sc_height // 10))
             pg.display.flip()
 

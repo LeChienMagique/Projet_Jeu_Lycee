@@ -177,10 +177,17 @@ class LevelEditor:
         self.create_button(20, 18, 4, 2, pg.Color(0, 0, 255), pg.Color(255, 0, 255), lambda: self.change_mode('playing'), text='Play',
                            textColor=pg.Color(0, 0, 0))
 
-        self.create_button(20, 20, 4, 4, pg.Color(255, 0, 0), pg.Color(200, 75, 0), lambda: self.change_mode('level_selection'), text='Quitter',
+        self.create_button(20, 22, 4, 2, pg.Color(150, 0, 255), pg.Color(50, 0, 175), lambda: self.change_mode('level_selection'), text='Quitter',
+                           textColor=pg.Color(0, 0, 0))
+
+        self.create_button(20, 20, 4, 2, pg.Color(255, 0, 0), pg.Color(255, 75, 0), lambda: self.delete_level(), text='Suppr level',
                            textColor=pg.Color(0, 0, 0))
 
         return gui_surf
+
+    def delete_level(self):
+        const.delete_edited_level()
+        self.change_mode('level_selection')
 
     def change_mode(self, mode: str):
         self.save_level()

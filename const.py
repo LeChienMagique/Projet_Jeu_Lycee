@@ -5,7 +5,7 @@ pg.init()
 
 customSizeFont = lambda n: pg.font.SysFont('Alef', n)
 myFont = pg.font.SysFont('Alef', 25)
-bigFont = pg.font.SysFont('Alef', 40)
+bigFont = pg.font.SysFont('Alef', 60)
 
 sc_width = 1200
 sc_height = 1200
@@ -31,6 +31,19 @@ previous_mode = 'level_selection'
 mode = 'level_selection'
 
 scrolling_forward = True
+
+
+def delete_edited_level():
+    global number_of_edited_levels
+    ans = input("Etes-vous sûr ? (o/n) : ")
+    if ans.lower() != 'o':
+        print("Suppression annulée")
+        return
+    n = level
+    if os.path.exists(f'Edited_Levels/level_{n}.json'):
+        os.remove(f'Edited_Levels/level_{n}.json')
+        number_of_edited_levels -= 1
+        print('Le niveau a été supprimé')
 
 
 def next_level():
