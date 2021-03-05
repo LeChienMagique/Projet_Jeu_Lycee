@@ -11,6 +11,7 @@ class LevelEditor:
         self.sc = screen
         self.worldx = 0  # les coordonnées du coin en haut à gauche de l'éditeur
         self.worldy = 0
+        self.background = const.background
         self.grid_square_side = const.tile_side + 1
         self.buttons = pg.sprite.Group()
         self.tiles = pg.sprite.LayeredDirty()
@@ -23,7 +24,8 @@ class LevelEditor:
 
     def create_grid_background(self) -> pg.Surface:
         back = pg.Surface((25 * self.grid_square_side, 16 * self.grid_square_side))
-        back.fill(pg.Color(0, 0, 0))
+        #back.fill(pg.Color(0, 0, 0))
+        back.blit(self.background, (0,0))
         self.draw_grid(back)
         return back
 

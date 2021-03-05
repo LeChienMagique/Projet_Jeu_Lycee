@@ -70,6 +70,21 @@ class Spike_S(Spike):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
         super().__init__(screen_x, screen_y, world_x, world_y, 's', group, **kwargs)
 
+class Spike_NE(Spike):
+    def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
+        super().__init__(screen_x, screen_y, world_x, world_y, 'ne', group, **kwargs)
+
+class Spike_NW(Spike):
+    def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
+        super().__init__(screen_x, screen_y, world_x, world_y, 'nw', group, **kwargs)
+
+class Spike_SE(Spike):
+    def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
+        super().__init__(screen_x, screen_y, world_x, world_y, 'se', group, **kwargs)
+
+class Spike_SW(Spike):
+    def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
+        super().__init__(screen_x, screen_y, world_x, world_y, 'sw', group, **kwargs)
 
 class EndTile(Tile):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
@@ -84,4 +99,5 @@ class BackwardPusher(Tile):
 
 
 building_tiles = {"tile": Tile, 'jumper': Jumper, 'spike_n': Spike_N, 'spike_w': Spike_W, 'spike_e': Spike_E,
-                  'spike_s': Spike_S, 'end': EndTile, "backward_jumper": BackwardPusher}
+                  'spike_s': Spike_S,'spike_ne': Spike_NE,'spike_nw': Spike_NW,'spike_se': Spike_SE,'spike_sw': Spike_SW,
+                  'end': EndTile, "backward_jumper": BackwardPusher}

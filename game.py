@@ -9,6 +9,7 @@ class Game:
     def __init__(self, screen: pg.Surface):
         self.running = True
         self.sc = screen
+        self.background = const.background
         self.player = Player(self)
         self.player.rect.x = const.startx
         self.player.rect.y = const.starty
@@ -160,7 +161,8 @@ class Game:
             else:
                 self.pause_menu.update(pg.mouse.get_pos(), False)
 
-            self.sc.fill((0, 0, 0))
+            #self.sc.fill((0, 0, 0))
+            self.sc.blit(self.background, (0,0))
             const.display_infos(self.sc, 15, 15,
                                 f"x : {self.player.rect.x}, y : {self.player.rect.y}, dy : {round(self.player.dy, 1)}, dx : {self.player.dx}, onGround : {self.player.onGround}")
             self.player_group.draw(self.sc)
@@ -177,8 +179,9 @@ class Player(pg.sprite.DirtySprite):
         super().__init__()
         self.game = game
         self.image_side = const.player_side
-        self.image = pg.Surface([self.image_side, self.image_side])
-        self.image.fill(pg.Color(255, 255, 255))
+        #self.image = pg.Surface([self.image_side, self.image_side])
+        #self.image.fill(pg.Color(255, 255, 255))
+        self.image = const.load_sprite('player')
         self.rect = self.image.get_rect()
         self.mask = pg.mask.from_surface(self.image)
         self.dx = 0
@@ -227,31 +230,32 @@ class Player(pg.sprite.DirtySprite):
         """
         collidedS = pg.sprite.spritecollideany(self, self.game.tile_group)
         if collidedS is not None:
+            self.dy = 0
+
             if not const.scrolling_forward:
                 const.scrolling_forward = True
 
             if collidedS.rect.top < self.rect.top < collidedS.rect.bottom:  # Quand le joueur tape sa tête sur une Tile
                 self.rect.top = collidedS.rect.bottom
                 if isinstance(collidedS, ent.Spike):
-                    if collidedS.side == 's':
+                    if not 'n' in collidedS.side:
                         self.kill()
 
             elif collidedS.rect.top < self.rect.bottom < collidedS.rect.bottom:  # Quand le joueur aterri sur une Tile
                 self.rect.bottom = collidedS.rect.top
                 self.onGround = True
                 if isinstance(collidedS, ent.Spike):
-                    if collidedS.side == 'n':
+                    if not 's' in collidedS.side:
                         self.kill()
                 elif isinstance(collidedS, ent.EndTile):
                     self.game.reset_level()
 
-            self.dy = 0
 
-            if isinstance(collidedS, ent.Jumper):
-                self.dy = const.jump_height * 1.4
-            elif isinstance(collidedS, ent.BackwardPusher):
-                self.dy = const.jump_height * 1.4
-                const.scrolling_forward = False
+                elif isinstance(collidedS, ent.Jumper):
+                    self.dy = const.jump_height * 1.4
+                elif isinstance(collidedS, ent.BackwardPusher):
+                    self.dy = const.jump_height * 1.4
+                    const.scrolling_forward = False
 
     def handle_x_axis_collisions(self):
         """
@@ -260,6 +264,10 @@ class Player(pg.sprite.DirtySprite):
         """
         collidedS = pg.sprite.spritecollideany(self, self.game.tile_group)
         if collidedS is not None:
+            if isinstance(collidedS, ent.EndTile):
+                    self.game.reset_level()
+                    return
+
             if const.scrolling_forward:
                 if self.rect.right > collidedS.rect.left:  # Quand le joueur entre en collision avec un mur
                     self.rect.right = collidedS.rect.left
@@ -269,9 +277,9 @@ class Player(pg.sprite.DirtySprite):
                     self.rect.left = collidedS.rect.right
 
             if isinstance(collidedS, ent.Spike):
-                if collidedS.side == 'w':
+                if 'e' not in collidedS.side and const.scrolling_forward:
                     self.kill()
-                elif collidedS.side == 'e' and not const.scrolling_forward:
+                elif 'w' not in collidedS.side and not const.scrolling_forward:
                     self.kill()
 
             if not const.scrolling_forward:

@@ -35,9 +35,13 @@ class LevelSelection:
         self.create_button('gui', 4 * const.sc_width / 8, button_height / 2, button_width, button_height,
                            pg.Color(0, 100, 255), pg.Color(0, 200, 0), lambda: self.change_mode('edit'), text='Edit', textColor=pg.Color(0, 0, 0))
 
+        self.create_button('gui', 6 * const.sc_width / 8, button_height / 2, button_width, button_height,
+                            pg.Color(150,0,250), pg.Color(0,200,0), lambda: self.create_level_to_edit(), text='Creer niveau', textColor=pg.Color(0,0,0))
+
         self.make_buttons()
 
     def make_buttons(self):
+        const.refresh_number_of_levels()
         for text, group, mode in [('Custom', 'edit', 'editing'),('Level','play', 'playing')]:
             button_width = const.sc_width / 4
             button_height = const.sc_height / 10
@@ -45,7 +49,8 @@ class LevelSelection:
             mid_column_x = 3 * const.sc_width / 8
             right_column_x = const.sc_width - left_column_x - button_width
             x_to_draw = left_column_x
-            for level in range(1, const.level_max + 1):
+            level_number = const.number_of_levels if mode == 'playing' else const.number_of_edited_levels
+            for level in range(1, level_number + 1):
                 if level == 8:
                     x_to_draw = mid_column_x
                 elif level == 16:
@@ -53,6 +58,13 @@ class LevelSelection:
                 self.create_button(group, x_to_draw, button_height / 2 + (button_height + 10) * (level % 8 if level % 8 != 0 else 1), button_width,
                                    button_height, pg.Color(255, 0, 0), pg.Color(0, 200, 0), lambda n=level, m=mode: self.select_level(n, m),
                                    text=f'{text} {level}', textColor=pg.Color(0, 0, 0))
+
+    def create_level_to_edit(self):
+        f = open(f'Edited_Levels/level_{const.number_of_edited_levels + 1}.json', 'x')
+        f.write('{}')
+        self.change_mode('edit')
+        self.select_level(const.number_of_edited_levels + 1, 'editing')
+
 
     def change_mode(self, mode: str):
         self.mode = mode
@@ -81,6 +93,7 @@ class LevelSelection:
 
     def main(self, framerate: int):
         clock = pg.time.Clock()
+        self.make_buttons()
         while self.running:
             clock.tick(framerate)
             self.handle_keys()

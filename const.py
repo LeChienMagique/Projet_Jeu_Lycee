@@ -1,4 +1,5 @@
 import pygame as pg
+import os
 
 pg.init()
 
@@ -6,21 +7,21 @@ customSizeFont = lambda n : pg.font.SysFont('Alef', n)
 myFont = pg.font.SysFont('Alef', 25)
 bigFont = pg.font.SysFont('Alef', 40)
 
-sc_width = 1300
-sc_height = 1300
+sc_width = 1200
+sc_height = 1200
 
 bg = None
 
 level = 1
-level_max = 2
 
-edited_levels = 3
+number_of_levels = len(os.listdir('Levels/'))
+number_of_edited_levels = len(os.listdir('Edited_Levels/'))
 
 startx = sc_width // 10
 starty = 0
 
 tile_side = sc_width // 25
-player_side = sc_width // 30
+player_side = sc_width // 35
 
 scrolling_speed = sc_width // 140
 jump_height = -(tile_side / 2)
@@ -31,10 +32,22 @@ mode = 'level_selection'
 
 scrolling_forward = True
 
+def refresh_number_of_levels():
+    global number_of_levels, number_of_edited_levels
+    number_of_levels = len(os.listdir('Levels/'))
+    number_of_edited_levels = len(os.listdir('Edited_Levels/'))
 
 def load_sprite(sprite_name):
-    return pg.transform.scale(pg.image.load('Blocks_Sprites/' + sprite_name + '.png'), (tile_side, tile_side))
+    if sprite_name == 'player':
+        side = tile_side
+    else:
+        side = tile_side
+    return pg.transform.scale(pg.image.load('Blocks_Sprites/' + sprite_name + '.png'), (side, side))
 
+def load_background():
+    return pg.transform.scale(pg.image.load('black_background.png'), (sc_width, sc_height))
+
+background = load_background()
 
 def display_infos(screen: pg.Surface, x: int, y: int, *args):
     infos = "".join(args)
