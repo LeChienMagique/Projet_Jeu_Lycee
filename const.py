@@ -32,6 +32,13 @@ mode = 'level_selection'
 
 scrolling_forward = True
 
+def next_level():
+    global level
+    if number_of_levels <= level + 1:
+        level += 1
+        return True
+    return False
+
 def refresh_number_of_levels():
     global number_of_levels, number_of_edited_levels
     number_of_levels = len(os.listdir('Levels/'))

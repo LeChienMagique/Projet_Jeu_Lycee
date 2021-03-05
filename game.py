@@ -19,6 +19,8 @@ class Game:
         self.pause_menu = pg.sprite.Group()
 
         self.paused = False
+        self.level_ended = False
+        self.time_since_level_completion = 0
 
     def handle_keys(self):
         for e in pg.event.get():
@@ -28,16 +30,14 @@ class Game:
                 if e.button == 1:
                     self.pause_menu.update(pg.mouse.get_pos(), True)
             if e.type == pg.KEYDOWN:
-                if e.key == pg.K_ESCAPE:
-                    sys.exit()
-                elif e.key == pg.K_UP:
+                if e.key == pg.K_UP:
                     self.player.jump()
                 elif e.key == pg.K_r:
                     self.reset_level()
                 elif e.key == pg.K_e and const.previous_mode == 'editing':
                     self.change_mode('editing')
             elif e.type == pg.KEYUP:
-                if e.key == pg.K_o:
+                if e.key == pg.K_ESCAPE:
                     self.toggle_pause()
                 elif e.key == pg.K_f:
                     self.advance_frame()
@@ -86,16 +86,36 @@ class Game:
             for tile in self.tile_group:
                 tile.rect.y -= offset
 
+    def end_level(self):
+        self.level_ended = True
+
     def reset_level(self):
+        self.reset_all_vars()
+        self.load_level(const.level)
+
+    def reset_all_vars(self):
+        self.paused = False
+        self.level_ended = False
+        self.time_since_level_completion = 0
+        const.scrolling_forward = True
         self.player.rect.x = const.startx
         self.player.rect.y = const.starty
         self.player.dy = 0
-        const.scrolling_forward = True
-        self.load_level(const.level)
-        if self.paused:
-            self.toggle_pause()
+
+    def next_level(self):
+        self.reset_all_vars()
+        if const.previous_mode == 'playing' or const.previous_mode == 'level_selection':
+            if const.next_level():
+                self.load_level(const.level)
+                print(f'next level : {const.level}')
+            else:
+                self.change_mode('level_selection')
+        elif const.previous_mode == 'editing':
+            self.change_mode('editing')
 
     def load_level(self, n: int):
+        self.reset_all_vars()
+
         if const.previous_mode == 'editing':
             path = f"Edited_Levels/level_{n}.json"
         else:
@@ -117,8 +137,7 @@ class Game:
                                               self.tile_group)
 
     def change_mode(self, mode: str):
-        if self.paused:
-            self.toggle_pause()
+        self.reset_all_vars()
         const.change_mode(mode)
         self.running = False
 
@@ -141,14 +160,17 @@ class Game:
 
     def main(self, framerate: int):
         clock = pg.time.Clock()
-        self.player.rect.x = const.startx
-        self.player.rect.y = const.starty
-        self.player.dy = 0
-        const.scrolling_forward = True
+        self.reset_all_vars()
         self.make_pause_menu()
         while self.running:
-            clock.tick(framerate)
-            self.handle_keys()
+            if self.level_ended:
+                self.time_since_level_completion += clock.tick(framerate)
+                if self.time_since_level_completion > 1000:
+                    self.next_level()
+            else:
+                clock.tick(framerate)
+                self.handle_keys()
+
             if not self.paused:
                 self.player.handle_gravity()
                 self.align_cam_on_player_y()
@@ -190,7 +212,10 @@ class Player(pg.sprite.DirtySprite):
         self.colliding_right_flag = False
 
     def kill(self):
-        self.game.reset_level()
+        if not self.game.level_ended:
+            self.game.reset_level()
+        else:
+            self.game.next_level()
 
     def handle_gravity(self):
         """
@@ -230,6 +255,10 @@ class Player(pg.sprite.DirtySprite):
         """
         collidedS = pg.sprite.spritecollideany(self, self.game.tile_group)
         if collidedS is not None:
+            if isinstance(collidedS, ent.EndTile):
+                self.game.end_level()
+                return
+
             self.dy = 0
 
             if not const.scrolling_forward:
@@ -247,8 +276,7 @@ class Player(pg.sprite.DirtySprite):
                 if isinstance(collidedS, ent.Spike):
                     if not 's' in collidedS.side:
                         self.kill()
-                elif isinstance(collidedS, ent.EndTile):
-                    self.game.reset_level()
+
 
 
                 elif isinstance(collidedS, ent.Jumper):
@@ -265,7 +293,7 @@ class Player(pg.sprite.DirtySprite):
         collidedS = pg.sprite.spritecollideany(self, self.game.tile_group)
         if collidedS is not None:
             if isinstance(collidedS, ent.EndTile):
-                    self.game.reset_level()
+                    self.game.end_level()
                     return
 
             if const.scrolling_forward:

@@ -4,7 +4,6 @@ import const
 import LevelEditor
 import level_selection
 
-
 if __name__ == '__main__':
     screen = pg.display.set_mode((const.sc_width, const.sc_height))
     framerate = 60
@@ -23,7 +22,7 @@ if __name__ == '__main__':
             le.load_level(const.level)
             le.main(framerate)
         elif const.mode == 'level_selection':
-            pg.key.set_repeat(1,10)
+            pg.key.set_repeat(1, 10)
             le_select.running = True
             le_select.main(framerate)
 

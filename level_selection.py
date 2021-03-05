@@ -13,7 +13,6 @@ class LevelSelection:
         self.play_buttons = pg.sprite.Group()
         self.edit_buttons = pg.sprite.Group()
         self.mode = 'play'
-        self.make_gui()
 
     def create_button(self, group: str, x: int, y: int, w: int, h: int, rectColor: pg.Color, onHoverRectColor: pg.Color, callback,
                       **kwargs):
@@ -26,6 +25,10 @@ class LevelSelection:
             self.gui_buttons.add(new_button)
 
     def make_gui(self):
+        self.gui_buttons.empty()
+        self.play_buttons.empty()
+        self.edit_buttons.empty()
+
         button_width = const.sc_width / 4
         button_height = const.sc_height / 10
 
@@ -88,12 +91,13 @@ class LevelSelection:
             elif e.type == pg.MOUSEBUTTONDOWN:
                 if e.button == 1:
                     self.update_buttons_group(pg.mouse.get_pos(), True)
+                    pg.event.clear(pg.MOUSEBUTTONDOWN)
             elif e.type == pg.MOUSEMOTION:
                 self.update_buttons_group(pg.mouse.get_pos(), False)
 
     def main(self, framerate: int):
         clock = pg.time.Clock()
-        self.make_buttons()
+        self.make_gui()
         while self.running:
             clock.tick(framerate)
             self.handle_keys()
