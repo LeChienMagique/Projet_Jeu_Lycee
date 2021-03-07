@@ -111,9 +111,7 @@ class Game:
         self.level_ended = False
         self.time_since_level_completion = 0
         const.scrolling_forward = True
-        self.player.rect.x = const.startx
-        self.player.rect.y = const.starty
-        self.player.dy = 0
+        self.player.reset_pos_and_vars()
 
     def next_level(self):
         self.reset_all_vars()
@@ -338,3 +336,10 @@ class Player(pg.sprite.DirtySprite):
             self.dx = 1
         else:
             self.dx = 0
+
+    def reset_pos_and_vars(self):
+        self.rect.x = const.startx
+        self.rect.y = const.starty
+        self.dy = 0
+        self.onGround = True
+        self.colliding_right_flag = False

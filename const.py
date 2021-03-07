@@ -69,7 +69,7 @@ def load_sprite(sprite_name):
 
 
 def load_background():
-    return pg.transform.scale(pg.image.load('background.png'), (sc_width, sc_height))
+    return pg.transform.scale(pg.image.load('city_background.jpg'), (sc_width, sc_height))
 
 
 background = load_background()

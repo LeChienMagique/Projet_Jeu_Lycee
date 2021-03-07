@@ -17,6 +17,7 @@ class LevelEditor:
         self.tiles = pg.sprite.LayeredDirty()
         self.running = True
         self.building_tiles = ent.building_tiles
+        self.building_tiles_names = list(self.building_tiles.keys())
         self.selected_building_tile = "tile"
         self.grid = self.create_grid_background()
         self.gui = self.make_gui()
@@ -119,9 +120,11 @@ class LevelEditor:
             if mouse_buttons[0]:
                 self.check_buttons(True)
                 self.try_place_block_at_mouse(pg.mouse.get_pos())
+                return
             elif mouse_buttons[2]:
                 self.delete_block_at(self.get_square_on_pos(pg.mouse.get_pos())[2:])
-            elif e.type == pg.MOUSEMOTION:
+
+            if e.type == pg.MOUSEMOTION:
                 self.check_buttons(False)
             elif e.type == pg.KEYDOWN:
                 if e.key == pg.K_z:
@@ -136,6 +139,26 @@ class LevelEditor:
                     self.change_mode('playing')
                 elif e.key == pg.K_ESCAPE:
                     self.change_mode('level_selection')
+                elif e.key == pg.K_1:
+                    self.change_selected_building_tile(self.building_tiles_names[0])
+                elif e.key == pg.K_2:
+                    self.change_selected_building_tile(self.building_tiles_names[1])
+                elif e.key == pg.K_3:
+                    self.change_selected_building_tile(self.building_tiles_names[2])
+                elif e.key == pg.K_4:
+                    self.change_selected_building_tile(self.building_tiles_names[3])
+                elif e.key == pg.K_5:
+                    self.change_selected_building_tile(self.building_tiles_names[4])
+                elif e.key == pg.K_6:
+                    self.change_selected_building_tile(self.building_tiles_names[5])
+                elif e.key == pg.K_7:
+                    self.change_selected_building_tile(self.building_tiles_names[6])
+                elif e.key == pg.K_8:
+                    self.change_selected_building_tile(self.building_tiles_names[7])
+                elif e.key == pg.K_9:
+                    self.change_selected_building_tile(self.building_tiles_names[8])
+                elif e.key == pg.K_0:
+                    self.change_selected_building_tile(self.building_tiles_names[9])
 
     def highlight_square(self, mousepos):
         squarex, squarey = self.get_square_on_pos(mousepos)[0:2]
@@ -159,9 +182,9 @@ class LevelEditor:
         """
         gui_surf = pg.Surface((self.sc.get_width(), 8 * self.grid_square_side))
         gui_surf.fill(pg.Color(255, 255, 255))
-        tiles_sprites = list(self.building_tiles.keys())
+        tiles_sprites = self.building_tiles_names
         ind = 0
-        # Crée un bouton pour chaque tile existente
+        # Crée un bouton pour chaque tile existante
         for y in range(16, 22, 2):
             for x in range(0, 20, 2):
                 if ind >= len(tiles_sprites):
