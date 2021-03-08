@@ -23,9 +23,8 @@ class LevelEditor:
         self.gui = self.make_gui()
         self.level = {}
 
-    def create_grid_background(self) -> pg.Surface:
+    def create_grid_background(self):
         back = pg.Surface((25 * self.grid_square_side, 16 * self.grid_square_side))
-        # back.fill(pg.Color(0, 0, 0))
         self.draw_grid(back)
         return back
 
@@ -117,8 +116,11 @@ class LevelEditor:
                 sys.exit()
             mouse_buttons = pg.mouse.get_pressed(3)
             if mouse_buttons[0]:
-                self.check_buttons(True)
                 self.try_place_block_at_mouse(pg.mouse.get_pos())
+                if self.running:
+                    self.check_buttons(True)
+                else:
+                    return
             elif mouse_buttons[2]:
                 self.delete_block_at(self.get_square_on_pos(pg.mouse.get_pos())[2:])
 
@@ -135,10 +137,8 @@ class LevelEditor:
                     self.scroll_level(1, 0)
                 elif e.key == pg.K_p:
                     self.change_mode('playing')
-                    return
                 elif e.key == pg.K_ESCAPE:
                     self.change_mode('level_selection')
-                    return
                 elif e.key == pg.K_1:
                     self.change_selected_building_tile(self.building_tiles_names[0])
                 elif e.key == pg.K_2:
@@ -228,6 +228,8 @@ class LevelEditor:
             tile.rect.y += dy * self.grid_square_side
         self.worldx -= dx
         self.worldy += dy
+        if dx != 0:
+            self.background_group.update(forward=dx < 0, ntimes=7)
 
     def save_level(self):
         with open(f'Edited_Levels/level_{const.level}.json', 'w') as j:
@@ -256,9 +258,8 @@ class LevelEditor:
             clock.tick(framerate)
             self.handle_keys()
 
-            self.background_group.draw(self.sc)
-            self.sc.blit(self.grid, (0, 0),
-                         pg.rect.Rect(0, 0, self.sc.get_width(), 16 * self.grid_square_side))
+            self.background_group.draw(self.grid)
+            self.sc.blit(self.grid, (0, 0), pg.rect.Rect(0, 0, self.sc.get_width(), 16 * self.grid_square_side))
             self.ghost_selected_tile_on_cursor(pg.mouse.get_pos())
 
             self.tiles.update()
@@ -268,3 +269,11 @@ class LevelEditor:
                                 f"wx : {self.worldx}, wy : {self.worldy}, mouse : {pg.mouse.get_pos()}, selected square : "
                                 f"{self.get_square_on_pos(pg.mouse.get_pos())}")
             pg.display.flip()
+
+
+class Grid(pg.sprite.Sprite):
+    def __init__(self, layer: int, image: pg.Surface):
+        super().__init__()
+        self._layer = layer
+        self.image = image
+        self.rect = self.image.get_rect()

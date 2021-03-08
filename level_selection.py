@@ -87,6 +87,9 @@ class LevelSelection:
         for e in pg.event.get():
             if e.type == pg.QUIT:
                 sys.exit()
+            elif e.type == pg.KEYDOWN:
+                if e.key == pg.K_ESCAPE:
+                    sys.exit()
             elif e.type == pg.MOUSEBUTTONDOWN:
                 if e.button == 1:
                     self.update_buttons_group(pg.mouse.get_pos(), True)

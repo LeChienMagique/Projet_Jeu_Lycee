@@ -16,9 +16,9 @@
   },
   "7": {
     "12": "tile",
-    "4": "spike_nw",
     "6": "spike_sw",
-    "5": "spike_w"
+    "5": "spike_w",
+    "4": "spike_nw"
   },
   "8": {
     "12": "tile",

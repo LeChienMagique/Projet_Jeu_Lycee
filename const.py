@@ -92,18 +92,18 @@ class BackgroundLayer(pg.sprite.Sprite):
         super().__init__()
         self.image = image
         self.rect = self.image.get_rect()
-        self.rect.x = sc_width * number
+        self.rect.left = sc_width * number
         self.rect.bottom = sc_height
         self._layer = layer
-        self.scrolling_speed = layer * (scrolling_speed / 3)
+        self.scrolling_speed = layer * (scrolling_speed / 4)
 
-    def update(self) -> None:
-        if scrolling_forward:
-            self.rect.x -= self.scrolling_speed
+    def update(self, ntimes=1, forward=True) -> None:
+        if scrolling_forward and forward:
+            self.rect.x -= self.scrolling_speed * ntimes
             if self.rect.right <= 0:
                 self.rect.left = sc_width
         else:
-            self.rect.x += self.scrolling_speed
+            self.rect.x += self.scrolling_speed * ntimes
             if self.rect.left >= sc_width:
                 self.rect.right = 0
 
@@ -113,21 +113,18 @@ def make_background_group():
     sprites = []
     path = os.path.join('Backgrounds', 'industrial_layers')
     images = []
+    max_height = -1
     for file in os.listdir(path):
         image = pg.image.load(os.path.join(path, file)).convert_alpha(screen)
+        max_height = max(image.get_height(), max_height)
         layer = int(os.path.splitext(file)[0])
         images.append((image, layer))
 
-    biggest_height = 0
+    ratio = sc_height / max_height
     for image in images:
-        if (img_height := image[0].get_height()) > biggest_height:
-            biggest_height = img_height
-
-    for image in images:
-        ratio = image[0].get_height() / image[0].get_width()
-        height_ratio = biggest_height / image[0].get_height()
-        new_width = int(sc_width)
-        new_height = int(new_width * ratio)
+        image[0]: pg.Surface
+        new_width = int(image[0].get_width() * ratio)
+        new_height = int(image[0].get_height() * ratio)
 
         scaled_img = pg.transform.scale(image[0], (new_width, new_height))
 

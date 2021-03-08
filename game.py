@@ -60,6 +60,7 @@ class Game:
         self.paused = not self.paused
 
     def make_pause_menu(self):
+        self.pause_menu.empty()
         button_w = const.sc_width // 3
         button_h = const.sc_height // 6
         button_x = const.sc_width // 2 - button_w // 2
@@ -153,7 +154,6 @@ class Game:
                                               self.tile_group)
 
     def change_mode(self, mode: str):
-        print('changed mode from playing')
         self.reset_all_vars()
         const.change_mode(mode)
         self.running = False
@@ -199,13 +199,18 @@ class Game:
                 self.player.handle_x_axis_collisions()
                 self.player.handle_x_offset()
 
+                self.backround_group.update()
+
             # self.sc.fill((0, 0, 0))
             # self.sc.blit(self.background, (0, 0), pg.Rect(0, 0, const.sc_width, const.sc_height))
-            self.backround_group.update()
-            self.sc.fill((0, 0, 0))
+
             self.backround_group.draw(self.sc)
-            const.display_infos(self.sc, 15, 15,
-                                f"x : {self.player.rect.x}, y : {self.player.rect.y}, dy : {round(self.player.dy, 1)}, dx : {self.player.dx}, onGround : {self.player.onGround}")
+            """
+            const.display_infos(self.sc, 15, 15,f"x : {self.player.rect.x}, y : {self.player.rect.y}, "
+                                                f"dy : {round(self.player.dy, 1)}, dx : {self.player.dx}, "
+                                                f"onGround : {self.player.onGround}")
+            """
+            const.display_infos(self.sc, 15, 15, str(clock.get_fps()))
             self.player_group.draw(self.sc)
             self.tile_group.draw(self.sc)
             if self.paused:
