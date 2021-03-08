@@ -5,7 +5,7 @@ import LevelEditor
 import level_selection
 
 if __name__ == '__main__':
-    screen = pg.display.set_mode((const.sc_width, const.sc_height))
+    screen = const.screen
     framerate = 60
     g = game.Game(screen)
     le = LevelEditor.LevelEditor(screen)

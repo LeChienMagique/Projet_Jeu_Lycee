@@ -3,12 +3,13 @@ import os
 
 pg.init()
 
+sc_width = 1200
+sc_height = 1200
+screen = pg.display.set_mode((sc_width, sc_height))
+
 customSizeFont = lambda n: pg.font.SysFont('Alef', n)
 myFont = pg.font.SysFont('Alef', 25)
 bigFont = pg.font.SysFont('Alef', 60)
-
-sc_width = 1200
-sc_height = 1200
 
 bg = None
 
@@ -68,13 +69,6 @@ def load_sprite(sprite_name):
     return pg.transform.scale(pg.image.load('Blocks_Sprites/' + sprite_name + '.png'), (side, side))
 
 
-def load_background():
-    return pg.transform.scale(pg.image.load('city_background.jpg'), (sc_width, sc_height))
-
-
-background = load_background()
-
-
 def display_infos(screen: pg.Surface, x: int, y: int, *args):
     infos = "".join(args)
     textsurf = myFont.render(infos, True, (255, 255, 255))
@@ -91,6 +85,44 @@ def change_mode(mode_name: str):
         mode = 'playing'
     elif mode_name == 'level_selection':
         mode = 'level_selection'
+
+
+class BackgroundLayer(pg.sprite.Sprite):
+    def __init__(self, layer: int, number: int, image: pg.Surface):
+        super().__init__()
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.x = sc_width * number
+        self._layer = layer
+        self.scrolling_speed = layer * (scrolling_speed / 3)
+
+    def update(self, worldx) -> None:
+        if scrolling_forward:
+            self.rect.x -= self.scrolling_speed
+            if self.rect.right <= 0:
+                self.rect.left = sc_width
+        else:
+            self.rect.x += self.scrolling_speed
+            if self.rect.left >= sc_width:
+                self.rect.right = 0
+
+
+def make_background_group():
+    # return pg.transform.scale(pg.image.load('city.png'), (sc_width, sc_height))
+    sprites = []
+    path = os.path.join('Backgrounds', 'industrial_layers')
+    layers = {int(os.path.splitext(file)[0]): pg.image.load(os.path.join(path, file)).convert_alpha(screen) for file in os.listdir(path)}
+    for layer, image in layers.items():
+        image: pg.Surface
+        ratio = image.get_height() / image.get_width()
+        new_width = int(sc_width)
+        new_height = int(new_width * ratio)
+        layers[layer] = pg.transform.scale(image, (new_width, new_height))
+        sprites.extend([BackgroundLayer(layer, 0, layers[layer]), BackgroundLayer(layer, 1, layers[layer])])
+    return sprites
+
+
+background = make_background_group()
 
 
 class Button(pg.sprite.Sprite):

@@ -9,13 +9,14 @@ class Game:
     def __init__(self, screen: pg.Surface):
         self.running = True
         self.sc = screen
-        self.background = const.background
+        self.worldx = 0
         self.player = Player(self)
         self.player.rect.x = const.startx
         self.player.rect.y = const.starty
 
         self.player_group = pg.sprite.GroupSingle(self.player)
         self.tile_group = pg.sprite.LayeredDirty()
+        self.backround_group = pg.sprite.LayeredUpdates(const.background)
         self.pause_menu = pg.sprite.Group()
 
         self.paused = False
@@ -76,9 +77,12 @@ class Game:
         if forward:
             for tile in self.tile_group:
                 tile.rect.x -= const.scrolling_speed
+            self.worldx += const.scrolling_speed
+
         else:
             for tile in self.tile_group:
                 tile.rect.x += const.scrolling_speed
+            self.worldx -= const.scrolling_speed
 
     def align_cam_on_player_y(self):
         """
@@ -111,6 +115,7 @@ class Game:
         self.level_ended = False
         self.time_since_level_completion = 0
         const.scrolling_forward = True
+        self.worldx = 0
         self.player.reset_pos_and_vars()
 
     def next_level(self):
@@ -195,7 +200,10 @@ class Game:
                 self.player.handle_x_offset()
 
             # self.sc.fill((0, 0, 0))
-            self.sc.blit(self.background, (0, 0))
+            # self.sc.blit(self.background, (0, 0), pg.Rect(0, 0, const.sc_width, const.sc_height))
+            self.backround_group.update(self.worldx)
+            self.sc.fill((0, 0, 0))
+            self.backround_group.draw(self.sc)
             const.display_infos(self.sc, 15, 15,
                                 f"x : {self.player.rect.x}, y : {self.player.rect.y}, dy : {round(self.player.dy, 1)}, dx : {self.player.dx}, onGround : {self.player.onGround}")
             self.player_group.draw(self.sc)
