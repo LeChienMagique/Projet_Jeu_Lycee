@@ -119,7 +119,6 @@ class LevelEditor:
             if mouse_buttons[0]:
                 self.check_buttons(True)
                 self.try_place_block_at_mouse(pg.mouse.get_pos())
-                return
             elif mouse_buttons[2]:
                 self.delete_block_at(self.get_square_on_pos(pg.mouse.get_pos())[2:])
 
@@ -136,8 +135,10 @@ class LevelEditor:
                     self.scroll_level(1, 0)
                 elif e.key == pg.K_p:
                     self.change_mode('playing')
+                    return
                 elif e.key == pg.K_ESCAPE:
                     self.change_mode('level_selection')
+                    return
                 elif e.key == pg.K_1:
                     self.change_selected_building_tile(self.building_tiles_names[0])
                 elif e.key == pg.K_2:

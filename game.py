@@ -201,7 +201,7 @@ class Game:
 
             # self.sc.fill((0, 0, 0))
             # self.sc.blit(self.background, (0, 0), pg.Rect(0, 0, const.sc_width, const.sc_height))
-            self.backround_group.update(self.worldx)
+            self.backround_group.update()
             self.sc.fill((0, 0, 0))
             self.backround_group.draw(self.sc)
             const.display_infos(self.sc, 15, 15,

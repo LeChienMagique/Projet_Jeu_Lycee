@@ -93,10 +93,11 @@ class BackgroundLayer(pg.sprite.Sprite):
         self.image = image
         self.rect = self.image.get_rect()
         self.rect.x = sc_width * number
+        self.rect.bottom = sc_height
         self._layer = layer
         self.scrolling_speed = layer * (scrolling_speed / 3)
 
-    def update(self, worldx) -> None:
+    def update(self) -> None:
         if scrolling_forward:
             self.rect.x -= self.scrolling_speed
             if self.rect.right <= 0:
@@ -111,14 +112,26 @@ def make_background_group():
     # return pg.transform.scale(pg.image.load('city.png'), (sc_width, sc_height))
     sprites = []
     path = os.path.join('Backgrounds', 'industrial_layers')
-    layers = {int(os.path.splitext(file)[0]): pg.image.load(os.path.join(path, file)).convert_alpha(screen) for file in os.listdir(path)}
-    for layer, image in layers.items():
-        image: pg.Surface
-        ratio = image.get_height() / image.get_width()
+    images = []
+    for file in os.listdir(path):
+        image = pg.image.load(os.path.join(path, file)).convert_alpha(screen)
+        layer = int(os.path.splitext(file)[0])
+        images.append((image, layer))
+
+    biggest_height = 0
+    for image in images:
+        if (img_height := image[0].get_height()) > biggest_height:
+            biggest_height = img_height
+
+    for image in images:
+        ratio = image[0].get_height() / image[0].get_width()
+        height_ratio = biggest_height / image[0].get_height()
         new_width = int(sc_width)
         new_height = int(new_width * ratio)
-        layers[layer] = pg.transform.scale(image, (new_width, new_height))
-        sprites.extend([BackgroundLayer(layer, 0, layers[layer]), BackgroundLayer(layer, 1, layers[layer])])
+
+        scaled_img = pg.transform.scale(image[0], (new_width, new_height))
+
+        sprites.extend([BackgroundLayer(image[1], 0, scaled_img), BackgroundLayer(image[1], 1, scaled_img)])
     return sprites
 
 
