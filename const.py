@@ -66,7 +66,8 @@ def load_sprite(sprite_name):
         side = tile_side
     else:
         side = tile_side
-    return pg.transform.scale(pg.image.load('Blocks_Sprites/' + sprite_name + '.png'), (side, side))
+    path = os.path.join('Blocks_Sprites', sprite_name + '.png')
+    return pg.transform.scale(pg.image.load(path), (side, side))
 
 
 def display_infos(screen: pg.Surface, x: int, y: int, *args):

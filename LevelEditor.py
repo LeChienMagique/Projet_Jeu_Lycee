@@ -22,6 +22,8 @@ class LevelEditor:
         self.grid = self.create_grid_background()
         self.gui = self.make_gui()
         self.level = {}
+        self.editing_text = False
+        self.input_text = ''
 
     def create_grid_background(self):
         back = pg.Surface((25 * self.grid_square_side, 16 * self.grid_square_side))
@@ -70,7 +72,19 @@ class LevelEditor:
         if square_screeny < self.grid.get_rect().bottom:
             self.place_block_at(world_x, world_y, self.selected_building_tile)
 
-    def place_block_at(self, world_x: int, world_y: int, tile_type: str):
+    def prompt_info_block_box(self):
+        self.editing_text = True
+        pg.key.set_repeat(150, 100)
+        text_input = pg.Rect(const.sc_width // 8, const.sc_height // 8, 3 * const.sc_width // 4, const.sc_height // 6)
+        while self.editing_text:
+            self.handle_keys()
+            pg.draw.rect(self.sc, (150, 150, 150), text_input)
+            txt_surf = const.myFont.render(self.input_text, True, (255, 255, 255))
+            self.sc.blit(txt_surf, (text_input.left + 5, text_input.top + 5))
+            pg.display.update(text_input)
+        pg.key.set_repeat(75, 75)
+
+    def place_block_at(self, world_x: int, world_y: int, tile_type: str, info_block_text=''):
         """
         Place un bloc au coord données
         :param world_x:
@@ -78,11 +92,13 @@ class LevelEditor:
         :param tile_type:
         :return:
         """
-        screen_x, screen_y = ((world_x - self.worldx) * self.grid_square_side + 1), (
-                (world_y + self.worldy) * self.grid_square_side + 1)
-        new_tile = self.building_tiles[tile_type](screen_x, screen_y, world_x, world_y, group=self.tiles, editing=True)
-        for collidingS in pg.sprite.spritecollide(new_tile, self.tiles,
-                                                  False):  # Empêche que plusieures tiles soit à la même position.
+        if tile_type == 'info_block' and info_block_text == '':
+            self.prompt_info_block_box()
+            info_block_text = self.input_text
+
+        screen_x, screen_y = ((world_x - self.worldx) * self.grid_square_side + 1), ((world_y + self.worldy) * self.grid_square_side + 1)
+        new_tile = self.building_tiles[tile_type](screen_x, screen_y, world_x, world_y, group=self.tiles, editing=True, text=info_block_text)
+        for collidingS in pg.sprite.spritecollide(new_tile, self.tiles, False):  # Empêche que plusieures tiles soit à la même position.
             if collidingS != new_tile:
                 collidingS.kill()
         if not str(world_x) in self.level:
@@ -90,8 +106,11 @@ class LevelEditor:
         else:
             self.level[str(world_x)][str(world_y)] = tile_type
 
-    def pos_in_building_area(self, x: int, y: int):
-        return x < (self.worldx + 24) and y < (self.worldy + 16)
+        if tile_type == 'info_block':
+            if 'info_blocks' not in self.level:
+                self.level['info_blocks'] = {str(world_x): {str(world_y): info_block_text}}
+            if str(world_x) not in self.level['info_blocks']:
+                self.level['info_blocks'][str(world_x)] = {str(world_y): info_block_text}
 
     def delete_block_at(self, position):
         """
@@ -114,6 +133,18 @@ class LevelEditor:
         for e in pg.event.get():
             if e.type == pg.QUIT:
                 sys.exit()
+            if self.editing_text and e.type == pg.KEYDOWN:
+                if e.key == pg.K_ESCAPE:
+                    self.editing_text = False
+                    # self.input_text = ''
+                elif e.key == pg.K_BACKSPACE:
+                    self.input_text = self.input_text[:-1]
+                elif e.key == pg.K_RETURN:
+                    self.input_text += '\n'
+                else:
+                    self.input_text += e.unicode
+                return
+
             mouse_buttons = pg.mouse.get_pressed(3)
             if mouse_buttons[0]:
                 self.try_place_block_at_mouse(pg.mouse.get_pos())
@@ -249,8 +280,13 @@ class LevelEditor:
         tile_type: str
 
         for x, col in lvl_design.items():
+            if x == 'info_blocks':
+                continue
             for y, tile_type in col.items():
-                self.place_block_at(int(x), int(y), tile_type)
+                if tile_type == 'info_block':
+                    self.place_block_at(int(x), int(y), tile_type, info_block_text=lvl_design['info_blocks'][str(x)][str(y)])
+                else:
+                    self.place_block_at(int(x), int(y), tile_type)
 
     def main(self, framerate: int):
         clock = pg.time.Clock()
@@ -258,16 +294,17 @@ class LevelEditor:
             clock.tick(framerate)
             self.handle_keys()
 
-            self.background_group.draw(self.grid)
-            self.sc.blit(self.grid, (0, 0), pg.rect.Rect(0, 0, self.sc.get_width(), 16 * self.grid_square_side))
-            self.ghost_selected_tile_on_cursor(pg.mouse.get_pos())
+            if not self.editing_text:
+                self.background_group.draw(self.grid)
+                self.sc.blit(self.grid, (0, 0), pg.rect.Rect(0, 0, self.sc.get_width(), 16 * self.grid_square_side))
+                self.ghost_selected_tile_on_cursor(pg.mouse.get_pos())
 
-            self.tiles.update()
-            self.tiles.draw(self.sc)
-            self.buttons.draw(self.sc)
-            const.display_infos(self.sc, 15, 15,
-                                f"wx : {self.worldx}, wy : {self.worldy}, mouse : {pg.mouse.get_pos()}, selected square : "
-                                f"{self.get_square_on_pos(pg.mouse.get_pos())}")
+                self.tiles.update()
+                self.tiles.draw(self.sc)
+                self.buttons.draw(self.sc)
+                const.display_infos(self.sc, 15, 15,
+                                    f"wx : {self.worldx}, wy : {self.worldy}, mouse : {pg.mouse.get_pos()}, selected square : "
+                                    f"{self.get_square_on_pos(pg.mouse.get_pos())}")
             pg.display.flip()
 
 

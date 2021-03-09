@@ -20,6 +20,8 @@ class Game:
         self.pause_menu = pg.sprite.Group()
 
         self.paused = False
+        self.info_block_pause = False
+        self.info_block_text = ''
         self.level_ended = False
         self.time_since_level_completion = 0
 
@@ -46,6 +48,7 @@ class Game:
                         self.advance_frame()
 
             elif e.type == pg.KEYDOWN:
+                self.info_block_pause = False
                 if e.key == pg.K_UP:
                     self.player.jump()
                 elif e.key == pg.K_r:
@@ -55,6 +58,10 @@ class Game:
             elif e.type == pg.KEYUP:
                 if e.key == pg.K_ESCAPE:
                     self.toggle_pause()
+
+    def draw_info_block_text(self):
+        textsurf = const.myFont.render(self.info_block_text, True, pg.Color(255, 255, 255))
+        self.sc.blit(textsurf, (const.sc_width // 2 - textsurf.get_rect().width // 2, const.sc_height // 10))
 
     def toggle_pause(self):
         self.paused = not self.paused
@@ -149,9 +156,14 @@ class Game:
         tile_type: str
 
         for x, col in lvl_design.items():
+            if x == 'info_blocks':
+                continue
             for y, tile_type in col.items():
-                ent.building_tiles[tile_type](int(x) * const.tile_side, int(y) * const.tile_side, int(x), int(y),
-                                              self.tile_group)
+                if tile_type == 'info_block':
+                    ent.building_tiles[tile_type](int(x) * const.tile_side, int(y) * const.tile_side, int(x), int(y), self.tile_group,
+                                                  text=lvl_design['info_blocks'][str(x)][str(y)])
+                else:
+                    ent.building_tiles[tile_type](int(x) * const.tile_side, int(y) * const.tile_side, int(x), int(y), self.tile_group)
 
     def change_mode(self, mode: str):
         self.reset_all_vars()
@@ -189,7 +201,7 @@ class Game:
 
             self.handle_keys()
 
-            if not self.paused:
+            if not self.paused and not self.info_block_pause:
                 self.player.handle_gravity()
                 self.align_cam_on_player_y()
                 self.player.tick_movement()
@@ -217,6 +229,9 @@ class Game:
                 self.pause_menu.draw(self.sc)
                 textsurf = const.bigFont.render('PAUSE', True, pg.Color(255, 255, 255))
                 self.sc.blit(textsurf, (const.sc_width // 2 - textsurf.get_rect().width // 2, const.sc_height // 10))
+            elif self.info_block_pause:
+                self.draw_info_block_text()
+
             pg.display.flip()
 
 
@@ -293,6 +308,10 @@ class Player(pg.sprite.DirtySprite):
                 if isinstance(collidedS, ent.Spike):
                     if not 'n' in collidedS.side:
                         self.kill()
+                elif isinstance(collidedS, ent.InfoBlock):
+                    self.game.info_block_pause = True
+                    self.game.info_block_text = collidedS.text
+                    print('Some informations')
 
             elif collidedS.rect.top < self.rect.bottom < collidedS.rect.bottom:  # Quand le joueur aterri sur une Tile
                 self.rect.bottom = collidedS.rect.top

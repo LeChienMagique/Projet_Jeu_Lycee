@@ -1,4 +1,12 @@
 {
+  "info_blocks": {
+    "16": {
+      "7": "Some useful informations..."
+    },
+    "12": {
+      "8": "cacacacacacacaaccc"
+    }
+  },
   "0": {
     "12": "tile"
   },
@@ -39,7 +47,8 @@
     "12": "tile"
   },
   "12": {
-    "12": "tile"
+    "12": "tile",
+    "8": "info_block"
   },
   "13": {
     "12": "tile"
