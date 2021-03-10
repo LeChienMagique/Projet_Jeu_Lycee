@@ -23,7 +23,9 @@ class Game:
         self.info_block_pause = False
         self.info_block_text = ''
         self.level_ended = False
-        self.time_since_level_completion = 0
+
+        self.timer = 0
+        self.timer_active = False
 
     def handle_keys(self):
         for e in pg.event.get():
@@ -48,8 +50,11 @@ class Game:
                         self.advance_frame()
 
             elif e.type == pg.KEYDOWN:
-                self.info_block_pause = False
-                if e.key == pg.K_UP:
+                if self.info_block_pause:
+                    if self.timer > 1000:
+                        self.info_block_pause = False
+                        self.stop_timer()
+                elif e.key == pg.K_UP:
                     self.player.jump()
                 elif e.key == pg.K_r:
                     self.reset_level()
@@ -58,6 +63,14 @@ class Game:
             elif e.type == pg.KEYUP:
                 if e.key == pg.K_ESCAPE:
                     self.toggle_pause()
+
+    def start_timer(self):
+        self.timer_active = True
+        self.timer = 0
+
+    def stop_timer(self):
+        self.timer_active = False
+        self.timer = 0
 
     def draw_info_block_text(self):
         textsurf = const.myFont.render(self.info_block_text, True, pg.Color(255, 255, 255))
@@ -113,6 +126,7 @@ class Game:
 
     def end_level(self):
         self.level_ended = True
+        self.timer_active = False
 
     def reset_level(self):
         self.reset_all_vars()
@@ -121,7 +135,8 @@ class Game:
     def reset_all_vars(self):
         self.paused = False
         self.level_ended = False
-        self.time_since_level_completion = 0
+        self.timer = 0
+        self.timer_active = False
         const.scrolling_forward = True
         self.worldx = 0
         self.player.reset_pos_and_vars()
@@ -156,12 +171,12 @@ class Game:
         tile_type: str
 
         for x, col in lvl_design.items():
-            if x == 'info_blocks':
+            if x == 'info_block_text':
                 continue
             for y, tile_type in col.items():
                 if tile_type == 'info_block':
                     ent.building_tiles[tile_type](int(x) * const.tile_side, int(y) * const.tile_side, int(x), int(y), self.tile_group,
-                                                  text=lvl_design['info_blocks'][str(x)][str(y)])
+                                                  text=lvl_design['info_block_text'][str(x)][str(y)])
                 else:
                     ent.building_tiles[tile_type](int(x) * const.tile_side, int(y) * const.tile_side, int(x), int(y), self.tile_group)
 
@@ -192,12 +207,11 @@ class Game:
         self.reset_all_vars()
         self.make_pause_menu()
         while self.running:
+            self.timer += clock.tick(framerate) * self.timer_active
+
             if self.level_ended:
-                self.time_since_level_completion += clock.tick(framerate)
-                if self.time_since_level_completion > 1000:
+                if self.timer > 1000:
                     self.next_level()
-            else:
-                clock.tick(framerate)
 
             self.handle_keys()
 
@@ -283,7 +297,7 @@ class Player(pg.sprite.DirtySprite):
         self.rect.y += self.dy
 
         if self.rect.y > const.sc_height:
-            self.rect.y = 0
+            self.kill()
         if self.rect.x < 0:
             self.kill()
 
@@ -310,23 +324,23 @@ class Player(pg.sprite.DirtySprite):
                         self.kill()
                 elif isinstance(collidedS, ent.InfoBlock):
                     self.game.info_block_pause = True
+                    self.game.start_timer()
                     self.game.info_block_text = collidedS.text
-                    print('Some informations')
 
             elif collidedS.rect.top < self.rect.bottom < collidedS.rect.bottom:  # Quand le joueur aterri sur une Tile
                 self.rect.bottom = collidedS.rect.top
                 self.onGround = True
-                if isinstance(collidedS, ent.Spike):
-                    if not 's' in collidedS.side:
-                        self.kill()
 
-
-
-                elif isinstance(collidedS, ent.Jumper):
-                    self.dy = const.jump_height * 1.4
-                elif isinstance(collidedS, ent.BackwardPusher):
-                    self.dy = const.jump_height * 1.4
-                    const.scrolling_forward = False
+                if collidedS.rect.left < self.rect.centerx:
+                    if isinstance(collidedS, ent.Spike):
+                        if not 's' in collidedS.side:
+                            self.kill()
+                    elif isinstance(collidedS, ent.Jumper):
+                        self.dy = const.jump_height * 1.4
+                    elif isinstance(collidedS, ent.BackwardPusher):
+                        print(collidedS.x, collidedS.y)
+                        self.dy = const.jump_height * 1.4
+                        const.scrolling_forward = False
 
     def handle_x_axis_collisions(self):
         """
