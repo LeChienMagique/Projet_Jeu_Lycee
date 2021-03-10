@@ -4,7 +4,8 @@ Fait avec Python 3.8
 
 Projet NSI lycée. Petit jeu de platforming en auto-scrolling
 
-EN JEU:
+### EN JEU:
+
 Echap : met le jeu en pause
 
 Fleche haut : sauter
@@ -13,7 +14,7 @@ R : recommencer le niveau
 
 E (si dans un niveau éditable) : passe en mode édition
 
-EN PAUSE:
+### EN PAUSE:
 bouton quitter : reviens à la selection des niveaux
 
 bouton editer (si dans un niveau éditable): passe en mode édition
@@ -24,7 +25,7 @@ bouton reprendre : arrete la pause
 
 F (debug) : avance de 1 frame
 
-EN EDITION:
+### EN EDITION:
 Z Q S D pour se déplacer
 
 clic gauche : pose le bloc selectionné
