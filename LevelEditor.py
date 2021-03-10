@@ -18,6 +18,7 @@ class LevelEditor:
         self.tiles = pg.sprite.LayeredDirty()
         self.info_block_editor = pg.sprite.Group()
         self.info_block_editor_text_input_dims = [3 * self.grid_square_side, 2 * self.grid_square_side, 19 * self.grid_square_side, 9 * self.grid_square_side]
+        self.confirm_delete_level_menu = pg.sprite.Group()
 
         self.running = True
         self.building_tiles = ent.building_tiles
@@ -28,6 +29,9 @@ class LevelEditor:
         self.level = {}
         self.info_block_editor_active = False
         self.input_text = ''
+
+        self.confirm_delete_level_active = False
+        self.make_delete_confirm_menu()
 
     def create_grid_background(self):
         back = pg.Surface((25 * self.grid_square_side, 16 * self.grid_square_side))
@@ -168,8 +172,18 @@ class LevelEditor:
 
     def handle_keys(self):
         for e in pg.event.get():
-            if e.type == pg.QUIT:
-                sys.exit()
+
+            if e.type == pg.WINDOWEVENT:
+                if e.event == 14:
+                    sys.exit()
+
+            if self.confirm_delete_level_active:
+                if e.type == pg.MOUSEMOTION:
+                    self.confirm_delete_level_menu.update(pg.mouse.get_pos(), False)
+                elif e.type == pg.MOUSEBUTTONDOWN:
+                    self.confirm_delete_level_menu.update(pg.mouse.get_pos(), True)
+                return
+
             if self.info_block_editor_active:
                 if e.type == pg.KEYDOWN:
                     if e.key == pg.K_ESCAPE:
@@ -275,14 +289,28 @@ class LevelEditor:
         self.create_button(20, 22, 4, 2, pg.Color(150, 0, 255), pg.Color(50, 0, 175), lambda: self.change_mode('level_selection'), text='Quitter',
                            textColor=pg.Color(0, 0, 0))
 
-        self.create_button(20, 20, 4, 2, pg.Color(255, 0, 0), pg.Color(255, 75, 0), lambda: self.delete_level(), text='Suppr level',
+        self.create_button(20, 20, 4, 2, pg.Color(255, 0, 0), pg.Color(255, 75, 0), lambda: self.prompt_confirm_delete_level(), text='Suppr level',
                            textColor=pg.Color(0, 0, 0))
 
         return gui_surf
 
-    def delete_level(self):
-        const.delete_edited_level()
-        self.change_mode('level_selection', save=False)
+    def make_delete_confirm_menu(self):
+        self.create_button(5, 8, 5, 3, pg.Color(255, 0, 0), pg.Color(150, 0, 0), lambda: self.delete_level(), text='Oui', textColor=pg.Color(0, 0, 0),
+                           group=self.confirm_delete_level_menu)
+        self.create_button(13, 8, 5, 3, pg.Color(0, 255, 0), pg.Color(0, 150, 0), lambda: self.delete_level(cancel=True),
+                           text='Non', textColor=pg.Color(0, 0, 0), group=self.confirm_delete_level_menu)
+
+    def prompt_confirm_delete_level(self):
+        self.confirm_delete_level_active = True
+        const.display_infos(self.sc, const.sc_width // 4, const.sc_height // 4, "Voulez-vous vraiment supprimer le niveau ?")
+
+    def delete_level(self, cancel=False):
+        if not cancel:
+            const.delete_edited_level()
+            self.change_mode('level_selection', save=False)
+            self.confirm_delete_level_active = False
+        else:
+            self.confirm_delete_level_active = False
 
     def change_mode(self, mode: str, save=True):
         self.save_level() if save else None
@@ -336,7 +364,13 @@ class LevelEditor:
             clock.tick(framerate)
             self.handle_keys()
 
-            if not self.info_block_editor_active:
+            if self.info_block_editor_active:
+                self.draw_info_block_editor()
+
+            elif self.confirm_delete_level_active:
+                self.confirm_delete_level_menu.draw(self.sc)
+
+            else:
                 self.background_group.draw(self.grid)
                 self.sc.blit(self.grid, (0, 0), pg.rect.Rect(0, 0, self.sc.get_width(), 16 * self.grid_square_side))
                 self.ghost_selected_tile_on_cursor(pg.mouse.get_pos())
@@ -344,18 +378,7 @@ class LevelEditor:
                 self.tiles.update()
                 self.tiles.draw(self.sc)
                 self.buttons.draw(self.sc)
-                const.display_infos(self.sc, 15, 15, f"wx : {self.worldx}, wy : {self.worldy},"
-                                                     f" mouse : {pg.mouse.get_pos()}, selected square : "
-                                                     f"{self.get_square_on_pos(pg.mouse.get_pos())}")
-            else:
-                self.draw_info_block_editor()
+                hovered_square_pos = self.get_square_on_pos(pg.mouse.get_pos())[2:]
+                const.display_infos(self.sc, 15, 15, f"x : {hovered_square_pos[0]}, y : {hovered_square_pos[1]}")
 
             pg.display.flip()
-
-
-class Grid(pg.sprite.Sprite):
-    def __init__(self, layer: int, image: pg.Surface):
-        super().__init__()
-        self._layer = layer
-        self.image = image
-        self.rect = self.image.get_rect()

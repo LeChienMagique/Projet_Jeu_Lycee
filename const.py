@@ -68,15 +68,16 @@ scrolling_forward = True
 
 def delete_edited_level():
     global number_of_edited_levels
-    ans = input("Etes-vous sûr ? (o/n) : ")
-    if ans.lower() != 'o':
-        print("Suppression annulée")
-        return
     n = level
     if os.path.exists(f'Edited_Levels/level_{n}.json'):
         os.remove(f'Edited_Levels/level_{n}.json')
-        number_of_edited_levels -= 1
         print('Le niveau a été supprimé')
+    for i in range(n + 1, number_of_edited_levels + 1):
+        path = os.path.join('Edited_Levels', 'level_' + str(i) + '.json')
+        print(path)
+        if os.path.exists(path):
+            os.rename(path, os.path.join('Edited_Levels', 'level_' + str(i - 1) + '.json'))
+    refresh_number_of_levels()
 
 
 def next_level():
