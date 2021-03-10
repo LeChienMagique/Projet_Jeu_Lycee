@@ -1,32 +1,64 @@
 import pygame as pg
+import tkinter as tk
 import os
+import sys
 
 pg.init()
 
-sc_width = 1200
-sc_height = 1200
+sc_width = sc_height = 500
+
+
+def define_window_size(size: int, root: tk.Tk):
+    global sc_width, sc_height
+    print(size)
+    sc_width = sc_height = int(size)
+    root.destroy()
+
+
+def ask_window_size():
+    root = tk.Tk()
+    w, h = root.winfo_screenwidth(), root.winfo_screenheight()
+    root.geometry(f'{int(w * 0.3)}x{int(h * 0.3)}')
+
+    infos = tk.Label(root, text="Sélectionnez la taille de la fenêtre")
+    infos.pack(anchor=tk.N)
+
+    size_options = [s for s in range(400, h + 1, 100)]
+    size_var = tk.StringVar()
+    size_var.set(size_options[0])
+    for item in size_options:
+        button = tk.Radiobutton(root, text=f'{item}x{item}', variable=size_var, value=item)
+        button.pack(anchor=tk.N)
+    button = tk.Button(root, text='Valider', command=lambda: define_window_size(size_var.get(), root))
+    button.pack(anchor=tk.N)
+    root.protocol("WM_DELETE_WINDOW", sys.exit)
+    root.mainloop()
+
+
+ask_window_size()
+
 screen = pg.display.set_mode((sc_width, sc_height))
 
 customSizeFont = lambda n: pg.font.SysFont('Alef', n)
 myFont = pg.font.SysFont('Alef', 25)
 bigFont = pg.font.SysFont('Alef', 60)
 
-bg = None
-
 level = 1
 
 number_of_levels = len(os.listdir('Levels/'))
 number_of_edited_levels = len(os.listdir('Edited_Levels/'))
 
-tile_side = sc_width // 25
+tile_side = sc_width / 25
 player_side = sc_width // 35
 
 startx = 2 * tile_side
 starty = 0
 
-scrolling_speed = sc_width // 140
-jump_height = -(tile_side / 2)
+scrolling_speed = int(tile_side * 0.25)
+jump_height = -(tile_side * 0.5)
 gravity_intensity = 0.026 * tile_side
+
+tile_side = int(tile_side)
 
 previous_mode = 'level_selection'
 mode = 'level_selection'
@@ -66,6 +98,7 @@ def load_sprite(sprite_name):
         side = tile_side
     else:
         side = tile_side
+    side = int(side)
     path = os.path.join('Blocks_Sprites', sprite_name + '.png')
     return pg.transform.scale(pg.image.load(path), (side, side))
 
@@ -92,20 +125,21 @@ class BackgroundLayer(pg.sprite.Sprite):
     def __init__(self, layer: int, number: int, image: pg.Surface):
         super().__init__()
         self.image = image
+        self.number = number
         self.rect = self.image.get_rect()
-        self.rect.left = sc_width * number
+        self.rect.left = self.rect.width * self.number
         self.rect.bottom = sc_height
         self._layer = layer
-        self.scrolling_speed = layer * (scrolling_speed / 4)
+        self.scrolling_speed = int(layer * (scrolling_speed / 4))
 
     def update(self, ntimes=1, forward=True) -> None:
         if scrolling_forward and forward:
             self.rect.x -= self.scrolling_speed * ntimes
-            if self.rect.right <= 0:
-                self.rect.left = sc_width
+            if self.rect.right < 0:
+                self.rect.left = self.rect.width
         else:
             self.rect.x += self.scrolling_speed * ntimes
-            if self.rect.left >= sc_width:
+            if self.rect.left > self.rect.width:
                 self.rect.right = 0
 
 

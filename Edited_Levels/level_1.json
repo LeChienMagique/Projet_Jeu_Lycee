@@ -25,7 +25,8 @@
     "12": "tile"
   },
   "10": {
-    "12": "tile"
+    "12": "tile",
+    "7": "tile"
   },
   "11": {
     "12": "tile"
@@ -87,12 +88,13 @@
   "39": {
     "12": "tile",
     "6": "tile",
-    "7": "tile",
+    "7": "spike_e",
     "8": "tile"
   },
   "40": {
     "12": "tile",
-    "6": "backward_jumper"
+    "6": "backward_jumper",
+    "7": "tile"
   },
   "41": {
     "12": "tile",

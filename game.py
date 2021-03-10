@@ -98,12 +98,9 @@ class Game:
         if forward:
             for tile in self.tile_group:
                 tile.rect.x -= const.scrolling_speed
-            self.worldx += const.scrolling_speed
-
         else:
             for tile in self.tile_group:
                 tile.rect.x += const.scrolling_speed
-            self.worldx -= const.scrolling_speed
 
     def align_cam_on_player_y(self):
         """
@@ -335,10 +332,10 @@ class Player(pg.sprite.DirtySprite):
                     if isinstance(collidedS, ent.Spike):
                         if not 's' in collidedS.side:
                             self.kill()
+
                     elif isinstance(collidedS, ent.Jumper):
                         self.dy = const.jump_height * 1.4
                     elif isinstance(collidedS, ent.BackwardPusher):
-                        print(collidedS.x, collidedS.y)
                         self.dy = const.jump_height * 1.4
                         const.scrolling_forward = False
 
