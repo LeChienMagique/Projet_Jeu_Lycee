@@ -21,7 +21,7 @@ class Game:
 
         self.paused = False
         self.info_block_pause = False
-        self.info_block_text = ''
+        self.info_block_text = ['']
         self.level_ended = False
 
         self.timer = 0
@@ -73,8 +73,9 @@ class Game:
         self.timer = 0
 
     def draw_info_block_text(self):
-        textsurf = const.myFont.render(self.info_block_text, True, pg.Color(255, 255, 255))
-        self.sc.blit(textsurf, (const.sc_width // 2 - textsurf.get_rect().width // 2, const.sc_height // 10))
+        for line in range(len(self.info_block_text)):
+            textsurf = const.myFont.render(self.info_block_text[line], True, pg.Color(255, 255, 255))
+            self.sc.blit(textsurf, (const.sc_width // 2 - textsurf.get_rect().width // 2, const.sc_height // 10 + line * 25))
 
     def toggle_pause(self):
         self.paused = not self.paused

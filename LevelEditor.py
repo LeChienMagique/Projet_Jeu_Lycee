@@ -28,7 +28,7 @@ class LevelEditor:
         self.gui = self.make_gui()
         self.level = {}
         self.info_block_editor_active = False
-        self.input_text = ''
+        self.input_text = ['']
 
         self.confirm_delete_level_active = False
         self.make_delete_confirm_menu()
@@ -103,22 +103,23 @@ class LevelEditor:
                            text='Annuler', textColor=pg.Color(0, 0, 0), group=self.info_block_editor)
 
     def draw_info_block_editor(self):
-        txt_surf = const.myFont.render(self.input_text, True, (255, 255, 255))
         self.info_block_editor.draw(self.sc)
-        self.sc.blit(txt_surf, (self.info_block_editor_text_input_dims[0] + 5, self.info_block_editor_text_input_dims[1] + 5))
+        for line in range(len(self.input_text)):
+            txt_surf = const.myFont.render(self.input_text[line], True, (255, 255, 255))
+            self.sc.blit(txt_surf, (self.info_block_editor_text_input_dims[0] + 5, self.info_block_editor_text_input_dims[1] + 5 + line * 25))
 
     def prompt_info_block_editor(self):
         self.info_block_editor_active = True
-        pg.key.set_repeat(150, 100)
+        pg.key.set_repeat(150, 10)
 
     def validate_text_input_info_block(self, block_x, block_y, canceled=False):
         self.info_block_editor_active = False
         pg.key.set_repeat(75, 75)
         if not canceled:
             self.place_block_at(block_x, block_y, 'info_block', self.input_text)
-        self.input_text = ''
+        self.input_text = ['']
 
-    def place_block_at(self, world_x: int, world_y: int, tile_type: str, info_block_text=''):
+    def place_block_at(self, world_x: int, world_y: int, tile_type: str, info_block_text: list = None):
         """
         Place un bloc au coord données
         :param info_block_text:
@@ -127,7 +128,7 @@ class LevelEditor:
         :param tile_type:
         :return:
         """
-        if tile_type == 'info_block' and info_block_text == '':
+        if tile_type == 'info_block' and info_block_text is None:
             self.make_info_block_editor_menu(world_x, world_y)
             self.prompt_info_block_editor()
             return
@@ -170,6 +171,22 @@ class LevelEditor:
                         if len(self.level[str(x)]) == 0:
                             del self.level[str(x)]
 
+    def add_character_to_input_text(self, key: pg.event.Event):
+        if key.key == pg.K_BACKSPACE:
+            if self.input_text[-1] == '' and len(self.input_text) > 1:
+                self.input_text.pop()
+            self.input_text[-1] = self.input_text[-1][:-1]
+
+        elif key.key == pg.K_RETURN:
+            if len(self.input_text) < 17:
+                self.input_text.append('')
+        else:
+            if len(self.input_text[-1]) >= 40:
+                if len(self.input_text) < 17:
+                    self.input_text.append('')
+            else:
+                self.input_text[-1] += key.unicode
+
     def handle_keys(self):
         for e in pg.event.get():
 
@@ -186,15 +203,7 @@ class LevelEditor:
 
             if self.info_block_editor_active:
                 if e.type == pg.KEYDOWN:
-                    if e.key == pg.K_ESCAPE:
-                        self.info_block_editor_active = False
-                        # self.input_text = ''
-                    elif e.key == pg.K_BACKSPACE:
-                        self.input_text = self.input_text[:-1]
-                    elif e.key == pg.K_RETURN:
-                        self.input_text += '\n'
-                    else:
-                        self.input_text += e.unicode
+                    self.add_character_to_input_text(e)
                 elif e.type == pg.MOUSEMOTION:
                     self.info_block_editor.update(pg.mouse.get_pos(), False)
                 elif e.type == pg.MOUSEBUTTONDOWN:

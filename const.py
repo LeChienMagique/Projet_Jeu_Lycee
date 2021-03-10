@@ -13,6 +13,9 @@ def define_window_size(size: int, root: tk.Tk):
     global sc_width, sc_height
     print(size)
     sc_width = sc_height = int(size)
+    settings = json.load(open('settings.json', 'r'))
+    settings['window_size'] = int(size)
+    json.dump(settings, open('settings.json', 'w'), indent=4)
     root.destroy()
 
 
