@@ -1,6 +1,6 @@
 {
   "scrolling_speed": "100%",
-  "jump_height": "100%",
-  "gravity": "100%",
-  "window_size": 700
+  "jump_height": "115%",
+  "gravity": "110%",
+  "window_size": 1200
 }

@@ -124,7 +124,7 @@ class Game:
 
     def end_level(self):
         self.level_ended = True
-        self.timer_active = False
+        self.start_timer()
 
     def reset_level(self):
         self.reset_all_vars()

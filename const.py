@@ -6,7 +6,7 @@ import json
 
 pg.init()
 
-sc_width = sc_height = 500
+sc_width = sc_height = 1200
 
 
 def define_window_size(size: int, root: tk.Tk):
@@ -39,7 +39,7 @@ def ask_window_size():
     root.mainloop()
 
 
-ask_window_size()
+# ask_window_size()
 
 screen = pg.display.set_mode((sc_width, sc_height))
 
