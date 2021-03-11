@@ -62,11 +62,11 @@ settings = json.load(open("settings.json", 'r'))
 
 scrolling_speed_modifier = int(settings['scrolling_speed'][:-1]) / 100
 jump_height_modifier = int(settings['jump_height'][:-1]) / 100
-gravity_intensity_modifier = int(settings['gravity'][:-1]) / 100
+gravity_modifier = int(settings['gravity'][:-1]) / 100
 
 scrolling_speed = int(tile_side * 0.25 * scrolling_speed_modifier)
 jump_height = -(tile_side * 0.5) * jump_height_modifier
-gravity_intensity = (0.026 * tile_side) * gravity_intensity_modifier
+gravity = (0.026 * tile_side) * gravity_modifier
 
 tile_side = int(tile_side)
 

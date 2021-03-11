@@ -27,6 +27,8 @@ class Game:
         self.timer = 0
         self.timer_active = False
 
+        self.gravity_is_inversed = False
+
     def handle_keys(self):
         for e in pg.event.get():
             if e.type == pg.QUIT:
@@ -105,12 +107,12 @@ class Game:
 
     def align_cam_on_player_y(self):
         """
-        Aligne le champ de vision avec la hauteur du joueur dans le repère
+        Aligne la caméra avec la hauteur du joueur dans le repère
         :return:
         """
         player_y = self.player.rect.centery
-        up_limit = const.sc_height // 2
-        bottom_limit = const.sc_height - (const.sc_height // 3.4)
+        up_limit = const.sc_height / 2.3
+        bottom_limit = const.sc_height - (const.sc_height / 3.4)
         if player_y < up_limit:
             offset = up_limit - player_y
             self.player.rect.centery += offset
@@ -137,6 +139,10 @@ class Game:
         self.timer_active = False
         const.scrolling_forward = True
         self.worldx = 0
+        if self.gravity_is_inversed:
+            const.gravity *= -1
+            const.jump_height *= -1
+        self.gravity_is_inversed = False
         self.player.reset_pos_and_vars()
 
     def next_level(self):
@@ -182,6 +188,11 @@ class Game:
         self.reset_all_vars()
         const.change_mode(mode)
         self.running = False
+
+    def invert_gravity(self):
+        const.gravity *= -1
+        const.jump_height *= -1
+        self.gravity_is_inversed = not self.gravity_is_inversed
 
     def advance_frame(self):
         self.player.handle_gravity()
@@ -251,7 +262,6 @@ class Player(pg.sprite.DirtySprite):
     def __init__(self, game: Game):
         super().__init__()
         self.game = game
-        self.image_side = const.player_side
         # self.image = pg.Surface([self.image_side, self.image_side])
         # self.image.fill(pg.Color(255, 255, 255))
         self.image = const.load_sprite('player')
@@ -273,7 +283,7 @@ class Player(pg.sprite.DirtySprite):
         Gère l'accélération verticale du player
         :return:
         """
-        self.dy += const.gravity_intensity
+        self.dy += const.gravity
         if self.dy > const.player_side:
             self.dy = const.player_side
 
@@ -317,6 +327,9 @@ class Player(pg.sprite.DirtySprite):
 
             if collidedS.rect.top < self.rect.top < collidedS.rect.bottom:  # Quand le joueur tape sa tête sur une Tile
                 self.rect.top = collidedS.rect.bottom
+                if self.game.gravity_is_inversed:
+                    self.onGround = True
+
                 if isinstance(collidedS, ent.Spike):
                     if not 'n' in collidedS.side:
                         self.kill()
@@ -325,9 +338,21 @@ class Player(pg.sprite.DirtySprite):
                     self.game.start_timer()
                     self.game.info_block_text = collidedS.text
 
-            elif collidedS.rect.top < self.rect.bottom < collidedS.rect.bottom:  # Quand le joueur aterri sur une Tile
+                if self.game.gravity_is_inversed and collidedS.rect.left < self.rect.centerx:
+                    if isinstance(collidedS, ent.Jumper):
+                        self.dy = const.jump_height * 1.4
+                    elif isinstance(collidedS, ent.BackwardPusher):
+                        self.dy = const.jump_height * 1.4
+                        const.scrolling_forward = False
+
+                    elif isinstance(collidedS, ent.GravInverter):
+                        self.game.invert_gravity()
+
+            if collidedS.rect.top < self.rect.bottom < collidedS.rect.bottom:
+                # Quand le joueur aterri sur une Tile
                 self.rect.bottom = collidedS.rect.top
-                self.onGround = True
+                if not self.game.gravity_is_inversed:
+                    self.onGround = True
 
                 if collidedS.rect.left < self.rect.centerx:
                     if isinstance(collidedS, ent.Spike):
@@ -339,6 +364,9 @@ class Player(pg.sprite.DirtySprite):
                     elif isinstance(collidedS, ent.BackwardPusher):
                         self.dy = const.jump_height * 1.4
                         const.scrolling_forward = False
+
+                    elif isinstance(collidedS, ent.GravInverter):
+                        self.game.invert_gravity()
 
     def handle_x_axis_collisions(self):
         """
