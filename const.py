@@ -53,7 +53,7 @@ number_of_levels = len(os.listdir('Levels/'))
 number_of_edited_levels = len(os.listdir('Edited_Levels/'))
 
 tile_side = sc_width / 25
-player_side = sc_width // 35
+player_side = sc_width // 28
 
 startx = 2 * tile_side
 starty = 0
@@ -65,7 +65,9 @@ jump_height_modifier = int(settings['jump_height'][:-1]) / 100
 gravity_modifier = int(settings['gravity'][:-1]) / 100
 
 scrolling_speed = int(tile_side * 0.25 * scrolling_speed_modifier)
-jump_height = -(tile_side * 0.5) * jump_height_modifier
+normal_jump_height = -(tile_side * 0.5) * jump_height_modifier
+smol_jump_height = normal_jump_height * 1.3
+jump_height = normal_jump_height
 gravity = (0.026 * tile_side) * gravity_modifier
 
 tile_side = int(tile_side)
@@ -104,12 +106,12 @@ def refresh_number_of_levels():
     number_of_edited_levels = len(os.listdir('Edited_Levels/'))
 
 
-def load_sprite(sprite_name):
+def load_sprite(sprite_name, custom_side: int = -1):
     if sprite_name == 'player':
-        side = tile_side
+        side = player_side
     else:
         side = tile_side
-    side = int(side)
+    side = int(side) if custom_side == -1 else custom_side
     path = os.path.join('Blocks_Sprites', sprite_name + '.png')
     return pg.transform.scale(pg.image.load(path), (side, side))
 

@@ -330,13 +330,16 @@ class Player(pg.sprite.DirtySprite):
         self.game = game  # Référence au l'instance du jeu
         # self.image = pg.Surface([self.image_side, self.image_side])
         # self.image.fill(pg.Color(255, 255, 255))
-        self.image = const.load_sprite('player')
+        self.normal_image = const.load_sprite('player')
+        self.smol_image = pg.transform.scale(self.normal_image, (const.player_side // 2, const.player_side // 2))
+        self.image = self.normal_image
         self.rect = self.image.get_rect()
         self.mask = pg.mask.from_surface(self.image)
         self.dx = 0
         self.dy = 0
         self.onGround = False
         self.colliding_right_flag = False
+        self.minimized = False
 
     def kill(self):
         """
@@ -389,13 +392,18 @@ class Player(pg.sprite.DirtySprite):
             if isinstance(collidedS, ent.EndTile):  # Quand le joueur passe dans un bloc de fin de niveau
                 self.game.end_level()
                 return
+            elif isinstance(collidedS, ent.Minimizer):
+                self.toggle_minimize()
+                return
+
+            falling = self.dy > 0
 
             self.dy = 0
 
             if not const.scrolling_forward:
                 const.scrolling_forward = True
 
-            if collidedS.rect.top < self.rect.top < collidedS.rect.bottom:  # Quand le joueur tape sa tête sur une Tile
+            if collidedS.rect.top < self.rect.top < collidedS.rect.bottom and not falling:  # Quand le joueur tape sa tête sur une Tile
                 self.rect.top = collidedS.rect.bottom
                 if self.game.gravity_is_inversed:
                     self.onGround = True
@@ -418,7 +426,7 @@ class Player(pg.sprite.DirtySprite):
                     elif isinstance(collidedS, ent.GravInverter):  # Collisions avec les inverseurs de gravité
                         self.game.invert_gravity()
 
-            if collidedS.rect.top < self.rect.bottom < collidedS.rect.bottom:  # Quand le joueur aterri sur une Tile
+            elif collidedS.rect.top < self.rect.bottom < collidedS.rect.bottom and falling:  # Quand le joueur aterri sur une Tile
                 self.rect.bottom = collidedS.rect.top
                 if not self.game.gravity_is_inversed:
                     self.onGround = True
@@ -446,6 +454,9 @@ class Player(pg.sprite.DirtySprite):
         if collidedS is not None:
             if isinstance(collidedS, ent.EndTile):  # Quand le joueur passe dans un bloc de fin de niveau
                 self.game.end_level()
+                return
+            elif isinstance(collidedS, ent.Minimizer):
+                self.toggle_minimize()
                 return
 
             if const.scrolling_forward:
@@ -478,11 +489,30 @@ class Player(pg.sprite.DirtySprite):
         else:
             self.dx = 0
 
+    def toggle_minimize(self):
+        """
+        Alterne entre petit et normal
+        :return:
+        """
+        old_x, old_y = self.rect.x, self.rect.y
+        if self.minimized:
+            const.jump_height = const.normal_jump_height
+            self.image = self.normal_image
+        else:
+            const.jump_height = const.smol_jump_height
+            self.image = self.smol_image
+        self.minimized = not self.minimized
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = old_x, old_y
+
     def reset_pos_and_vars(self):
         """
         Réinitialise les variables du joueur
         :return:
         """
+        const.jump_height = const.normal_jump_height
+        self.image = self.normal_image
+        self.rect = self.image.get_rect()
         self.rect.x = const.startx
         self.rect.y = const.starty
         self.dy = 0
