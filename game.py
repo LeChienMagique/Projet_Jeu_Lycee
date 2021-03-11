@@ -30,8 +30,12 @@ class Game:
         self.gravity_is_inversed = False
 
     def handle_keys(self):
+        """
+        Gère les touches pressées par l'utilisateur
+        :return:
+        """
         for e in pg.event.get():
-            if e.type == pg.QUIT:
+            if e.type == pg.QUIT:  # Quand l'utilisateur clique sur la X de la fenêtre de jeu
                 sys.exit()
 
             if self.level_ended:
@@ -40,49 +44,70 @@ class Game:
                         self.next_level()
 
             elif self.paused:
-                if e.type == pg.MOUSEMOTION:
+                if e.type == pg.MOUSEMOTION:  # Pour limiter les appels à la méthode update des boutons, le fait que quand la souris bouge ou que le bouton de
+                    # la souris est appuyée
                     self.pause_menu.update(pg.mouse.get_pos(), False)
                 elif e.type == pg.MOUSEBUTTONDOWN:
                     if e.button == 1:
                         self.pause_menu.update(pg.mouse.get_pos(), True)
                 elif e.type == pg.KEYUP:
                     if e.key == pg.K_ESCAPE:
-                        self.toggle_pause()
+                        self.toggle_pause()  # Arrête la pause
                     elif e.key == pg.K_f:
-                        self.advance_frame()
+                        self.advance_frame()  # [DEBUG] Fait un cycle de la méthode principale
 
             elif e.type == pg.KEYDOWN:
-                if self.info_block_pause:
-                    if self.timer > 1000:
+                if self.info_block_pause:  # Quand le menu pop up du bloc info_block est affiché
+                    if self.timer > 1000:  # Pour empêcher que le menu se ferme juste après s'être ouvert
                         self.info_block_pause = False
                         self.stop_timer()
                 elif e.key == pg.K_UP:
-                    self.player.jump()
+                    self.player.jump()  # Fait sauter le joueur
                 elif e.key == pg.K_r:
-                    self.reset_level()
+                    self.reset_level()  # Recommence le niveau depuis le dernier checkpoint
                 elif e.key == pg.K_e and const.previous_mode == 'editing':
-                    self.change_mode('editing')
+                    self.change_mode('editing')  # Repasse en mode édition si le niveau est éditable
             elif e.type == pg.KEYUP:
                 if e.key == pg.K_ESCAPE:
-                    self.toggle_pause()
+                    self.toggle_pause()  # Met le jeu en pause et affiche le menu de pause
 
     def start_timer(self):
+        """
+        Commence un timer pour compter le temps écoulé en millisecondes
+        :return:
+        """
         self.timer_active = True
         self.timer = 0
 
     def stop_timer(self):
+        """
+        Arrête le timer et le réinitialise
+        :return:
+        """
         self.timer_active = False
         self.timer = 0
 
     def draw_info_block_text(self):
+        """
+        Dessine le menu pop up du bloc info_block avec le texte correspondant
+        :return:
+        """
         for line in range(len(self.info_block_text)):
             textsurf = const.myFont.render(self.info_block_text[line], True, pg.Color(255, 255, 255))
             self.sc.blit(textsurf, (const.sc_width // 2 - textsurf.get_rect().width // 2, const.sc_height // 10 + line * 25))
 
     def toggle_pause(self):
+        """
+        Alterne entre met le jeu en pause et arrête la pause
+        :return:
+        """
         self.paused = not self.paused
 
     def make_pause_menu(self):
+        """
+        Créé tous les boutons du menu de pause et les ajoute au group correspondant
+        :return:
+        """
         self.pause_menu.empty()
         button_w = const.sc_width // 3
         button_h = const.sc_height // 6
@@ -98,6 +123,11 @@ class Game:
                                              lambda: self.change_mode('editing'), text='Editer', textColor=pg.Color(0, 0, 0)))
 
     def scroll_level(self, forward: bool):
+        """
+        Fait défiler le niveau pour donner l'impression d'avancer
+        :param forward:
+        :return:
+        """
         if forward:
             for tile in self.tile_group:
                 tile.rect.x -= const.scrolling_speed
@@ -107,32 +137,45 @@ class Game:
 
     def align_cam_on_player_y(self):
         """
-        Aligne la caméra avec la hauteur du joueur dans le repère
+        Aligne la caméra avec la hauteur du joueur dans le repère pour qu'il ne sorte pas de l'écran
         :return:
         """
         player_y = self.player.rect.centery
-        up_limit = const.sc_height / 2.3
+        up_limit = const.sc_height / 2.5
         bottom_limit = const.sc_height - (const.sc_height / 3.4)
-        if player_y < up_limit:
+        if player_y < up_limit:  # Si le joueur est trop haut
             offset = up_limit - player_y
             self.player.rect.centery += offset
             for tile in self.tile_group:
                 tile.rect.y += offset
-        elif player_y > bottom_limit:
+
+        elif player_y > bottom_limit:  # Si le joueur est trop bas
             offset = player_y - bottom_limit
             self.player.rect.centery -= offset
             for tile in self.tile_group:
                 tile.rect.y -= offset
 
     def end_level(self):
+        """
+        Déclenche la séquence de fin de niveau
+        :return:
+        """
         self.level_ended = True
         self.start_timer()
 
     def reset_level(self):
+        """
+        Recommence le niveau depuis le dernier checkpoint
+        :return:
+        """
         self.reset_all_vars()
         self.load_level(const.level)
 
     def reset_all_vars(self):
+        """
+        Réinitialise toutes les variables de la classe
+        :return:
+        """
         self.paused = False
         self.level_ended = False
         self.timer = 0
@@ -143,9 +186,13 @@ class Game:
             const.gravity *= -1
             const.jump_height *= -1
         self.gravity_is_inversed = False
-        self.player.reset_pos_and_vars()
+        self.player.reset_pos_and_vars()  # Réinitialise toutes les variables de positions etc... du joueur
 
     def next_level(self):
+        """
+        Passe au niveau d'après
+        :return:
+        """
         self.reset_all_vars()
         if const.previous_mode == 'playing' or const.previous_mode == 'level_selection':
             if const.next_level():
@@ -153,10 +200,15 @@ class Game:
                 print(f'next level : {const.level}')
             else:
                 self.change_mode('level_selection')
-        elif const.previous_mode == 'editing':
+        elif const.previous_mode == 'editing':  # Si le niveau est un niveau éditable, revient juste au menu d'édition
             self.change_mode('editing')
 
     def load_level(self, n: int):
+        """
+        Charge le niveau en mémoire
+        :param n:
+        :return:
+        """
         self.reset_all_vars()
 
         if const.previous_mode == 'editing':
@@ -185,16 +237,30 @@ class Game:
                     ent.building_tiles[tile_type](int(x) * const.tile_side, int(y) * const.tile_side, int(x), int(y), self.tile_group)
 
     def change_mode(self, mode: str):
+        """
+        Permet de changer de mode (editing, level_selection)
+        :param mode:
+        :return:
+        """
         self.reset_all_vars()
         const.change_mode(mode)
         self.running = False
 
     def invert_gravity(self):
+        """
+        Inverse la gravité
+        :return:
+        """
         const.gravity *= -1
         const.jump_height *= -1
         self.gravity_is_inversed = not self.gravity_is_inversed
 
     def advance_frame(self):
+        """
+        [DEBUG] Fait un cycle de la méthode principale
+        ATTENTION : Certainement bugué
+        :return:
+        """
         self.player.handle_gravity()
         self.align_cam_on_player_y()
         self.player.tick_movement()
@@ -261,7 +327,7 @@ class Game:
 class Player(pg.sprite.DirtySprite):
     def __init__(self, game: Game):
         super().__init__()
-        self.game = game
+        self.game = game  # Référence au l'instance du jeu
         # self.image = pg.Surface([self.image_side, self.image_side])
         # self.image.fill(pg.Color(255, 255, 255))
         self.image = const.load_sprite('player')
@@ -273,6 +339,10 @@ class Player(pg.sprite.DirtySprite):
         self.colliding_right_flag = False
 
     def kill(self):
+        """
+        Tue le joueur, donc recommence le niveau au dernier checkpoint ou passe au niveau d'après si le joueur meurt après avoir fini le niveau
+        :return:
+        """
         if not self.game.level_ended:
             self.game.reset_level()
         else:
@@ -284,8 +354,8 @@ class Player(pg.sprite.DirtySprite):
         :return:
         """
         self.dy += const.gravity
-        if self.dy > const.player_side:
-            self.dy = const.player_side
+        if abs(self.dy) > const.player_side:
+            self.dy = const.player_side * (1 - 2 * self.game.gravity_is_inversed)
 
     def jump(self):
         """
@@ -311,12 +381,12 @@ class Player(pg.sprite.DirtySprite):
 
     def handle_y_axis_collisions(self):
         """
-        Gère les collisions sur l'axe y du joueur avec les Tiles
+        Gère les collisions sur l'axe y du joueur avec les Tiles et applique l'effet des Tiles percutées
         :return:
         """
         collidedS = pg.sprite.spritecollideany(self, self.game.tile_group)
         if collidedS is not None:
-            if isinstance(collidedS, ent.EndTile):
+            if isinstance(collidedS, ent.EndTile):  # Quand le joueur passe dans un bloc de fin de niveau
                 self.game.end_level()
                 return
 
@@ -330,52 +400,51 @@ class Player(pg.sprite.DirtySprite):
                 if self.game.gravity_is_inversed:
                     self.onGround = True
 
-                if isinstance(collidedS, ent.Spike):
+                if isinstance(collidedS, ent.Spike):  # Collisions avec les spikes
                     if not 'n' in collidedS.side:
                         self.kill()
-                elif isinstance(collidedS, ent.InfoBlock):
+                elif isinstance(collidedS, ent.InfoBlock):  # Collisions avec les info_blocks
                     self.game.info_block_pause = True
                     self.game.start_timer()
                     self.game.info_block_text = collidedS.text
 
-                if self.game.gravity_is_inversed and collidedS.rect.left < self.rect.centerx:
-                    if isinstance(collidedS, ent.Jumper):
+                if self.game.gravity_is_inversed and collidedS.rect.left < self.rect.centerx:  # Collisions quand la gravité est inversée
+                    if isinstance(collidedS, ent.Jumper):  # Collisions avec les Jumpers
                         self.dy = const.jump_height * 1.4
-                    elif isinstance(collidedS, ent.BackwardPusher):
+                    elif isinstance(collidedS, ent.BackwardPusher):  # Collisions avec les Backward Jumper
                         self.dy = const.jump_height * 1.4
                         const.scrolling_forward = False
 
-                    elif isinstance(collidedS, ent.GravInverter):
+                    elif isinstance(collidedS, ent.GravInverter):  # Collisions avec les inverseurs de gravité
                         self.game.invert_gravity()
 
-            if collidedS.rect.top < self.rect.bottom < collidedS.rect.bottom:
-                # Quand le joueur aterri sur une Tile
+            if collidedS.rect.top < self.rect.bottom < collidedS.rect.bottom:  # Quand le joueur aterri sur une Tile
                 self.rect.bottom = collidedS.rect.top
                 if not self.game.gravity_is_inversed:
                     self.onGround = True
 
                 if collidedS.rect.left < self.rect.centerx:
-                    if isinstance(collidedS, ent.Spike):
+                    if isinstance(collidedS, ent.Spike):  # Collisions avec les spikes
                         if not 's' in collidedS.side:
                             self.kill()
 
-                    elif isinstance(collidedS, ent.Jumper):
+                    elif isinstance(collidedS, ent.Jumper):  # Collisions avec les Jumpers
                         self.dy = const.jump_height * 1.4
-                    elif isinstance(collidedS, ent.BackwardPusher):
+                    elif isinstance(collidedS, ent.BackwardPusher):  # Collisions avec les Backward Jumper
                         self.dy = const.jump_height * 1.4
                         const.scrolling_forward = False
 
-                    elif isinstance(collidedS, ent.GravInverter):
+                    elif isinstance(collidedS, ent.GravInverter):  # Collisions avec les inverseurs de gravité
                         self.game.invert_gravity()
 
     def handle_x_axis_collisions(self):
         """
-        Gère les collisions sur l'axe x du joueur avec les Tiles
+        Gère les collisions sur l'axe x du joueur avec les Tiles et applique l'effet des Tiles percutées
         :return:
         """
         collidedS = pg.sprite.spritecollideany(self, self.game.tile_group)
         if collidedS is not None:
-            if isinstance(collidedS, ent.EndTile):
+            if isinstance(collidedS, ent.EndTile):  # Quand le joueur passe dans un bloc de fin de niveau
                 self.game.end_level()
                 return
 
@@ -387,7 +456,7 @@ class Player(pg.sprite.DirtySprite):
                 if self.rect.left < collidedS.rect.right:
                     self.rect.left = collidedS.rect.right
 
-            if isinstance(collidedS, ent.Spike):
+            if isinstance(collidedS, ent.Spike):  # Collisions avec les spikes
                 if 'e' not in collidedS.side and const.scrolling_forward:
                     self.kill()
                 elif 'w' not in collidedS.side and not const.scrolling_forward:
@@ -410,6 +479,10 @@ class Player(pg.sprite.DirtySprite):
             self.dx = 0
 
     def reset_pos_and_vars(self):
+        """
+        Réinitialise les variables du joueur
+        :return:
+        """
         self.rect.x = const.startx
         self.rect.y = const.starty
         self.dy = 0

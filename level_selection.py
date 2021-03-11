@@ -16,6 +16,19 @@ class LevelSelection:
 
     def create_button(self, group: str, x: int, y: int, w: int, h: int, rectColor: pg.Color, onHoverRectColor: pg.Color, callback,
                       **kwargs):
+        """
+        Permet de créer un bouton.
+        :param group:
+        :param x:
+        :param y:
+        :param w:
+        :param h:
+        :param rectColor:
+        :param onHoverRectColor:
+        :param callback:
+        :param kwargs:
+        :return:
+        """
         new_button = Button(x, y, w, h, rectColor, onHoverRectColor, callback, **kwargs)
         if group == 'play':
             self.play_buttons.add(new_button)
@@ -25,6 +38,10 @@ class LevelSelection:
             self.gui_buttons.add(new_button)
 
     def make_gui(self):
+        """
+        Créé tous les boutons du menu
+        :return:
+        """
         self.gui_buttons.empty()
         self.play_buttons.empty()
         self.edit_buttons.empty()
@@ -44,6 +61,10 @@ class LevelSelection:
         self.make_buttons()
 
     def make_buttons(self):
+        """
+        Créé tous les boutons de seléction de niveau
+        :return:
+        """
         const.refresh_number_of_levels()
         for text, group, mode in [('Custom', 'edit', 'editing'), ('Level', 'play', 'playing')]:
             button_width = const.sc_width / 4
@@ -63,20 +84,40 @@ class LevelSelection:
                                    text=f'{text} {level}', textColor=pg.Color(0, 0, 0))
 
     def create_level_to_edit(self):
+        """
+        Créé un nouveau niveau éditable dans Edited_Levels/
+        :return:
+        """
         f = open(f'Edited_Levels/level_{const.number_of_edited_levels + 1}.json', 'x')
         f.write('{}')
         self.change_mode('edit')
         self.select_level(const.number_of_edited_levels + 1, 'editing')
 
     def change_mode(self, mode: str):
+        """
+        Permet de changer de mode (editing, playing)
+        :param mode:
+        :return:
+        """
         self.mode = mode
 
     def select_level(self, n: int, mode: str):
+        """
+        Joue ou édite le niveau seléctionné.
+        :param n:
+        :param mode:
+        :return:
+        """
         const.level = n
         self.running = False
         const.change_mode(mode)
 
     def update_buttons_group(self, *args):
+        """
+        Update tous les boutons du menu
+        :param args:
+        :return:
+        """
         self.gui_buttons.update(*args)
         if self.mode == 'play':
             self.play_buttons.update(*args)
@@ -84,13 +125,18 @@ class LevelSelection:
             self.edit_buttons.update(*args)
 
     def handle_keys(self):
+        """
+        Gère les touches pressées par l'utilisateur
+        :return:
+        """
         for e in pg.event.get():
-            if e.type == pg.QUIT:
+            if e.type == pg.QUIT:  # Quand l'utilisateur clique sur la X de la fenêtre de jeu
                 sys.exit()
             elif e.type == pg.KEYDOWN:
-                if e.key == pg.K_ESCAPE:
+                if e.key == pg.K_ESCAPE:  # Raccourci pour fermer le jeu
                     sys.exit()
-            elif e.type == pg.MOUSEBUTTONDOWN:
+            elif e.type == pg.MOUSEBUTTONDOWN:  # Pour limiter les appels à la méthode update des boutons, le fait que quand la souris bouge ou que le bouton de
+                # la souris est appuyée
                 if e.button == 1:
                     self.update_buttons_group(pg.mouse.get_pos(), True)
                     pg.event.clear(pg.MOUSEBUTTONDOWN)
@@ -98,6 +144,11 @@ class LevelSelection:
                 self.update_buttons_group(pg.mouse.get_pos(), False)
 
     def main(self, framerate: int):
+        """
+        Méthode principale
+        :param framerate:
+        :return:
+        """
         clock = pg.time.Clock()
         self.make_gui()
         while self.running:
@@ -106,6 +157,7 @@ class LevelSelection:
 
             self.sc.fill(pg.Color(0, 0, 0))
 
+            # Dessine les boutons
             self.gui_buttons.draw(self.sc)
             if self.mode == 'play':
                 self.play_buttons.draw(self.sc)
