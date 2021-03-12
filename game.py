@@ -9,7 +9,6 @@ class Game:
     def __init__(self, screen: pg.Surface):
         self.running = True
         self.sc = screen
-        self.worldx = 0
         self.player = Player(self)
         self.player.rect.x = const.startx
         self.player.rect.y = const.starty
@@ -122,18 +121,26 @@ class Game:
             self.pause_menu.add(const.Button(button_x, button_h * 4 + 40, button_w, button_h, pg.Color(0, 0, 255), pg.Color(0, 255, 0),
                                              lambda: self.change_mode('editing'), text='Editer', textColor=pg.Color(0, 0, 0)))
 
+    def set_scrolling(self, forward: bool):
+        """
+        Défini le scrolling du niveau
+        :return:
+        """
+        const.scrolling_forward = forward
+        if not forward:
+            for tile in self.tile_group:
+                if isinstance(tile, ent.Minimizer):
+                    tile.disabled = False
+
     def scroll_level(self, forward: bool):
         """
         Fait défiler le niveau pour donner l'impression d'avancer
         :param forward:
         :return:
         """
-        if forward:
-            for tile in self.tile_group:
-                tile.rect.x -= const.scrolling_speed
-        else:
-            for tile in self.tile_group:
-                tile.rect.x += const.scrolling_speed
+        mult = (1 - 2 * forward)
+        for tile in self.tile_group:
+            tile.rect.x += const.scrolling_speed * mult
 
     def align_cam_on_player_y(self):
         """
@@ -168,8 +175,12 @@ class Game:
         Recommence le niveau depuis le dernier checkpoint
         :return:
         """
+        for tile in self.tile_group:
+            tile: ent.Tile
+            tile.rect.x = tile.x * const.tile_side
+            tile.rect.y = tile.y * const.tile_side
         self.reset_all_vars()
-        self.load_level(const.level)
+        # self.load_level(const.level)
 
     def reset_all_vars(self):
         """
@@ -180,8 +191,7 @@ class Game:
         self.level_ended = False
         self.timer = 0
         self.timer_active = False
-        const.scrolling_forward = True
-        self.worldx = 0
+        self.set_scrolling(True)
         if self.gravity_is_inversed:
             const.gravity *= -1
             const.jump_height *= -1
@@ -230,11 +240,25 @@ class Game:
             if x == 'info_block_text':
                 continue
             for y, tile_type in col.items():
+                worldy = int(y) * const.tile_side
                 if tile_type == 'info_block':
-                    ent.building_tiles[tile_type](int(x) * const.tile_side, int(y) * const.tile_side, int(x), int(y), self.tile_group,
+                    ent.building_tiles[tile_type](int(x) * const.tile_side, worldy, int(x), int(y), self.tile_group,
                                                   text=lvl_design['info_block_text'][str(x)][str(y)])
                 else:
-                    ent.building_tiles[tile_type](int(x) * const.tile_side, int(y) * const.tile_side, int(x), int(y), self.tile_group)
+                    ent.building_tiles[tile_type](int(x) * const.tile_side, worldy, int(x), int(y), self.tile_group)
+
+        self.low_dead_line: ent.Tile
+        self.high_dead_line: ent.Tile
+        lowest_tile = None
+        highest_tile = None
+        for tile in self.tile_group:
+            print(tile.y)
+            if lowest_tile is None or tile.y > lowest_tile:
+                lowest_tile = tile.y
+                self.low_dead_line = tile
+            elif highest_tile is None or tile.y < highest_tile:
+                highest_tile = tile.y
+                self.high_dead_line = tile
 
     def change_mode(self, mode: str):
         """
@@ -357,8 +381,9 @@ class Player(pg.sprite.DirtySprite):
         :return:
         """
         self.dy += const.gravity
-        if abs(self.dy) > const.player_side:
-            self.dy = const.player_side * (1 - 2 * self.game.gravity_is_inversed)
+        grav_inv = (-1 + 2 * self.game.gravity_is_inversed)
+        if self.dy > const.player_side:
+            self.dy = const.player_side
 
     def jump(self):
         """
@@ -377,7 +402,7 @@ class Player(pg.sprite.DirtySprite):
         self.rect.x += self.dx
         self.rect.y += self.dy
 
-        if self.rect.y > const.sc_height:
+        if self.rect.y > self.game.low_dead_line.rect.y + const.tile_side * 15:
             self.kill()
         if self.rect.x < 0:
             self.kill()
@@ -393,7 +418,8 @@ class Player(pg.sprite.DirtySprite):
                 self.game.end_level()
                 return
             elif isinstance(collidedS, ent.Minimizer):
-                self.toggle_minimize()
+                self.toggle_minimize() if not collidedS.disabled else None
+                collidedS.disabled = True
                 return
 
             falling = self.dy > 0
@@ -401,7 +427,7 @@ class Player(pg.sprite.DirtySprite):
             self.dy = 0
 
             if not const.scrolling_forward:
-                const.scrolling_forward = True
+                self.game.set_scrolling(True)
 
             if collidedS.rect.top < self.rect.top < collidedS.rect.bottom and not falling:  # Quand le joueur tape sa tête sur une Tile
                 self.rect.top = collidedS.rect.bottom
@@ -421,7 +447,7 @@ class Player(pg.sprite.DirtySprite):
                         self.dy = const.jump_height * 1.4
                     elif isinstance(collidedS, ent.BackwardPusher):  # Collisions avec les Backward Jumper
                         self.dy = const.jump_height * 1.4
-                        const.scrolling_forward = False
+                        self.game.set_scrolling(False)
 
                     elif isinstance(collidedS, ent.GravInverter):  # Collisions avec les inverseurs de gravité
                         self.game.invert_gravity()
@@ -440,7 +466,7 @@ class Player(pg.sprite.DirtySprite):
                         self.dy = const.jump_height * 1.4
                     elif isinstance(collidedS, ent.BackwardPusher):  # Collisions avec les Backward Jumper
                         self.dy = const.jump_height * 1.4
-                        const.scrolling_forward = False
+                        self.game.set_scrolling(False)
 
                     elif isinstance(collidedS, ent.GravInverter):  # Collisions avec les inverseurs de gravité
                         self.game.invert_gravity()
@@ -456,7 +482,8 @@ class Player(pg.sprite.DirtySprite):
                 self.game.end_level()
                 return
             elif isinstance(collidedS, ent.Minimizer):
-                self.toggle_minimize()
+                self.toggle_minimize() if not collidedS.disabled else None
+                collidedS.disabled = True
                 return
 
             if const.scrolling_forward:
@@ -494,16 +521,18 @@ class Player(pg.sprite.DirtySprite):
         Alterne entre petit et normal
         :return:
         """
-        old_x, old_y = self.rect.x, self.rect.y
+        center = self.rect.center
         if self.minimized:
             const.jump_height = const.normal_jump_height
             self.image = self.normal_image
+            const.player_side = const.normal_player_side
         else:
             const.jump_height = const.smol_jump_height
             self.image = self.smol_image
+            const.player_side = const.smol_player_side
         self.minimized = not self.minimized
         self.rect = self.image.get_rect()
-        self.rect.x, self.rect.y = old_x, old_y
+        self.rect.center = center
 
     def reset_pos_and_vars(self):
         """
@@ -511,6 +540,7 @@ class Player(pg.sprite.DirtySprite):
         :return:
         """
         const.jump_height = const.normal_jump_height
+        const.player_side = const.normal_player_side
         self.image = self.normal_image
         self.rect = self.image.get_rect()
         self.rect.x = const.startx

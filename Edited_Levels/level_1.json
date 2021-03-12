@@ -28,8 +28,7 @@
     "12": "tile"
   },
   "14": {
-    "12": "tile",
-    "11": "minimizer"
+    "12": "tile"
   },
   "25": {
     "15": "tile",
@@ -74,7 +73,8 @@
     "15": "tile",
     "14": "tile",
     "13": "tile",
-    "12": "tile"
+    "12": "tile",
+    "5": "tile"
   },
   "33": {
     "17": "tile",
@@ -82,19 +82,22 @@
     "16": "spike_nw",
     "13": "spike_sw",
     "15": "spike_w",
-    "14": "spike_w"
+    "14": "spike_w",
+    "5": "tile"
   },
   "32": {
     "17": "tile",
     "12": "tile",
     "13": "spike_s",
-    "16": "spike_n"
+    "16": "spike_n",
+    "5": "tile"
   },
   "31": {
     "17": "tile",
     "12": "tile",
     "13": "spike_s",
-    "16": "spike_n"
+    "16": "spike_n",
+    "5": "tile"
   },
   "30": {
     "17": "tile",
@@ -147,7 +150,7 @@
     "12": "tile"
   },
   "24": {
-    "12": "tile"
+    "12": "backward_jumper"
   },
   "20": {
     "12": "tile"

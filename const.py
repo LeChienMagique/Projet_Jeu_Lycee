@@ -53,7 +53,9 @@ number_of_levels = len(os.listdir('Levels/'))
 number_of_edited_levels = len(os.listdir('Edited_Levels/'))
 
 tile_side = sc_width / 25
-player_side = sc_width // 28
+normal_player_side = sc_width // 28
+smol_player_side = normal_player_side // 2
+player_side = normal_player_side
 
 startx = 2 * tile_side
 starty = 0
@@ -124,7 +126,6 @@ def display_infos(screen: pg.Surface, x: int, y: int, *args):
 
 def change_mode(mode_name: str):
     global mode, previous_mode
-    print(mode, '->', mode_name)
     previous_mode = mode
     if mode_name == 'editing':
         mode = 'editing'

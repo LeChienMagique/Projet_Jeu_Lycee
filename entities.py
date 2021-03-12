@@ -119,6 +119,7 @@ class Minimizer(Tile):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
         super().__init__(screen_x, screen_y, world_x, world_y, group, **kwargs)
         self.image = const.load_sprite('minimizer')
+        self.disabled = False
 
 # key must match the name of its sprite in Background_Sprites/
 building_tiles = {"tile": Tile, 'jumper': Jumper, 'spike_n': Spike_N, 'spike_w': Spike_W, 'spike_e': Spike_E,
