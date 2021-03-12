@@ -57,8 +57,8 @@ normal_player_side = sc_width // 28
 smol_player_side = normal_player_side // 2
 player_side = normal_player_side
 
-startx = 2 * tile_side
-starty = 0
+start_worldx = 2
+startx = start_worldx * tile_side
 
 settings = json.load(open("settings.json", 'r'))
 
@@ -79,10 +79,13 @@ mode = 'level_selection'
 
 scrolling_forward = True
 
+blank_level_data = '''{"misc": {"spawnpoint": [0,0]}, "0":{"0":"player_spawn"}}'''
+
 
 def delete_edited_level():
     global number_of_edited_levels
     n = level
+    print(f'Level {n} va être supprimé')
     if os.path.exists(f'Edited_Levels/level_{n}.json'):
         os.remove(f'Edited_Levels/level_{n}.json')
         print('Le niveau a été supprimé')
@@ -160,7 +163,7 @@ class BackgroundLayer(pg.sprite.Sprite):
 def make_background_group():
     # return pg.transform.scale(pg.image.load('city.png'), (sc_width, sc_height))
     sprites = []
-    path = os.path.join('Backgrounds', 'industrial_layers')
+    path = os.path.join('Backgrounds', 'space_layers')
     images = []
     max_height = -1
     for file in os.listdir(path):

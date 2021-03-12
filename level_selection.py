@@ -89,7 +89,7 @@ class LevelSelection:
         :return:
         """
         f = open(f'Edited_Levels/level_{const.number_of_edited_levels + 1}.json', 'x')
-        f.write('{}')
+        f.write(const.blank_level_data)
         self.change_mode('edit')
         self.select_level(const.number_of_edited_levels + 1, 'editing')
 

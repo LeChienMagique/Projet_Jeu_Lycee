@@ -3,7 +3,7 @@ import const
 
 
 class Tile(pg.sprite.DirtySprite):
-    def __init__(self, screen_x, screen_y, world_x, world_y, group: pg.sprite.LayeredDirty, editing=False, text=''):
+    def __init__(self, screen_x, screen_y, world_x, world_y, group: any, editing=False, text=''):
         super().__init__()
         group.add(self)
         self.image = pg.Surface([const.tile_side, const.tile_side])
@@ -115,14 +115,22 @@ class GravInverter(Tile):
         super().__init__(screen_x, screen_y, world_x, world_y, group, **kwargs)
         self.image = const.load_sprite('gravity_inverter')
 
+
 class Minimizer(Tile):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
         super().__init__(screen_x, screen_y, world_x, world_y, group, **kwargs)
         self.image = const.load_sprite('minimizer')
         self.disabled = False
 
+
+class PlayerSpawn(Tile):
+    def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
+        super().__init__(screen_x, screen_y, world_x, world_y, group, **kwargs)
+        self.image = const.load_sprite('player_spawn')
+
+
 # key must match the name of its sprite in Background_Sprites/
 building_tiles = {"tile": Tile, 'jumper': Jumper, 'spike_n': Spike_N, 'spike_w': Spike_W, 'spike_e': Spike_E,
                   'spike_s': Spike_S, 'spike_ne': Spike_NE, 'spike_nw': Spike_NW, 'spike_se': Spike_SE, 'spike_sw': Spike_SW,
                   'end': EndTile, "backward_jumper": BackwardPusher, 'info_block': InfoBlock, 'gravity_inverter': GravInverter,
-                  'minimizer': Minimizer}
+                  'minimizer': Minimizer, 'player_spawn': PlayerSpawn}

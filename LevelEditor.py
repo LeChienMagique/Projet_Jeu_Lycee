@@ -12,6 +12,7 @@ class LevelEditor:
         self.worldx = 0  # les coordonnées du coin en haut à gauche de l'éditeur
         self.worldy = 0
         self.grid_square_side = const.tile_side + 1  # + 1 pour laisser la place aux lignes de la grille
+        self.level_number = -1
 
         self.background_group = pg.sprite.LayeredUpdates(const.background)
         self.buttons = pg.sprite.Group()
@@ -26,7 +27,7 @@ class LevelEditor:
         self.selected_building_tile = "tile"
         self.grid = self.create_grid_background()
         self.make_gui()
-        self.level = {}  # Variable contenant les données du niveau quand il est chargé en mémoire
+        self.level = {}  # Dictionnaire contenant les données du niveau quand il est chargé en mémoire
         self.info_block_editor_active = False
         self.input_text = ['']
 
@@ -168,15 +169,26 @@ class LevelEditor:
             self.place_block_at(block_x, block_y, 'info_block', self.input_text)
         self.input_text = ['']
 
-    def place_block_at(self, world_x: int, world_y: int, tile_type: str, info_block_text: list = None):
+    def place_player_spawn_at(self, world_x: int, world_y: int):
+        spawnpoint = self.level['misc']['spawnpoint']
+        self.delete_block_at(spawnpoint, overwrite_spawn_delete_protection=True)
+        self.level['misc']['spawnpoint'] = [world_x, world_y]
+
+    def place_block_at(self, world_x: int, world_y: int, tile_type: str, info_block_text: list = None, loading_level=False):
         """
         Place un bloc au coord données
+        :param loading_level:
         :param info_block_text:
         :param world_x:
         :param world_y:
         :param tile_type:
         :return:
         """
+        if str(world_x) in self.level and not loading_level:
+            if str(world_y) in self.level[str(world_x)]:
+                if self.level[str(world_x)][str(world_y)] == 'player_spawn':
+                    return
+
         if tile_type == 'info_block' and info_block_text is None:
             self.make_info_block_editor_menu(world_x, world_y)
             self.prompt_info_block_editor()
@@ -187,20 +199,25 @@ class LevelEditor:
         for collidingS in pg.sprite.spritecollide(new_tile, self.tiles, False):  # Empêche que plusieures tiles soit à la même position.
             if collidingS != new_tile:
                 collidingS.kill()
+
         if not str(world_x) in self.level:
             self.level[str(world_x)] = {str(world_y): tile_type}
         else:
             self.level[str(world_x)][str(world_y)] = tile_type
 
-        if tile_type == 'info_block':
-            if 'info_block_text' not in self.level:
-                self.level['info_block_text'] = {str(world_x): {str(world_y): info_block_text}}
-            if str(world_x) not in self.level['info_block_text']:
-                self.level['info_block_text'][str(world_x)] = {str(world_y): info_block_text}
+        if tile_type == 'player_spawn' and not loading_level:
+            self.place_player_spawn_at(world_x, world_y)
 
-    def delete_block_at(self, position):
+        elif tile_type == 'info_block':
+            if 'info_block_text' not in self.level['misc']:
+                self.level['misc']['info_block_text'] = {str(world_x): {str(world_y): info_block_text}}
+            if str(world_x) not in self.level['misc']['info_block_text']:
+                self.level['misc']['info_block_text'][str(world_x)] = {str(world_y): info_block_text}
+
+    def delete_block_at(self, position, overwrite_spawn_delete_protection=False):
         """
         Supprime un bloc a la position donnée
+        :param overwrite_spawn_delete_protection:
         :param position:
         :return:
         """
@@ -208,17 +225,23 @@ class LevelEditor:
         x, y = position[0], position[1]
         if str(x) in self.level:
             if str(y) in self.level[str(x)]:
+
+                if self.level[str(x)][str(y)] == 'info_block':
+                    del self.level['misc']['info_block_text'][str(x)][str(y)]
+                    if len(self.level['misc']['info_block_text'][str(x)]) == 0:
+                        del self.level['misc']['info_block_text'][str(x)]
+
+                elif self.level[str(x)][str(y)] == 'player_spawn' and not overwrite_spawn_delete_protection:
+                    return
+
                 for sprite in self.tiles:
                     if sprite.x == x and sprite.y == y:
                         sprite.kill()
-                        if self.level[str(x)][str(y)] == 'info_block':
-                            del self.level['info_block_text'][str(x)][str(y)]
-                            if len(self.level['info_block_text'][str(x)]) == 0:
-                                del self.level['info_block_text'][str(x)]
-
                         del self.level[str(x)][str(y)]
                         if len(self.level[str(x)]) == 0:
                             del self.level[str(x)]
+
+                        break
 
     def add_character_to_input_text(self, key: pg.event.Event):
         """
@@ -420,7 +443,7 @@ class LevelEditor:
         self.worldx -= dx
         self.worldy += dy
         if dx != 0:
-            self.background_group.update(forward=dx < 0, ntimes=7)
+            self.background_group.update(7, dx < 0)
 
     def save_level(self):
         """
@@ -436,6 +459,14 @@ class LevelEditor:
         :param n:
         :return:
         """
+        if n == self.level_number and const.previous_mode != 'level_selection':  # Ne recharge pas le niveau si le niveau est le même qu'avant
+            return
+
+        self.level_number = n
+
+        self.worldx = 0
+        self.worldy = 0
+
         self.tiles.empty()
         self.level = {}
 
@@ -449,13 +480,13 @@ class LevelEditor:
         tile_type: str
 
         for x, col in lvl_design.items():
-            if x == 'info_block_text':
+            if x == 'misc':
                 continue
             for y, tile_type in col.items():
                 if tile_type == 'info_block':
-                    self.place_block_at(int(x), int(y), tile_type, info_block_text=lvl_design['info_block_text'][str(x)][str(y)])
+                    self.place_block_at(int(x), int(y), tile_type, info_block_text=lvl_design['misc']['info_block_text'][str(x)][str(y)])
                 else:
-                    self.place_block_at(int(x), int(y), tile_type)
+                    self.place_block_at(int(x), int(y), tile_type, loading_level=True)
 
     def main(self, framerate: int):
         """

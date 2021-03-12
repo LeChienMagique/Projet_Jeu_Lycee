@@ -10,8 +10,8 @@ class Game:
         self.running = True
         self.sc = screen
         self.player = Player(self)
-        self.player.rect.x = const.startx
-        self.player.rect.y = const.starty
+        self.player.rect.x = 0
+        self.player.rect.y = 0
 
         self.player_group = pg.sprite.GroupSingle(self.player)
         self.tile_group = pg.sprite.LayeredDirty()
@@ -27,6 +27,8 @@ class Game:
         self.timer_active = False
 
         self.gravity_is_inversed = False
+
+        self.start_pos = [2, 0]
 
     def handle_keys(self):
         """
@@ -152,13 +154,13 @@ class Game:
         bottom_limit = const.sc_height - (const.sc_height / 3.4)
         if player_y < up_limit:  # Si le joueur est trop haut
             offset = up_limit - player_y
-            self.player.rect.centery += offset
+            self.player.rect.centery = up_limit
             for tile in self.tile_group:
                 tile.rect.y += offset
 
         elif player_y > bottom_limit:  # Si le joueur est trop bas
             offset = player_y - bottom_limit
-            self.player.rect.centery -= offset
+            self.player.rect.centery = bottom_limit
             for tile in self.tile_group:
                 tile.rect.y -= offset
 
@@ -177,7 +179,7 @@ class Game:
         """
         for tile in self.tile_group:
             tile: ent.Tile
-            tile.rect.x = tile.x * const.tile_side
+            tile.rect.x = (tile.x - self.start_pos[0] + const.start_worldx) * const.tile_side
             tile.rect.y = tile.y * const.tile_side
         self.reset_all_vars()
         # self.load_level(const.level)
@@ -231,28 +233,32 @@ class Game:
         with open(path, "r") as lvl:
             lvl_design: dict = json.load(lvl)
 
+        self.start_pos = lvl_design['misc']['spawnpoint']
+
         x: str
         col: dict
         y: str
         tile_type: str
 
         for x, col in lvl_design.items():
-            if x == 'info_block_text':
+            if x == 'misc':
                 continue
             for y, tile_type in col.items():
-                worldy = int(y) * const.tile_side
+                screenx = (int(x) - self.start_pos[0] + const.start_worldx) * const.tile_side
+                screeny = int(y) * const.tile_side
                 if tile_type == 'info_block':
-                    ent.building_tiles[tile_type](int(x) * const.tile_side, worldy, int(x), int(y), self.tile_group,
-                                                  text=lvl_design['info_block_text'][str(x)][str(y)])
+                    ent.building_tiles[tile_type](screenx, screeny, int(x), int(y), self.tile_group,
+                                                  text=lvl_design['misc']['info_block_text'][str(x)][str(y)])
+                elif tile_type == 'player_spawn':
+                    continue
                 else:
-                    ent.building_tiles[tile_type](int(x) * const.tile_side, worldy, int(x), int(y), self.tile_group)
+                    ent.building_tiles[tile_type](screenx, screeny, int(x), int(y), self.tile_group)
 
         self.low_dead_line: ent.Tile
         self.high_dead_line: ent.Tile
         lowest_tile = None
         highest_tile = None
         for tile in self.tile_group:
-            print(tile.y)
             if lowest_tile is None or tile.y > lowest_tile:
                 lowest_tile = tile.y
                 self.low_dead_line = tile
@@ -275,6 +281,7 @@ class Game:
         Inverse la gravité
         :return:
         """
+        self.player.image = pg.transform.flip(self.player.image, False, True)
         const.gravity *= -1
         const.jump_height *= -1
         self.gravity_is_inversed = not self.gravity_is_inversed
@@ -335,7 +342,8 @@ class Game:
                                                 f"dy : {round(self.player.dy, 1)}, dx : {self.player.dx}, "
                                                 f"onGround : {self.player.onGround}")
             """
-            const.display_infos(self.sc, 15, 15, str(clock.get_fps()))
+            # const.display_infos(self.sc, 15, 15, str(clock.get_fps()))
+            const.display_infos(self.sc, 15, 15, str(self.player.dy))
             self.player_group.draw(self.sc)
             self.tile_group.draw(self.sc)
             if self.paused:
@@ -381,9 +389,9 @@ class Player(pg.sprite.DirtySprite):
         :return:
         """
         self.dy += const.gravity
-        grav_inv = (-1 + 2 * self.game.gravity_is_inversed)
-        if self.dy > const.player_side:
-            self.dy = const.player_side
+        grav_inv = (-1 + 2 * (self.dy > const.tile_side))
+        if abs(self.dy) > const.tile_side:
+            self.dy = const.tile_side * grav_inv
 
     def jump(self):
         """
@@ -541,10 +549,11 @@ class Player(pg.sprite.DirtySprite):
         """
         const.jump_height = const.normal_jump_height
         const.player_side = const.normal_player_side
+        self.minimized = False
         self.image = self.normal_image
         self.rect = self.image.get_rect()
         self.rect.x = const.startx
-        self.rect.y = const.starty
+        self.rect.y = self.game.start_pos[1] * const.tile_side
         self.dy = 0
         self.onGround = True
         self.colliding_right_flag = False
