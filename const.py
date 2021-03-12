@@ -6,7 +6,7 @@ import json
 
 pg.init()
 
-sc_width = sc_height = 1200
+sc_width = sc_height = 1400
 
 
 def define_window_size(size: int, root: tk.Tk):
@@ -39,7 +39,12 @@ def ask_window_size():
     root.mainloop()
 
 
-# ask_window_size()
+settings = json.load(open("settings.json", 'r'))
+
+if settings['ask_window_size']:
+    ask_window_size()
+else:
+    sc_width = sc_height = settings['window_size']
 
 screen = pg.display.set_mode((sc_width, sc_height))
 
@@ -59,8 +64,6 @@ player_side = normal_player_side
 
 start_worldx = 2
 startx = start_worldx * tile_side
-
-settings = json.load(open("settings.json", 'r'))
 
 scrolling_speed_modifier = int(settings['scrolling_speed'][:-1]) / 100
 jump_height_modifier = int(settings['jump_height'][:-1]) / 100

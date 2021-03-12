@@ -1,5 +1,3 @@
 
 ressources :
-https://opengameart.org/content/industrial-parallax-background
-
-changer Game.reset_level
+    backgrounds : https://opengameart.org/users/ansimuz
