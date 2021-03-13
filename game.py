@@ -29,6 +29,7 @@ class Game:
         self.gravity_is_inversed = False
 
         self.start_pos = [2, 0]
+        self.last_checkpoint_pos = self.start_pos
 
     def handle_keys(self):
         """
@@ -179,8 +180,10 @@ class Game:
         """
         for tile in self.tile_group:
             tile: ent.Tile
-            tile.rect.x = (tile.x - self.start_pos[0] + const.start_worldx) * const.tile_side
+            tile.rect.x = (tile.x - self.last_checkpoint_pos[0] + const.start_worldx) * const.tile_side
             tile.rect.y = tile.y * const.tile_side
+            if isinstance(tile, ent.Minimizer):
+                tile.disabled = False
         self.reset_all_vars()
         # self.load_level(const.level)
 
@@ -234,6 +237,7 @@ class Game:
             lvl_design: dict = json.load(lvl)
 
         self.start_pos = lvl_design['misc']['spawnpoint']
+        self.last_checkpoint_pos = lvl_design['misc']['spawnpoint']
 
         x: str
         col: dict
@@ -407,7 +411,8 @@ class Player(pg.sprite.DirtySprite):
         self.rect.x += self.dx
         self.rect.y += self.dy
 
-        if self.rect.y > self.game.low_dead_line.rect.y + const.tile_side * 15:
+        if self.rect.y > self.game.low_dead_line.rect.y + const.tile_side * 15 or \
+                self.rect.y < self.game.high_dead_line.rect.y - const.tile_side * 15:
             self.kill()
         if self.rect.x < 0:
             self.kill()
@@ -426,18 +431,19 @@ class Player(pg.sprite.DirtySprite):
                 self.toggle_minimize() if not collidedS.disabled else None
                 collidedS.disabled = True
                 return
+            elif isinstance(collidedS, ent.Checkpoint):
+                self.game.last_checkpoint_pos = [collidedS.x, collidedS.y]
+                return
 
             falling = self.dy > 0
-
             self.dy = 0
 
-            if not const.scrolling_forward:
-                self.game.set_scrolling(True)
-
-            if collidedS.rect.top < self.rect.top < collidedS.rect.bottom and not falling:  # Quand le joueur tape sa tête sur une Tile
+            if collidedS.rect.top <= self.rect.top <= collidedS.rect.bottom and not falling:  # Quand le joueur tape sa tête sur une Tile
                 self.rect.top = collidedS.rect.bottom
                 if self.game.gravity_is_inversed:
                     self.onGround = True
+                    if not const.scrolling_forward:
+                        self.game.set_scrolling(True)
 
                 if isinstance(collidedS, ent.Spike):  # Collisions avec les spikes
                     if not 'n' in collidedS.side:
@@ -461,6 +467,8 @@ class Player(pg.sprite.DirtySprite):
                 self.rect.bottom = collidedS.rect.top
                 if not self.game.gravity_is_inversed:
                     self.onGround = True
+                    if not const.scrolling_forward:
+                        self.game.set_scrolling(True)
 
                 if collidedS.rect.left < self.rect.centerx:
                     if isinstance(collidedS, ent.Spike):  # Collisions avec les spikes
@@ -489,6 +497,9 @@ class Player(pg.sprite.DirtySprite):
             elif isinstance(collidedS, ent.Minimizer):
                 self.toggle_minimize() if not collidedS.disabled else None
                 collidedS.disabled = True
+                return
+            elif isinstance(collidedS, ent.Checkpoint):
+                self.game.last_checkpoint_pos = [collidedS.x, collidedS.y]
                 return
 
             if const.scrolling_forward:
@@ -536,6 +547,7 @@ class Player(pg.sprite.DirtySprite):
             self.image = self.smol_image
             const.player_side = const.smol_player_side
         self.minimized = not self.minimized
+        self.image = pg.transform.flip(self.image, False, self.game.gravity_is_inversed)
         self.rect = self.image.get_rect()
         self.rect.center = center
 
@@ -550,7 +562,7 @@ class Player(pg.sprite.DirtySprite):
         self.image = self.normal_image
         self.rect = self.image.get_rect()
         self.rect.x = const.startx
-        self.rect.y = self.game.start_pos[1] * const.tile_side
+        self.rect.y = self.game.last_checkpoint_pos[1] * const.tile_side
         self.dy = 0
         self.onGround = True
         self.colliding_right_flag = False

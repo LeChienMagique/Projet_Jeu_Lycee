@@ -71,7 +71,7 @@ gravity_modifier = int(settings['gravity'][:-1]) / 100
 
 scrolling_speed = int(tile_side * 0.25 * scrolling_speed_modifier)
 normal_jump_height = -(tile_side * 0.5) * jump_height_modifier
-smol_jump_height = normal_jump_height * 1.3
+smol_jump_height = normal_jump_height * 1.2
 jump_height = normal_jump_height
 gravity = (0.026 * tile_side) * gravity_modifier
 

@@ -1,6 +1,6 @@
 # Projet_Jeu_Lycee
 
-Fait avec Python 3.8
+Fait avec Python 3.8, pygame 2.0.0
 
 Projet NSI lycée. Petit jeu de platforming en auto-scrolling
 
