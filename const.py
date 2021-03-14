@@ -114,7 +114,7 @@ def refresh_number_of_levels():
     number_of_edited_levels = len(os.listdir('Edited_Levels/'))
 
 
-def load_sprite(sprite_name, icon=False, custom_side: int = -1):
+def load_sprite(sprite_name, facing=0, icon=False, custom_side: int = -1):
     if sprite_name == 'player':
         side = player_side
     else:
@@ -124,8 +124,13 @@ def load_sprite(sprite_name, icon=False, custom_side: int = -1):
     if icon:
         path = os.path.join('Icons', sprite_name + '.png')
     else:
-        path = os.path.join('Blocks_Sprites', sprite_name + '.png')
-    return pg.transform.scale(pg.image.load(path), (side, side))
+        if sprite_name == 'spike':
+            path = os.path.join('Blocks_Sprites', sprite_name + str(facing) + '.png')
+            return pg.transform.scale(pg.image.load(path), (side, side))
+        else:
+            path = os.path.join('Blocks_Sprites', sprite_name + '.png')
+    image = pg.transform.scale(pg.image.load(path), (side, side))
+    return pg.transform.rotate(image, 45 * facing)
 
 
 def display_infos(screen: pg.Surface, x: int, y: int, *args):

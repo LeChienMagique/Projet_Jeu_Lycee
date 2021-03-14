@@ -3,11 +3,14 @@ import const
 
 
 class Tile(pg.sprite.DirtySprite):
-    def __init__(self, screen_x, screen_y, world_x, world_y, group: any, editing=False, text=''):
+    def __init__(self, screen_x, screen_y, world_x, world_y, group: any, image: pg.Surface = None, facing: int = 0, editing: bool = False, text: str = ''):
         super().__init__()
         group.add(self)
-        self.image = pg.Surface([const.tile_side, const.tile_side])
-        self.image.fill(pg.Color(255, 0, 0))
+        self.facing = facing
+        if image is None:
+            self.image = const.load_sprite('tile')
+        else:
+            self.image = image
         self.rect = self.image.get_rect()
         self.mask = pg.mask.from_surface(self.image)
         self.editing = editing
@@ -34,107 +37,110 @@ class Tile(pg.sprite.DirtySprite):
                 self.visible = 0
                 self.dirty = 0
 
+    def flip_horizontally(self):
+        self.image = pg.transform.flip(self.image, False, True)
+
 
 class Jumper(Tile):
-    def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, group, **kwargs)
-        self.image = const.load_sprite('jumper')
+    def __init__(self, screen_x, screen_y, world_x, world_y, group, facing: int = 0, **kwargs):
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('jumper', facing=facing), facing=facing, **kwargs)
 
 
 class Spike(Tile):
-    def __init__(self, screen_x, screen_y, world_x, world_y, side, group, **kwargs):
+    def __init__(self, screen_x, screen_y, world_x, world_y, group, facing: int = 0, **kwargs):
         """
         side : n s e w
         """
-        super().__init__(screen_x, screen_y, world_x, world_y, group, **kwargs)
-        self.image = const.load_sprite('spike_' + side)
-        self.side = side
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('spike', facing=facing), facing=facing, **kwargs)
 
 
-class Spike_N(Spike):
+"""class Spike_N(Spike):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, 'n', group, **kwargs)
+        super().__init__(screen_x, screen_y, world_x, world_y, 0, group, **kwargs)
 
 
 class Spike_W(Spike):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, 'w', group, **kwargs)
+        super().__init__(screen_x, screen_y, world_x, world_y, 2, group, **kwargs)
 
 
 class Spike_E(Spike):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, 'e', group, **kwargs)
+        super().__init__(screen_x, screen_y, world_x, world_y, 6, group, **kwargs)
 
 
 class Spike_S(Spike):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, 's', group, **kwargs)
+        super().__init__(screen_x, screen_y, world_x, world_y, 4, group, **kwargs)
 
 
 class Spike_NE(Spike):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, 'ne', group, **kwargs)
+        super().__init__(screen_x, screen_y, world_x, world_y, 1, group, **kwargs)
 
 
 class Spike_NW(Spike):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, 'nw', group, **kwargs)
+        super().__init__(screen_x, screen_y, world_x, world_y, 7, group, **kwargs)
 
 
 class Spike_SE(Spike):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, 'se', group, **kwargs)
+        super().__init__(screen_x, screen_y, world_x, world_y, 3, group, **kwargs)
 
 
 class Spike_SW(Spike):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, 'sw', group, **kwargs)
+        super().__init__(screen_x, screen_y, world_x, world_y, 5, group, **kwargs)
+
+"""
 
 
 class EndTile(Tile):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, group, **kwargs)
-        self.image = const.load_sprite('end')
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('end'), **kwargs)
 
 
 class BackwardPusher(Tile):
-    def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, group, **kwargs)
-        self.image = const.load_sprite('backward_jumper')
+    def __init__(self, screen_x, screen_y, world_x, world_y, group, facing: int = 0, **kwargs):
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('backward_jumper', facing=facing), facing=facing, **kwargs)
 
 
 class InfoBlock(Tile):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, text, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, group, **kwargs)
-        self.image = const.load_sprite('info_block')
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('info_block'), **kwargs)
         self.text = text
 
 
 class GravInverter(Tile):
-    def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, group, **kwargs)
-        self.image = const.load_sprite('gravity_inverter')
+    def __init__(self, screen_x, screen_y, world_x, world_y, group, facing: int = 0, **kwargs):
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('gravity_inverter', facing=facing), facing=facing, **kwargs)
 
 
 class Minimizer(Tile):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, group, **kwargs)
-        self.image = const.load_sprite('minimizer')
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('minimizer'), **kwargs)
         self.disabled = False
 
 
 class PlayerSpawn(Tile):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, group, **kwargs)
-        self.image = const.load_sprite('player_spawn')
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('player_spawn'), **kwargs)
+
 
 class Checkpoint(Tile):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, group, **kwargs)
-        self.image = const.load_sprite('checkpoint')
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('checkpoint'), **kwargs)
+
 
 # key must match the name of its sprite in Background_Sprites/
-building_tiles = {"tile": Tile, 'jumper': Jumper, 'spike_n': Spike_N, 'spike_w': Spike_W, 'spike_e': Spike_E,
-                  'spike_s': Spike_S, 'spike_ne': Spike_NE, 'spike_nw': Spike_NW, 'spike_se': Spike_SE, 'spike_sw': Spike_SW,
+"""building_tiles = {"tile": Tile, 'jumper': Jumper, 'spike0': Spike_N, 'spike2': Spike_W, 'spike4': Spike_E,
+                  'spike6': Spike_S, 'spike1': Spike_NE, 'spike7': Spike_NW, 'spike3': Spike_SE, 'spike5': Spike_SW,
                   'end': EndTile, "backward_jumper": BackwardPusher, 'info_block': InfoBlock, 'gravity_inverter': GravInverter,
                   'minimizer': Minimizer, 'player_spawn': PlayerSpawn, 'checkpoint': Checkpoint}
+"""
+
+building_tiles = {"tile": Tile, 'jumper': Jumper, 'end': EndTile, "backward_jumper": BackwardPusher,
+                  'info_block': InfoBlock, 'gravity_inverter': GravInverter, "spike": Spike,
+                  'minimizer': Minimizer, 'player_spawn': PlayerSpawn, 'checkpoint': Checkpoint}
+non_rotating_tiles = ["tile", 'info_block', 'player_spawn', 'checkpoint', 'minimizer', 'end']

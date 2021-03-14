@@ -25,6 +25,7 @@ class LevelEditor:
         self.building_tiles = ent.building_tiles
         self.building_tiles_names = list(self.building_tiles.keys())
         self.selected_building_tile = "tile"
+        self.selected_building_tile_facing = 0
         self.grid = self.create_grid_background()
         self.make_gui()
         self.level = {}  # Dictionnaire contenant les données du niveau quand il est chargé en mémoire
@@ -195,15 +196,18 @@ class LevelEditor:
             return
 
         screen_x, screen_y = ((world_x - self.worldx) * self.grid_square_side + 1), ((world_y + self.worldy) * self.grid_square_side + 1)
-        new_tile = self.building_tiles[tile_type](screen_x, screen_y, world_x, world_y, group=self.tiles, editing=True, text=info_block_text)
+        new_tile = self.building_tiles[tile_type](screen_x, screen_y, world_x, world_y, group=self.tiles, facing=self.selected_building_tile_facing,
+                                                  editing=True, text=info_block_text)
+
         for collidingS in pg.sprite.spritecollide(new_tile, self.tiles, False):  # Empêche que plusieures tiles soit à la même position.
             if collidingS != new_tile:
                 collidingS.kill()
 
+        tile_name = tile_type if tile_type in ent.non_rotating_tiles else tile_type + str(self.selected_building_tile_facing)
         if not str(world_x) in self.level:
-            self.level[str(world_x)] = {str(world_y): tile_type}
+            self.level[str(world_x)] = {str(world_y): tile_name}
         else:
-            self.level[str(world_x)][str(world_y)] = tile_type
+            self.level[str(world_x)][str(world_y)] = tile_name
 
         if tile_type == 'player_spawn' and not loading_level:
             self.place_player_spawn_at(world_x, world_y)
@@ -316,6 +320,8 @@ class LevelEditor:
                     self.change_mode('playing')  # Raccourci pour jouer au niveau en cours d'édition
                 elif e.key == pg.K_ESCAPE:
                     self.change_mode('level_selection')  # Raccourci pour revenir au menu principal
+                elif e.key == pg.K_r:
+                    self.rotate_selected_building_tile()
 
                 # Raccourci clavier pour changer de bloc rapidement
                 elif e.key == pg.K_1:
@@ -347,8 +353,21 @@ class LevelEditor:
         """
         squarex, squarey = self.get_square_on_pos(mousepos)[0:2]
         if squarey < self.grid.get_rect().bottom:
-            sprite = const.load_sprite(self.selected_building_tile)
+            sprite = const.load_sprite(self.selected_building_tile, facing=self.selected_building_tile_facing)
             self.sc.blit(sprite, (squarex, squarey))
+
+    def rotate_selected_building_tile(self):
+        """
+        Tourne le bloc seléctionné
+        :return:
+        """
+        if self.selected_building_tile in ent.non_rotating_tiles:
+            return
+        if self.selected_building_tile == 'spike':
+            self.selected_building_tile_facing += 1
+        else:
+            self.selected_building_tile_facing += 4
+        self.selected_building_tile_facing %= 8
 
     def change_selected_building_tile(self, tile_name):
         """
@@ -357,6 +376,7 @@ class LevelEditor:
         :return:
         """
         self.selected_building_tile = tile_name
+        self.selected_building_tile_facing = 0
 
     def make_gui(self):
         """
@@ -497,7 +517,13 @@ class LevelEditor:
                 if tile_type == 'info_block':
                     self.place_block_at(int(x), int(y), tile_type, info_block_text=lvl_design['misc']['info_block_text'][str(x)][str(y)])
                 else:
-                    self.place_block_at(int(x), int(y), tile_type, loading_level=True)
+                    if tile_type in ent.non_rotating_tiles:
+                        self.selected_building_tile_facing = 0
+                        self.place_block_at(int(x), int(y), tile_type, loading_level=True)
+                    else:
+                        self.selected_building_tile_facing = int(tile_type[-1])
+                        self.place_block_at(int(x), int(y), tile_type[:-1], loading_level=True)
+        self.selected_building_tile_facing = 0
 
     def main(self, framerate: int):
         """
