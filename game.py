@@ -115,14 +115,14 @@ class Game:
         button_h = const.sc_height // 6
         button_x = const.sc_width // 2 - button_w // 2
         self.pause_menu.add(const.Button(button_x, button_h + 10, button_w, button_h, pg.Color(0, 0, 255), pg.Color(0, 255, 0), lambda: self.toggle_pause(),
-                                         image=const.load_sprite('right', icon=True)),
+                                         image=const.get_sprite('right', icon=True)),
                             const.Button(button_x, button_h * 2 + 20, button_w, button_h, pg.Color(0, 0, 255), pg.Color(0, 255, 0), lambda: self.reset_level(),
-                                         image=const.load_sprite('return', icon=True)),
+                                         image=const.get_sprite('return', icon=True)),
                             const.Button(button_x, button_h * 3 + 30, button_w, button_h, pg.Color(0, 0, 255), pg.Color(0, 255, 0),
-                                         lambda: self.change_mode('level_selection'), image=const.load_sprite('home', icon=True)))
+                                         lambda: self.change_mode('level_selection'), image=const.get_sprite('home', icon=True)))
         if const.previous_mode == 'editing':
             self.pause_menu.add(const.Button(button_x, button_h * 4 + 40, button_w, button_h, pg.Color(0, 0, 255), pg.Color(0, 255, 0),
-                                             lambda: self.change_mode('editing'), image=const.load_sprite('wrench', icon=True)))
+                                             lambda: self.change_mode('editing'), image=const.get_sprite('wrench', icon=True)))
 
     def set_scrolling(self, forward: bool):
         """
@@ -240,23 +240,27 @@ class Game:
         self.last_checkpoint_pos = lvl_design['misc']['spawnpoint']
 
         x: str
-        col: dict
+        row: dict
         y: str
         tile_type: str
 
-        for x, col in lvl_design.items():
-            if x == 'misc':
+        for y, row in lvl_design.items():
+            if y == 'misc':
                 continue
-            for y, tile_type in col.items():
+            for x, tile_type in row.items():
                 screenx = (int(x) - self.start_pos[0] + const.start_worldx) * const.tile_side
                 screeny = int(y) * const.tile_side
                 if tile_type == 'info_block':
                     ent.building_tiles[tile_type](screenx, screeny, int(x), int(y), self.tile_group,
-                                                  text=lvl_design['misc']['info_block_text'][str(x)][str(y)])
+                                                  text=lvl_design['misc']['info_block_text'][str(y)][str(x)])
                 elif tile_type == 'player_spawn':
                     continue
                 else:
-                    ent.building_tiles[tile_type](screenx, screeny, int(x), int(y), self.tile_group)
+                    try:
+                        facing = int(tile_type[-1])
+                        ent.building_tiles[tile_type[:-1]](screenx, screeny, int(x), int(y), self.tile_group, facing=facing)
+                    except ValueError:
+                        ent.building_tiles[tile_type](screenx, screeny, int(x), int(y), self.tile_group)
 
         self.low_dead_line: ent.Tile
         self.high_dead_line: ent.Tile
@@ -343,8 +347,9 @@ class Game:
                                                 f"dy : {round(self.player.dy, 1)}, dx : {self.player.dx}, "
                                                 f"onGround : {self.player.onGround}")
             """
-            # const.display_infos(self.sc, 15, 15, str(clock.get_fps()))
-            const.display_infos(self.sc, 15, 15, str(self.player.dy))
+
+            const.display_infos(self.sc, 15, 15, str(clock.get_fps()))
+            # const.display_infos(self.sc, 15, 15, str(self.player.dy))
             self.player_group.draw(self.sc)
             self.tile_group.draw(self.sc)
             if self.paused:
@@ -363,7 +368,7 @@ class Player(pg.sprite.DirtySprite):
         self.game = game  # Référence au l'instance du jeu
         # self.image = pg.Surface([self.image_side, self.image_side])
         # self.image.fill(pg.Color(255, 255, 255))
-        self.normal_image = const.load_sprite('player')
+        self.normal_image = const.get_sprite('player')
         self.smol_image = pg.transform.scale(self.normal_image, (const.player_side // 2, const.player_side // 2))
         self.image = self.normal_image
         self.rect = self.image.get_rect()
@@ -446,7 +451,7 @@ class Player(pg.sprite.DirtySprite):
                         self.game.set_scrolling(True)
 
                 if isinstance(collidedS, ent.Spike):  # Collisions avec les spikes
-                    if not 'n' in collidedS.side:
+                    if collidedS.facing != 0:
                         self.kill()
                 elif isinstance(collidedS, ent.InfoBlock):  # Collisions avec les info_blocks
                     self.game.info_block_pause = True
@@ -454,14 +459,14 @@ class Player(pg.sprite.DirtySprite):
                     self.game.info_block_text = collidedS.text
 
                 if self.game.gravity_is_inversed and collidedS.rect.left < self.rect.centerx:  # Collisions quand la gravité est inversée
-                    if isinstance(collidedS, ent.Jumper):  # Collisions avec les Jumpers
-                        self.dy = const.jump_height * 1.4
-                    elif isinstance(collidedS, ent.BackwardPusher):  # Collisions avec les Backward Jumper
-                        self.dy = const.jump_height * 1.4
-                        self.game.set_scrolling(False)
-
-                    elif isinstance(collidedS, ent.GravInverter):  # Collisions avec les inverseurs de gravité
-                        self.game.invert_gravity()
+                    if collidedS.facing == 4:
+                        if isinstance(collidedS, ent.Jumper):  # Collisions avec les Jumpers
+                            self.dy = const.jump_height * 1.4
+                        elif isinstance(collidedS, ent.BackwardPusher):  # Collisions avec les Backward Jumper
+                            self.dy = const.jump_height * 1.4
+                            self.game.set_scrolling(False)
+                        elif isinstance(collidedS, ent.GravInverter):  # Collisions avec les inverseurs de gravité
+                            self.game.invert_gravity()
 
             elif collidedS.rect.top < self.rect.bottom < collidedS.rect.bottom and falling:  # Quand le joueur aterri sur une Tile
                 self.rect.bottom = collidedS.rect.top
@@ -472,17 +477,18 @@ class Player(pg.sprite.DirtySprite):
 
                 if collidedS.rect.left < self.rect.centerx:
                     if isinstance(collidedS, ent.Spike):  # Collisions avec les spikes
-                        if not 's' in collidedS.side:
+                        if collidedS.facing != 4:
                             self.kill()
 
-                    elif isinstance(collidedS, ent.Jumper):  # Collisions avec les Jumpers
-                        self.dy = const.jump_height * 1.4
-                    elif isinstance(collidedS, ent.BackwardPusher):  # Collisions avec les Backward Jumper
-                        self.dy = const.jump_height * 1.4
-                        self.game.set_scrolling(False)
+                    if collidedS.facing == 0:
+                        if isinstance(collidedS, ent.Jumper):  # Collisions avec les Jumpers
+                            self.dy = const.jump_height * 1.4
+                        elif isinstance(collidedS, ent.BackwardPusher):  # Collisions avec les Backward Jumper
+                            self.dy = const.jump_height * 1.4
+                            self.game.set_scrolling(False)
 
-                    elif isinstance(collidedS, ent.GravInverter):  # Collisions avec les inverseurs de gravité
-                        self.game.invert_gravity()
+                        elif isinstance(collidedS, ent.GravInverter):  # Collisions avec les inverseurs de gravité
+                            self.game.invert_gravity()
 
     def handle_x_axis_collisions(self):
         """
@@ -511,9 +517,9 @@ class Player(pg.sprite.DirtySprite):
                     self.rect.left = collidedS.rect.right
 
             if isinstance(collidedS, ent.Spike):  # Collisions avec les spikes
-                if 'e' not in collidedS.side and const.scrolling_forward:
+                if collidedS.facing != 2 and const.scrolling_forward:
                     self.kill()
-                elif 'w' not in collidedS.side and not const.scrolling_forward:
+                elif collidedS.facing != 6 and not const.scrolling_forward:
                     self.kill()
 
             if not const.scrolling_forward:

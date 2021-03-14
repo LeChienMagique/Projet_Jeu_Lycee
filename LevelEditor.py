@@ -165,7 +165,7 @@ class LevelEditor:
         :return:
         """
         self.info_block_editor_active = False
-        pg.key.set_repeat(75, 75)
+        pg.key.set_repeat(100, 50)
         if not canceled:
             self.place_block_at(block_x, block_y, 'info_block', self.input_text)
         self.input_text = ['']
@@ -185,9 +185,9 @@ class LevelEditor:
         :param tile_type:
         :return:
         """
-        if str(world_x) in self.level and not loading_level:
-            if str(world_y) in self.level[str(world_x)]:
-                if self.level[str(world_x)][str(world_y)] == 'player_spawn':
+        if str(world_y) in self.level and not loading_level:
+            if str(world_x) in self.level[str(world_y)]:
+                if self.level[str(world_y)][str(world_x)] == 'player_spawn':
                     return
 
         if tile_type == 'info_block' and info_block_text is None:
@@ -204,19 +204,19 @@ class LevelEditor:
                 collidingS.kill()
 
         tile_name = tile_type if tile_type in ent.non_rotating_tiles else tile_type + str(self.selected_building_tile_facing)
-        if not str(world_x) in self.level:
-            self.level[str(world_x)] = {str(world_y): tile_name}
+        if not str(world_y) in self.level:
+            self.level[str(world_y)] = {str(world_x): tile_name}
         else:
-            self.level[str(world_x)][str(world_y)] = tile_name
+            self.level[str(world_y)][str(world_x)] = tile_name
 
         if tile_type == 'player_spawn' and not loading_level:
             self.place_player_spawn_at(world_x, world_y)
 
         elif tile_type == 'info_block':
             if 'info_block_text' not in self.level['misc']:
-                self.level['misc']['info_block_text'] = {str(world_x): {str(world_y): info_block_text}}
-            if str(world_x) not in self.level['misc']['info_block_text']:
-                self.level['misc']['info_block_text'][str(world_x)] = {str(world_y): info_block_text}
+                self.level['misc']['info_block_text'] = {str(world_y): {str(world_x): info_block_text}}
+            if str(world_y) not in self.level['misc']['info_block_text']:
+                self.level['misc']['info_block_text'][str(world_y)] = {str(world_x): info_block_text}
 
     def delete_block_at(self, position, overwrite_spawn_delete_protection=False):
         """
@@ -227,23 +227,23 @@ class LevelEditor:
         """
         sprite: ent.Tile
         x, y = position[0], position[1]
-        if str(x) in self.level:
-            if str(y) in self.level[str(x)]:
+        if str(y) in self.level:
+            if str(x) in self.level[str(y)]:
 
-                if self.level[str(x)][str(y)] == 'info_block':
-                    del self.level['misc']['info_block_text'][str(x)][str(y)]
-                    if len(self.level['misc']['info_block_text'][str(x)]) == 0:
-                        del self.level['misc']['info_block_text'][str(x)]
+                if self.level[str(y)][str(x)] == 'info_block':
+                    del self.level['misc']['info_block_text'][str(y)][str(x)]
+                    if len(self.level['misc']['info_block_text'][str(y)]) == 0:
+                        del self.level['misc']['info_block_text'][str(y)]
 
-                elif self.level[str(x)][str(y)] == 'player_spawn' and not overwrite_spawn_delete_protection:
+                elif self.level[str(y)][str(x)] == 'player_spawn' and not overwrite_spawn_delete_protection:
                     return
 
                 for sprite in self.tiles:
                     if sprite.x == x and sprite.y == y:
                         sprite.kill()
-                        del self.level[str(x)][str(y)]
-                        if len(self.level[str(x)]) == 0:
-                            del self.level[str(x)]
+                        del self.level[str(y)][str(x)]
+                        if len(self.level[str(y)]) == 0:
+                            del self.level[str(y)]
 
                         break
 
@@ -353,7 +353,7 @@ class LevelEditor:
         """
         squarex, squarey = self.get_square_on_pos(mousepos)[0:2]
         if squarey < self.grid.get_rect().bottom:
-            sprite = const.load_sprite(self.selected_building_tile, facing=self.selected_building_tile_facing)
+            sprite = const.get_sprite(self.selected_building_tile, facing=self.selected_building_tile_facing)
             self.sc.blit(sprite, (squarex, squarey))
 
     def rotate_selected_building_tile(self):
@@ -392,21 +392,21 @@ class LevelEditor:
             for x in range(0, 20, 2):
                 if ind >= len(tiles_sprites):
                     break
-                sprite = const.load_sprite(tiles_sprites[ind])
+                sprite = const.get_sprite(tiles_sprites[ind])
                 self.create_button(x, y, 2, 2, pg.Color(0, 0, 0), pg.Color(50, 50, 50), lambda i=ind: self.change_selected_building_tile(tiles_sprites[i]),
                                    image=sprite)
                 ind += 1
 
-        self.create_button(20, 16, 4, 2, pg.Color(0, 255, 0), pg.Color(0, 255, 255), lambda: self.save_level(), image=const.load_sprite('save', icon=True))
+        self.create_button(20, 16, 4, 2, pg.Color(0, 255, 0), pg.Color(0, 255, 255), lambda: self.save_level(), image=const.get_sprite('save', icon=True))
 
         self.create_button(20, 18, 4, 2, pg.Color(0, 0, 255), pg.Color(255, 0, 255), lambda: self.change_mode('playing'),
-                           image=const.load_sprite('right', icon=True))
+                           image=const.get_sprite('right', icon=True))
 
         self.create_button(20, 22, 4, 2, pg.Color(150, 0, 255), pg.Color(50, 0, 175), lambda: self.change_mode('level_selection'),
-                           image=const.load_sprite('home', icon=True))
+                           image=const.get_sprite('home', icon=True))
 
         self.create_button(20, 20, 4, 2, pg.Color(255, 0, 0), pg.Color(255, 75, 0), lambda: self.prompt_confirm_delete_level(),
-                           image=const.load_sprite('trashcan', icon=True))
+                           image=const.get_sprite('trashcan', icon=True))
 
         """self.create_button(20, 16, 4, 2, pg.Color(0, 255, 0), pg.Color(0, 255, 255), lambda: self.save_level(), text='Save', textColor=pg.Color(0, 0, 0))
 
@@ -506,16 +506,16 @@ class LevelEditor:
             self.level = lvl_design.copy()
 
         x: str
-        col: dict
+        row: dict
         y: str
         tile_type: str
 
-        for x, col in lvl_design.items():
-            if x == 'misc':
+        for y, row in lvl_design.items():
+            if y == 'misc':
                 continue
-            for y, tile_type in col.items():
+            for x, tile_type in row.items():
                 if tile_type == 'info_block':
-                    self.place_block_at(int(x), int(y), tile_type, info_block_text=lvl_design['misc']['info_block_text'][str(x)][str(y)])
+                    self.place_block_at(int(x), int(y), tile_type, info_block_text=lvl_design['misc']['info_block_text'][str(y)][str(x)])
                 else:
                     if tile_type in ent.non_rotating_tiles:
                         self.selected_building_tile_facing = 0

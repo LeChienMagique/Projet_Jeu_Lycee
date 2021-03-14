@@ -6,7 +6,7 @@ import level_selection
 
 if __name__ == '__main__':
     screen = const.screen
-    framerate = 60
+    framerate = 65
     g = game.Game(screen)
     le = LevelEditor.LevelEditor(screen)
     le_select = level_selection.LevelSelection(screen)
@@ -17,7 +17,7 @@ if __name__ == '__main__':
             g.load_level(const.level)
             g.main(framerate)
         elif const.mode == "editing":
-            pg.key.set_repeat(75, 75)
+            pg.key.set_repeat(100, 50)
             le.running = True
             le.load_level(const.level)
             le.main(framerate)

@@ -8,7 +8,7 @@ class Tile(pg.sprite.DirtySprite):
         group.add(self)
         self.facing = facing
         if image is None:
-            self.image = const.load_sprite('tile')
+            self.image = const.get_sprite('tile')
         else:
             self.image = image
         self.rect = self.image.get_rect()
@@ -20,6 +20,7 @@ class Tile(pg.sprite.DirtySprite):
         self.y = world_y
         self.visible = 0
         self.dirty = 0
+
 
     def update(self, *args, **kwargs) -> None:
         if self.rect.right < 0:
@@ -43,7 +44,7 @@ class Tile(pg.sprite.DirtySprite):
 
 class Jumper(Tile):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, facing: int = 0, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('jumper', facing=facing), facing=facing, **kwargs)
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('jumper', facing=facing), facing=facing, **kwargs)
 
 
 class Spike(Tile):
@@ -51,7 +52,7 @@ class Spike(Tile):
         """
         side : n s e w
         """
-        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('spike', facing=facing), facing=facing, **kwargs)
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('spike', facing=facing), facing=facing, **kwargs)
 
 
 """class Spike_N(Spike):
@@ -98,39 +99,39 @@ class Spike_SW(Spike):
 
 class EndTile(Tile):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('end'), **kwargs)
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('end'), **kwargs)
 
 
 class BackwardPusher(Tile):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, facing: int = 0, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('backward_jumper', facing=facing), facing=facing, **kwargs)
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('backward_jumper', facing=facing), facing=facing, **kwargs)
 
 
 class InfoBlock(Tile):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, text, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('info_block'), **kwargs)
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('info_block'), **kwargs)
         self.text = text
 
 
 class GravInverter(Tile):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, facing: int = 0, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('gravity_inverter', facing=facing), facing=facing, **kwargs)
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('gravity_inverter', facing=facing), facing=facing, **kwargs)
 
 
 class Minimizer(Tile):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('minimizer'), **kwargs)
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('minimizer'), **kwargs)
         self.disabled = False
 
 
 class PlayerSpawn(Tile):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('player_spawn'), **kwargs)
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('player_spawn'), **kwargs)
 
 
 class Checkpoint(Tile):
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.load_sprite('checkpoint'), **kwargs)
+        super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('checkpoint'), **kwargs)
 
 
 # key must match the name of its sprite in Background_Sprites/
