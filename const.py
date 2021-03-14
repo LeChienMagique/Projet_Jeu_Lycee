@@ -114,13 +114,17 @@ def refresh_number_of_levels():
     number_of_edited_levels = len(os.listdir('Edited_Levels/'))
 
 
-def load_sprite(sprite_name, custom_side: int = -1):
+def load_sprite(sprite_name, icon=False, custom_side: int = -1):
     if sprite_name == 'player':
         side = player_side
     else:
         side = tile_side
     side = int(side) if custom_side == -1 else custom_side
-    path = os.path.join('Blocks_Sprites', sprite_name + '.png')
+
+    if icon:
+        path = os.path.join('Icons', sprite_name + '.png')
+    else:
+        path = os.path.join('Blocks_Sprites', sprite_name + '.png')
     return pg.transform.scale(pg.image.load(path), (side, side))
 
 
@@ -192,7 +196,7 @@ background = make_background_group()
 
 class Button(pg.sprite.Sprite):
     def __init__(self, x: int, y: int, w: int, h: int, rectColor: pg.Color, onHoverRectColor: pg.Color, callback,
-                 text=None, textColor=pg.Color(0, 0, 0), image=None, font=myFont):
+                 text=None, textColor=pg.Color(0, 0, 0), image: pg.Surface = None, font=myFont):
         super().__init__()
         self.onHoverRectColor = onHoverRectColor
         self.rectColor = rectColor

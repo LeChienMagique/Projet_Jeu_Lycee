@@ -50,13 +50,13 @@ class LevelSelection:
         button_height = const.sc_height / 10
 
         self.create_button('gui', 2 * const.sc_width / 8, button_height / 2, button_width, button_height,
-                           pg.Color(0, 100, 255), pg.Color(0, 200, 0), lambda: self.change_mode('play'), text='Play', textColor=pg.Color(0, 0, 0))
+                           pg.Color(0, 100, 255), pg.Color(0, 200, 0), lambda: self.change_mode('play'), image=const.load_sprite('right', icon=True))
 
         self.create_button('gui', 4 * const.sc_width / 8, button_height / 2, button_width, button_height,
-                           pg.Color(0, 100, 255), pg.Color(0, 200, 0), lambda: self.change_mode('edit'), text='Edit', textColor=pg.Color(0, 0, 0))
+                           pg.Color(0, 100, 255), pg.Color(0, 200, 0), lambda: self.change_mode('edit'), image=const.load_sprite('wrench', icon=True))
 
         self.create_button('gui', 6 * const.sc_width / 8, button_height / 2, button_width, button_height,
-                           pg.Color(150, 0, 255), pg.Color(0, 200, 0), lambda: self.create_level_to_edit(), text='Creer niveau', textColor=pg.Color(0, 0, 0))
+                           pg.Color(150, 0, 255), pg.Color(0, 200, 0), lambda: self.create_level_to_edit(), image=const.load_sprite('plus', icon=True))
 
         self.make_buttons()
 

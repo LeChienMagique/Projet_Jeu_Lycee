@@ -377,7 +377,18 @@ class LevelEditor:
                                    image=sprite)
                 ind += 1
 
-        self.create_button(20, 16, 4, 2, pg.Color(0, 255, 0), pg.Color(0, 255, 255), lambda: self.save_level(), text='Save', textColor=pg.Color(0, 0, 0))
+        self.create_button(20, 16, 4, 2, pg.Color(0, 255, 0), pg.Color(0, 255, 255), lambda: self.save_level(), image=const.load_sprite('save', icon=True))
+
+        self.create_button(20, 18, 4, 2, pg.Color(0, 0, 255), pg.Color(255, 0, 255), lambda: self.change_mode('playing'),
+                           image=const.load_sprite('right', icon=True))
+
+        self.create_button(20, 22, 4, 2, pg.Color(150, 0, 255), pg.Color(50, 0, 175), lambda: self.change_mode('level_selection'),
+                           image=const.load_sprite('home', icon=True))
+
+        self.create_button(20, 20, 4, 2, pg.Color(255, 0, 0), pg.Color(255, 75, 0), lambda: self.prompt_confirm_delete_level(),
+                           image=const.load_sprite('trashcan', icon=True))
+
+        """self.create_button(20, 16, 4, 2, pg.Color(0, 255, 0), pg.Color(0, 255, 255), lambda: self.save_level(), text='Save', textColor=pg.Color(0, 0, 0))
 
         self.create_button(20, 18, 4, 2, pg.Color(0, 0, 255), pg.Color(255, 0, 255), lambda: self.change_mode('playing'), text='Play',
                            textColor=pg.Color(0, 0, 0))
@@ -386,7 +397,7 @@ class LevelEditor:
                            textColor=pg.Color(0, 0, 0))
 
         self.create_button(20, 20, 4, 2, pg.Color(255, 0, 0), pg.Color(255, 75, 0), lambda: self.prompt_confirm_delete_level(), text='Suppr level',
-                           textColor=pg.Color(0, 0, 0))
+                           textColor=pg.Color(0, 0, 0))"""
 
     def make_delete_confirm_menu(self):
         """

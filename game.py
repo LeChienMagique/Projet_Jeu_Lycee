@@ -115,14 +115,14 @@ class Game:
         button_h = const.sc_height // 6
         button_x = const.sc_width // 2 - button_w // 2
         self.pause_menu.add(const.Button(button_x, button_h + 10, button_w, button_h, pg.Color(0, 0, 255), pg.Color(0, 255, 0), lambda: self.toggle_pause(),
-                                         text='Reprendre', textColor=pg.Color(0, 0, 0)),
+                                         image=const.load_sprite('right', icon=True)),
                             const.Button(button_x, button_h * 2 + 20, button_w, button_h, pg.Color(0, 0, 255), pg.Color(0, 255, 0), lambda: self.reset_level(),
-                                         text='Recommencer', textColor=pg.Color(0, 0, 0)),
+                                         image=const.load_sprite('return', icon=True)),
                             const.Button(button_x, button_h * 3 + 30, button_w, button_h, pg.Color(0, 0, 255), pg.Color(0, 255, 0),
-                                         lambda: self.change_mode('level_selection'), text='Quitter', textColor=pg.Color(0, 0, 0)))
+                                         lambda: self.change_mode('level_selection'), image=const.load_sprite('home', icon=True)))
         if const.previous_mode == 'editing':
             self.pause_menu.add(const.Button(button_x, button_h * 4 + 40, button_w, button_h, pg.Color(0, 0, 255), pg.Color(0, 255, 0),
-                                             lambda: self.change_mode('editing'), text='Editer', textColor=pg.Color(0, 0, 0)))
+                                             lambda: self.change_mode('editing'), image=const.load_sprite('wrench', icon=True)))
 
     def set_scrolling(self, forward: bool):
         """
