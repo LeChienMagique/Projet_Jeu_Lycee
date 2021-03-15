@@ -151,8 +151,9 @@ class Game:
         :return:
         """
         player_y = self.player.rect.centery
-        up_limit = const.sc_height / 2.5
-        bottom_limit = const.sc_height - (const.sc_height / 3.4)
+        divider = 3
+        up_limit = const.sc_height / divider
+        bottom_limit = const.sc_height - (const.sc_height / divider)
         if player_y < up_limit:  # Si le joueur est trop haut
             offset = up_limit - player_y
             self.player.rect.centery = up_limit
@@ -403,15 +404,19 @@ class Player(pg.sprite.DirtySprite):
         if abs(self.dy) > const.tile_side:
             self.dy = const.tile_side * grav_inv
 
-    def jump(self):
+    def jump(self, forced_dy: float = None):
         """
         Donne de l'accélération verticale au joueur pour simuler un saut.
         :return:
         """
-        if self.onGround:
+        if forced_dy is not None:
+            self.dy = forced_dy
+
+        elif self.onGround:
             self.dy = const.jump_height
             self.onGround = False
-            self.change_animation('jump')
+
+        self.change_animation('jump')
 
     def change_animation(self, animation_name: str, tick: int = 0):
         """
@@ -459,8 +464,8 @@ class Player(pg.sprite.DirtySprite):
         self.rect.x += self.dx
         self.rect.y += self.dy
 
-        if self.rect.y > self.game.low_dead_line.rect.y + const.tile_side * 15 or \
-                self.rect.y < self.game.high_dead_line.rect.y - const.tile_side * 15:
+        if (self.rect.y > self.game.low_dead_line.rect.y + const.tile_side * 15 and not self.game.gravity_is_inversed) or \
+                (self.rect.y < self.game.high_dead_line.rect.y - const.tile_side * 15 and self.game.gravity_is_inversed):
             self.kill_player()
         if self.rect.x < 0:
             self.kill_player()
@@ -515,9 +520,9 @@ class Player(pg.sprite.DirtySprite):
                 if self.game.gravity_is_inversed and collidedS.rect.left < self.rect.centerx:  # Collisions quand la gravité est inversée
                     if collidedS.facing == 4:
                         if isinstance(collidedS, ent.Jumper):  # Collisions avec les Jumpers
-                            self.dy = const.jump_height * 1.4
+                            self.jump(forced_dy=const.jump_height * 1.4)
                         elif isinstance(collidedS, ent.BackwardPusher):  # Collisions avec les Backward Jumper
-                            self.dy = const.jump_height * 1.4
+                            self.jump(forced_dy=const.jump_height * 1.4)
                             self.game.set_scrolling(False)
                         elif isinstance(collidedS, ent.GravInverter):  # Collisions avec les inverseurs de gravité
                             self.game.invert_gravity()
@@ -538,9 +543,9 @@ class Player(pg.sprite.DirtySprite):
 
                     if collidedS.facing == 0:
                         if isinstance(collidedS, ent.Jumper):  # Collisions avec les Jumpers
-                            self.dy = const.jump_height * 1.4
+                            self.jump(forced_dy=const.jump_height * 1.4)
                         elif isinstance(collidedS, ent.BackwardPusher):  # Collisions avec les Backward Jumper
-                            self.dy = const.jump_height * 1.4
+                            self.jump(forced_dy=const.jump_height * 1.4)
                             self.game.set_scrolling(False)
 
                         elif isinstance(collidedS, ent.GravInverter):  # Collisions avec les inverseurs de gravité
