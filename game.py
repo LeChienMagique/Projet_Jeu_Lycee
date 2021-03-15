@@ -46,7 +46,7 @@ class Game:
                         self.next_level()
 
             elif self.paused:
-                if e.type == pg.MOUSEMOTION:  # Pour limiter les appels à la méthode update des boutons, le fait que quand la souris bouge ou que le bouton de
+                if e.type == pg.MOUSEMOTION or e.type == pg.MOUSEBUTTONUP:  # Pour limiter les appels à la méthode update des boutons, le fait que quand la souris bouge ou que le bouton de
                     # la souris est appuyée
                     self.pause_menu.update(pg.mouse.get_pos(), False)
                 elif e.type == pg.MOUSEBUTTONDOWN:
@@ -341,19 +341,14 @@ class Game:
                 self.backround_group.update()
 
             self.backround_group.draw(self.sc)
-            """
-            const.display_infos(self.sc, 15, 15,f"x : {self.player.rect.x}, y : {self.player.rect.y}, "
-                                                f"dy : {round(self.player.dy, 1)}, dx : {self.player.dx}, "
-                                                f"onGround : {self.player.onGround}")
-            """
 
-            # const.display_infos(self.sc, 15, 15, str(self.clock.get_fps()))
-            # const.display_infos(self.sc, 15, 15, str(self.player.dy))
+            if const.show_fps:
+                const.display_infos(self.sc, str(self.clock.get_fps().__round__(2)), center=True, y=15)
             self.player_group.draw(self.sc)
             self.tile_group.draw(self.sc)
             if self.paused:
                 self.pause_menu.draw(self.sc)
-                textsurf = const.bigFont.render('PAUSE', True, pg.Color(255, 255, 255))
+                textsurf = const.boldFont.render('PAUSE', True, pg.Color(255, 255, 255))
                 self.sc.blit(textsurf, (const.sc_width // 2 - textsurf.get_rect().width // 2, const.sc_height // 10))
             elif self.info_block_pause:
                 self.draw_info_block_text()

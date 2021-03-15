@@ -266,7 +266,9 @@ class LevelEditor:
                     sys.exit()
 
             if self.confirm_delete_level_active:  # Quand le menu pop up de confirmation de suppression du niveau est à l'écran
-                if e.type == pg.MOUSEBUTTONDOWN:
+                if e.type == pg.KEYDOWN and e.key == pg.K_ESCAPE:
+                    self.delete_level(cancel=True)
+                elif e.type == pg.MOUSEBUTTONDOWN:
                     self.confirm_delete_level_menu.update(pg.mouse.get_pos(), True)
                 elif e.type == pg.MOUSEMOTION:
                     self.confirm_delete_level_menu.update(pg.mouse.get_pos(), False)
@@ -274,8 +276,11 @@ class LevelEditor:
 
             if self.info_block_editor_active:  # Quand le menu pop up d'édtion de texte pour le block info_block est à l'écran
                 if e.type == pg.KEYDOWN:  # Quand une touche est pressée essaye d'ajouter son unicode au texte
-                    self.add_character_to_input_text(e)
-                elif e.type == pg.MOUSEMOTION:
+                    if e.key == pg.K_ESCAPE:
+                        self.validate_text_input_info_block(0, 0, canceled=True)
+                    else:
+                        self.add_character_to_input_text(e)
+                elif e.type == pg.MOUSEMOTION or e.type == pg.MOUSEBUTTONUP:
                     self.info_block_editor.update(pg.mouse.get_pos(), False)
                 elif e.type == pg.MOUSEBUTTONDOWN:
                     self.info_block_editor.update(pg.mouse.get_pos(), True)
@@ -283,7 +288,7 @@ class LevelEditor:
 
             mouse_buttons = pg.mouse.get_pressed(3)
             if mouse_buttons[0]:
-                self.try_place_block_at_mouse(pg.mouse.get_pos())  # Essaye de placer le bloc seléctionné à l'emplacement de la souris
+                self.try_place_block_at_mouse(pg.mouse.get_pos())  # Essaye de placer le bloc sélectionné à l'emplacement de la souris
                 if self.running:
                     self.check_buttons(True)
                 else:
@@ -291,7 +296,7 @@ class LevelEditor:
             elif mouse_buttons[2]:
                 self.delete_block_at(self.get_square_on_pos(pg.mouse.get_pos())[2:])  # Supprime le bloc à l'emplacement de la souris
 
-            if e.type == pg.MOUSEMOTION:
+            if e.type == pg.MOUSEMOTION or e.type == pg.MOUSEBUTTONUP:
                 self.check_buttons(False)  # Pour limiter les appels à la méthode update des boutons, le fait que quand la souris bouge
             elif e.type == pg.KEYDOWN:
                 if e.key == pg.K_z:
@@ -333,7 +338,7 @@ class LevelEditor:
 
     def ghost_selected_tile_on_cursor(self, mousepos):
         """
-        Affiche sous la souris le bloc seléctionné mais ne le place pas
+        Affiche sous la souris le bloc sélectionné mais ne le place pas
         :param mousepos:
         :return:
         """
@@ -344,7 +349,7 @@ class LevelEditor:
 
     def rotate_selected_building_tile(self):
         """
-        Tourne le bloc seléctionné
+        Tourne le bloc sélectionné
         :return:
         """
         if self.selected_building_tile in ent.non_rotating_tiles:
@@ -357,7 +362,7 @@ class LevelEditor:
 
     def change_selected_building_tile(self, tile_name):
         """
-        Change le bloc seléctionné
+        Change le bloc sélectionné
         :param tile_name:
         :return:
         """
@@ -397,9 +402,28 @@ class LevelEditor:
         Crée les boutons du menu de confirmation de suppression du niveau et les ajoute au groupe correspondant
         :return:
         """
-        self.create_button(6, 8, 5, 3, pg.Color(255, 0, 0), pg.Color(150, 0, 0), lambda: self.delete_level(),
+        rect_x, rect_y, rect_w, rect_h = self.info_block_editor_text_input_dims
+        self.confirm_delete_box = pg.Surface((rect_w, rect_h))
+        self.confirm_delete_box.fill(pg.Color(150, 150, 150))
+
+        border_width = 15
+        pg.draw.line(self.confirm_delete_box, (0, 0, 0), (0, 0), (rect_w, 0), width=border_width)
+        pg.draw.line(self.confirm_delete_box, (0, 0, 0), (0, 0), (0, rect_h), width=border_width)
+        pg.draw.line(self.confirm_delete_box, (0, 0, 0), (0, rect_h - 1), (rect_w - 1, rect_h - 1), width=border_width)
+        pg.draw.line(self.confirm_delete_box, (0, 0, 0), (rect_w - 1, 0), (rect_w - 1, rect_h), width=border_width)
+
+        warning_img = const.get_sprite('warning', icon=True)
+        warning_img = pg.transform.scale(warning_img, (rect_h, rect_h))
+
+        self.confirm_delete_box.blit(warning_img, (rect_w // 4, 0))
+
+        const.display_infos(self.confirm_delete_box, "Voulez-vous vraiment", font=const.boldFont, center=True, textColor=pg.Color(200, 0, 0))
+        const.display_infos(self.confirm_delete_box, "supprimer le niveau ?", font=const.boldFont, center=True,
+                            y=self.confirm_delete_box.get_height() // 2 + const.font_size, textColor=pg.Color(200, 0, 0))
+
+        self.create_button(6, 12, 5, 3, pg.Color(255, 0, 0), pg.Color(150, 0, 0), lambda: self.delete_level(),
                            image=const.get_sprite('checkmark', icon=True), group=self.confirm_delete_level_menu)
-        self.create_button(14, 8, 5, 3, pg.Color(0, 255, 0), pg.Color(0, 150, 0), lambda: self.delete_level(cancel=True),
+        self.create_button(14, 12, 5, 3, pg.Color(0, 255, 0), pg.Color(0, 150, 0), lambda: self.delete_level(cancel=True),
                            image=const.get_sprite('cross', icon=True), group=self.confirm_delete_level_menu)
 
     def prompt_confirm_delete_level(self):
@@ -408,7 +432,7 @@ class LevelEditor:
         :return:
         """
         self.confirm_delete_level_active = True
-        const.display_infos(self.sc, "Voulez-vous vraiment supprimer le niveau ?", font=const.bigFont, center=True, y=const.sc_height // 5)
+        self.sc.blit(self.confirm_delete_box, self.info_block_editor_text_input_dims[:2])
 
     def delete_level(self, cancel=False):
         """

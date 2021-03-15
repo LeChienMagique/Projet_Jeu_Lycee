@@ -3,5 +3,6 @@
   "jump_height": "150%",
   "gravity": "190%",
   "window_size": 1300,
-  "ask_window_size": true
+  "ask_window_size": true,
+  "show_fps": false
 }

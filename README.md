@@ -1,6 +1,6 @@
 # Projet_Jeu_Lycee
 
-Fait avec Python 3.8, pygame 2.0.0 (SDL 2.0.12, python 3.9.2)
+Fait avec Python 3.9.2, pygame 2.0.0 (SDL 2.0.12, python 3.9.2)
 
 Projet NSI lycée. Petit jeu de platforming en auto-scrolling
 
@@ -10,35 +10,37 @@ Echap : met le jeu en pause
 
 Fleche haut : sauter
 
-R : recommencer le niveau
+R : recommence au dernier checkpoint
 
 E (si dans un niveau éditable) : passe en mode édition
 
 ### EN PAUSE:
-bouton quitter : reviens à la selection des niveaux
 
-bouton editer (si dans un niveau éditable): passe en mode édition
+bouton croix : reviens à la sélection des niveaux
 
-bouton recommencer : recommence le niveau
+bouton clé à molette (si dans un niveau éditable): passe en mode édition
 
-bouton reprendre : arrete la pause
+bouton flèche tournante : recommence le niveau
+
+bouton triangle : arrete la pause
 
 F (debug) : avance de 1 frame
 
 ### EN EDITION:
+
 Z Q S D pour se déplacer
 
-clic gauche : pose le bloc selectionné
+clic gauche : pose le bloc sélectionné sous la souris
 
-clic droit : détruit le bloc selectionné
+clic droit : détruit le bloc sous la souris
 
 P : passe en mode jeu
 
-Echap : reviens a la selection des niveaux
+Echap : reviens à la sélection des niveaux
 
-bouton quitter : reviens à la selection des niveaux
+bouton maison : reviens à la sélection des niveaux
 
-bouton play : sauvegarde le niveau et passe en mode jeu
+bouton triangle : sauvegarde le niveau et passe en mode jeu
 
 bouton save : sauvegarde le niveau
 

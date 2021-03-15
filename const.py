@@ -51,9 +51,10 @@ window_icon = pg.image.load(os.path.join('assets', 'Icons', 'game_icon.png'))
 pg.display.set_icon(window_icon)
 pg.display.set_caption('Galaxy Jumper')
 
-customSizeFont = lambda n: pg.font.SysFont('Alef', n)
-myFont = pg.font.SysFont('Alef', 25)
-bigFont = pg.font.SysFont('Alef', 40)
+font_size = sc_width // 40
+myFont = pg.font.Font('assets/PixelCountdown-Yaj4.ttf', font_size)
+boldFont = pg.font.Font('assets/PixelCountdown-Yaj4.ttf', font_size)
+boldFont.set_bold(True)
 
 level = 1
 
@@ -87,6 +88,7 @@ scrolling_forward = True
 
 blank_level_data = '''{"misc": {"spawnpoint": [0,0]}, "0":{"0":"player_spawn"}}'''
 
+show_fps = settings['show_fps']
 
 def delete_edited_level():
     global number_of_edited_levels
@@ -160,16 +162,18 @@ icons = {'checkmark': load_sprite('checkmark', icon=True), 'cross': load_sprite(
          'power': load_sprite('power', icon=True), 'return': load_sprite('return', icon=True),
          'right': load_sprite('right', icon=True), 'save': load_sprite('save', icon=True),
          'trashcan': load_sprite('trashcan', icon=True), 'warning': load_sprite('warning', icon=True),
-         'wrench': load_sprite('wrench', icon=True)}
+         'wrench': load_sprite('wrench', icon=True), 'button_unpressed': load_sprite('button_unpressed', icon=True),
+         'button_pressed': load_sprite('button_pressed', icon=True)}
 
 player_animations = {'jump': [load_player_sprite('jump' + str(i)) for i in range(2)], 'idle': [load_player_sprite('idle' + str(i)) for i in range(3)]}
 
 smol_player_animations = {k: [pg.transform.scale(image, (player_side // 2, player_side // 2)) for image in v] for k, v in player_animations.items()}
 
 
-def display_infos(surf: pg.Surface, *args, font: pg.font = myFont, center: bool = False, x: int = None, y: int = None):
+def display_infos(surf: pg.Surface, *args, font: pg.font = myFont, center: bool = False, x: int = None, y: int = None,
+                  textColor: pg.Color = pg.Color(255, 255, 255)):
     infos = "".join(args)
-    textsurf = font.render(infos, True, (255, 255, 255))
+    textsurf = font.render(infos, True, textColor)
     if not center:
         surf.blit(textsurf, (x, y))
     else:
@@ -251,11 +255,20 @@ class Button(pg.sprite.Sprite):
         self.text = text
         self.textColor = textColor
         self.spriteImg = image
-        self.image = pg.Surface((w, h))
-        self.image.fill(rectColor)
+
+        # self.image = pg.Surface((w, h))
+        # self.image.fill(rectColor)
+        self.pressed_image = pg.transform.scale(get_sprite('button_pressed', icon=True), (w, h))
+        self.unpressed_image = pg.transform.scale(get_sprite('button_unpressed', icon=True), (w, h))
+        self.hovered_image = self.unpressed_image.copy()
+        self.hovered_image.fill((50, 50, 50), special_flags=pg.BLEND_RGB_ADD)
+
+        self.image = self.unpressed_image
+
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
         self.blit_content()
         self.hovered = False
 
@@ -264,6 +277,7 @@ class Button(pg.sprite.Sprite):
             self.textsurf = self.font.render(self.text, True, self.textColor)
             self.image.blit(self.textsurf, (self.width // 2 - self.textsurf.get_rect().width // 2,
                                             self.height // 2 - self.textsurf.get_rect().height // 2))
+            # Pour aligner le texte au milieu du bouton
 
         elif self.spriteImg is not None:
             self.image.blit(self.spriteImg, (self.width // 2 - self.spriteImg.get_rect().width // 2,
@@ -275,10 +289,9 @@ class Button(pg.sprite.Sprite):
         :param hovered:
         :return:
         """
-        if hovered != self.hovered:  # Optimisation des appels de dessin
-            self.image.fill(self.onHoverRectColor if hovered else self.rectColor)
+        if hovered != self.hovered:
+            self.image = self.hovered_image if hovered else self.unpressed_image
             self.blit_content()
-            # Pour aligner le texte au milieu du bouton
 
     def update(self, mouse_pos, mouse_pressed: bool) -> None:
         if self.rect.left < mouse_pos[0] < self.rect.right and self.rect.top < mouse_pos[1] < self.rect.bottom:
@@ -286,10 +299,15 @@ class Button(pg.sprite.Sprite):
             self.hovered = True
             if mouse_pressed:
                 self.on_click()
+            else:
+                self.image = self.hovered_image
         else:
             self.change_rect_color(False)
             self.hovered = False
+            self.image = self.unpressed_image
 
     def on_click(self):
+        self.image = self.pressed_image
+        self.blit_content()
         if callable(self.callback):
             self.callback()

@@ -45,16 +45,16 @@ class LevelSelection:
         self.play_buttons.empty()
         self.edit_buttons.empty()
 
-        button_width = const.sc_width / 4
-        button_height = const.sc_height / 10
+        button_width = const.sc_width // 4
+        button_height = const.sc_height // 10
 
-        self.create_button('gui', 2 * const.sc_width / 8, button_height / 2, button_width, button_height,
+        self.create_button('gui', 2 * const.sc_width // 8, button_height // 2, button_width, button_height,
                            pg.Color(0, 100, 255), pg.Color(0, 200, 0), lambda: self.change_mode('play'), image=const.get_sprite('right', icon=True))
 
-        self.create_button('gui', 4 * const.sc_width / 8, button_height / 2, button_width, button_height,
+        self.create_button('gui', 4 * const.sc_width // 8, button_height // 2, button_width, button_height,
                            pg.Color(0, 100, 255), pg.Color(0, 200, 0), lambda: self.change_mode('edit'), image=const.get_sprite('wrench', icon=True))
 
-        self.create_button('gui', 6 * const.sc_width / 8, button_height / 2, button_width, button_height,
+        self.create_button('gui', 6 * const.sc_width // 8, button_height // 2, button_width, button_height,
                            pg.Color(150, 0, 255), pg.Color(0, 200, 0), lambda: self.create_level_to_edit(), image=const.get_sprite('plus', icon=True))
 
         self.make_buttons()
@@ -66,10 +66,10 @@ class LevelSelection:
         """
         const.refresh_number_of_levels()
         for text, group, mode in [('Custom', 'edit', 'editing'), ('Level', 'play', 'playing')]:
-            button_width = const.sc_width / 4
-            button_height = const.sc_height / 10
-            left_column_x = const.sc_width / 10
-            mid_column_x = 3 * const.sc_width / 8
+            button_width = const.sc_width // 4
+            button_height = const.sc_height // 10
+            left_column_x = const.sc_width // 10
+            mid_column_x = 3 * const.sc_width // 8
             right_column_x = const.sc_width - left_column_x - button_width
             x_to_draw = left_column_x
             level_number = const.number_of_levels if mode == 'playing' else const.number_of_edited_levels
@@ -78,7 +78,7 @@ class LevelSelection:
                     x_to_draw = mid_column_x
                 elif level == 16:
                     x_to_draw = right_column_x
-                self.create_button(group, x_to_draw, button_height / 2 + (button_height + 10) * (level % 8 if level % 8 != 0 else 1), button_width,
+                self.create_button(group, x_to_draw, button_height // 2 + (button_height + 10) * (level % 8 if level % 8 != 0 else 1), button_width,
                                    button_height, pg.Color(255, 0, 0), pg.Color(0, 200, 0), lambda n=level, m=mode: self.select_level(n, m),
                                    text=f'{text} {level}', textColor=pg.Color(0, 0, 0))
 
@@ -139,7 +139,7 @@ class LevelSelection:
                 if e.button == 1:
                     self.update_buttons_group(pg.mouse.get_pos(), True)
                     pg.event.clear(pg.MOUSEBUTTONDOWN)
-            elif e.type == pg.MOUSEMOTION:
+            elif e.type == pg.MOUSEMOTION or e.type == pg.MOUSEBUTTONUP:
                 self.update_buttons_group(pg.mouse.get_pos(), False)
 
     def main(self, framerate: int):
