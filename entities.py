@@ -7,7 +7,7 @@ class Tile(pg.sprite.DirtySprite):
     Classe mère de toutes les types de blocs, est aussi la classe du bloc de construction de base
     """
 
-    def __init__(self, screen_x, screen_y, world_x, world_y, group: any, image: pg.Surface = None, facing: int = 0, editing: bool = False):
+    def __init__(self, screen_x, screen_y, world_x, world_y, group: any, image: pg.Surface = None, facing: int = 0, editing: bool = False, text: str = ""):
         super().__init__()
         group.add(self)
         self.facing = facing
@@ -91,7 +91,7 @@ class InfoBlock(Tile):
     Crée une tile info block
     """
 
-    def __init__(self, screen_x, screen_y, world_x, world_y, group, text, **kwargs):
+    def __init__(self, screen_x, screen_y, world_x, world_y, group, text: str = '', **kwargs):
         super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('info_block'), **kwargs)
         self.text = text
 
