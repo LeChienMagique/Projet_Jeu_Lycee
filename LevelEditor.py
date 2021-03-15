@@ -77,7 +77,7 @@ class LevelEditor:
         square_screeny = (pos[1] // self.grid_square_side) * self.grid_square_side + 1
         square_worldx = (pos[0] // self.grid_square_side) + self.worldx
         square_worldy = (pos[1] // self.grid_square_side) - self.worldy
-        return (square_screenx, square_screeny, square_worldx, square_worldy)
+        return square_screenx, square_screeny, square_worldx, square_worldy
 
     def try_place_block_at_mouse(self, mousepos):
         """
@@ -157,6 +157,12 @@ class LevelEditor:
         self.input_text = ['']
 
     def place_player_spawn_at(self, world_x: int, world_y: int):
+        """
+        Place le spawn du joueur aux coordonnées indiquées
+        :param world_x:
+        :param world_y:
+        :return:
+        """
         spawnpoint = self.level['misc']['spawnpoint']
         self.delete_block_at(spawnpoint, overwrite_spawn_delete_protection=True)
         self.level['misc']['spawnpoint'] = [world_x, world_y]

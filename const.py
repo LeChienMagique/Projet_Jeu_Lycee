@@ -10,16 +10,25 @@ sc_width = sc_height = 1400
 
 
 def define_window_size(size: int, root: tk.Tk):
+    """
+    Change la taille de la fenêtre du jeu
+    :param size:
+    :param root:
+    :return:
+    """
     global sc_width, sc_height
     print(size)
     sc_width = sc_height = int(size)
-    settings = json.load(open('settings.json', 'r'))
-    settings['window_size'] = int(size)
-    json.dump(settings, open('settings.json', 'w'), indent=4)
+    settings_dict = json.load(open('settings.json', 'r'))
+    settings_dict['window_size'] = int(size)
+    json.dump(settings_dict, open('settings.json', 'w'), indent=4)
     root.destroy()
 
 
 def ask_window_size():
+    """
+    Créé un pop-up permettant de choisir la taille de la fenêtre du jeu
+    """
     root = tk.Tk()
     w, h = root.winfo_screenwidth(), root.winfo_screenheight()
     root.geometry(f'{int(w * 0.3)}x{int(h * 0.3)}')
@@ -90,7 +99,11 @@ blank_level_data = '''{"misc": {"spawnpoint": [0,0]}, "0":{"0":"player_spawn"}}'
 
 show_fps = settings['show_fps']
 
+
 def delete_edited_level():
+    """
+    Supprime le niveau éditable en cours d'utilisation
+    """
     global number_of_edited_levels
     n = level
     print(f'Level {n} va être supprimé')
@@ -106,6 +119,10 @@ def delete_edited_level():
 
 
 def next_level():
+    """
+    Passe au niveau suivant
+    :return:
+    """
     global level
     if level + 1 <= number_of_levels:
         level += 1
@@ -114,12 +131,22 @@ def next_level():
 
 
 def refresh_number_of_levels():
+    """
+    Actualise le nombre de niveau présents dans le dossier Edited_Levels/ et Levels/
+    """
     global number_of_levels, number_of_edited_levels
     number_of_levels = len(os.listdir('Levels/'))
     number_of_edited_levels = len(os.listdir('Edited_Levels/'))
 
 
 def get_sprite(sprite_name, facing=0, icon=False):
+    """
+    Renvoie le sprite correspondant à la demande
+    :param sprite_name:
+    :param facing:
+    :param icon:
+    :return:
+    """
     if icon:
         return icons[sprite_name]
     if facing != 0:
@@ -131,6 +158,14 @@ def get_sprite(sprite_name, facing=0, icon=False):
 
 
 def load_sprite(sprite_name, facing=0, icon=False, custom_side: int = None):
+    """
+    Charge en mémoire le sprite demandé et le renvoie
+    :param sprite_name:
+    :param facing:
+    :param icon:
+    :param custom_side:
+    :return:
+    """
     if custom_side is None:
         side = tile_side
     else:
@@ -145,6 +180,11 @@ def load_sprite(sprite_name, facing=0, icon=False, custom_side: int = None):
 
 
 def load_player_sprite(sprite_name):
+    """
+    Charge en mémoire le sprite du joueur et le renvoie
+    :param sprite_name:
+    :return:
+    """
     path = os.path.join('assets', 'Player_Animations', sprite_name + '.png')
     return pg.transform.scale(pg.image.load(path), (player_side, player_side))
 
@@ -172,6 +212,16 @@ smol_player_animations = {k: [pg.transform.scale(image, (player_side // 2, playe
 
 def display_infos(surf: pg.Surface, *args, font: pg.font = myFont, center: bool = False, x: int = None, y: int = None,
                   textColor: pg.Color = pg.Color(255, 255, 255)):
+    """
+    Affiche du texte à l'endroit indiqué avec des options de customisation
+    :param surf:
+    :param args:
+    :param font:
+    :param center:
+    :param x:
+    :param y:
+    :param textColor:
+    """
     infos = "".join(args)
     textsurf = font.render(infos, True, textColor)
     if not center:
@@ -183,6 +233,10 @@ def display_infos(surf: pg.Surface, *args, font: pg.font = myFont, center: bool 
 
 
 def change_mode(mode_name: str):
+    """
+    Change le 'mode de jeu'
+    :param mode_name:
+    """
     global mode, previous_mode
     previous_mode = mode
     if mode_name == 'editing':
@@ -194,6 +248,10 @@ def change_mode(mode_name: str):
 
 
 class BackgroundLayer(pg.sprite.Sprite):
+    """
+    Class pour créer des layers de background
+    """
+
     def __init__(self, layer: int, number: int, image: pg.Surface):
         super().__init__()
         self.image = image
@@ -205,6 +263,11 @@ class BackgroundLayer(pg.sprite.Sprite):
         self.scrolling_speed = int(layer * (scrolling_speed / 4))
 
     def update(self, ntimes=1, forward=True) -> None:
+        """
+        Actualise la position du layer
+        :param ntimes:
+        :param forward:
+        """
         if scrolling_forward and forward:
             self.rect.x -= self.scrolling_speed * ntimes
             if self.rect.right < 0:
@@ -216,6 +279,10 @@ class BackgroundLayer(pg.sprite.Sprite):
 
 
 def make_background_group():
+    """
+    Créé les backgrounds et les renvoie
+    :return:
+    """
     # return pg.transform.scale(pg.image.load('city.png'), (sc_width, sc_height))
     background_sprites = []
     path = os.path.join('assets', 'Backgrounds', 'industrial_layers')
@@ -243,6 +310,10 @@ background = make_background_group()
 
 
 class Button(pg.sprite.Sprite):
+    """
+    Class permettant de créer un bouton avec des options de customisation
+    """
+
     def __init__(self, x: int, y: int, w: int, h: int, rectColor: pg.Color, onHoverRectColor: pg.Color, callback,
                  text=None, textColor=pg.Color(0, 0, 0), image: pg.Surface = None, font=myFont):
         super().__init__()
@@ -273,6 +344,9 @@ class Button(pg.sprite.Sprite):
         self.hovered = False
 
     def blit_content(self):
+        """
+        Réaffihe le texte ou l'image sur le bouton
+        """
         if self.text is not None:
             self.textsurf = self.font.render(self.text, True, self.textColor)
             self.image.blit(self.textsurf, (self.width // 2 - self.textsurf.get_rect().width // 2,
@@ -294,6 +368,11 @@ class Button(pg.sprite.Sprite):
             self.blit_content()
 
     def update(self, mouse_pos, mouse_pressed: bool) -> None:
+        """
+        Actualise le bouton, change sa couleur etc... si il est appuyé ou survolé
+        :param mouse_pos:
+        :param mouse_pressed:
+        """
         if self.rect.left < mouse_pos[0] < self.rect.right and self.rect.top < mouse_pos[1] < self.rect.bottom:
             self.change_rect_color(True)
             self.hovered = True
@@ -307,6 +386,9 @@ class Button(pg.sprite.Sprite):
             self.image = self.unpressed_image
 
     def on_click(self):
+        """
+        Appelé quand le bouton est cliqué
+        """
         self.image = self.pressed_image
         self.blit_content()
         if callable(self.callback):

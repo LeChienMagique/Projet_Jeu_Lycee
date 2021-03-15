@@ -6,6 +6,10 @@ import json
 
 
 class Game:
+    """
+    Instance du jeu
+    """
+
     def __init__(self, screen: pg.Surface):
         self.running = True
         self.sc = screen
@@ -316,6 +320,11 @@ class Game:
         pg.display.flip()
 
     def main(self, framerate: int):
+        """
+        Méthode principale
+        :param framerate:
+        :return:
+        """
         self.clock = pg.time.Clock()
         self.reset_all_vars()
         self.make_pause_menu()
@@ -357,6 +366,10 @@ class Game:
 
 
 class Player(pg.sprite.DirtySprite):
+    """
+    Classe du joueur
+    """
+
     def __init__(self, game: Game):
         super().__init__()
         self.game = game  # Référence à l'instance du jeu

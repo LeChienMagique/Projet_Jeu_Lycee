@@ -3,7 +3,11 @@ import const
 
 
 class Tile(pg.sprite.DirtySprite):
-    def __init__(self, screen_x, screen_y, world_x, world_y, group: any, image: pg.Surface = None, facing: int = 0, editing: bool = False, text: str = ''):
+    """
+    Classe mère de toutes les types de blocs, est aussi la classe du bloc de construction de base
+    """
+
+    def __init__(self, screen_x, screen_y, world_x, world_y, group: any, image: pg.Surface = None, facing: int = 0, editing: bool = False):
         super().__init__()
         group.add(self)
         self.facing = facing
@@ -22,6 +26,11 @@ class Tile(pg.sprite.DirtySprite):
         self.dirty = 0
 
     def update(self, *args, **kwargs) -> None:
+        """
+        Actualise la tile, la rend invisible quand elle ne doit pas être visible
+        :param args:
+        :param kwargs:
+        """
         if self.rect.right < 0 or self.rect.top > const.sc_height or self.rect.bottom < 0:
             self.dirty = 0
             self.visible = 0
@@ -39,11 +48,19 @@ class Tile(pg.sprite.DirtySprite):
 
 
 class Jumper(Tile):
+    """
+    Crée une tile jumper
+    """
+
     def __init__(self, screen_x, screen_y, world_x, world_y, group, facing: int = 0, **kwargs):
         super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('jumper', facing=facing), facing=facing, **kwargs)
 
 
 class Spike(Tile):
+    """
+    Crée une tile spike
+    """
+
     def __init__(self, screen_x, screen_y, world_x, world_y, group, facing: int = 0, **kwargs):
         """
         side : n s e w
@@ -52,44 +69,71 @@ class Spike(Tile):
 
 
 class EndTile(Tile):
+    """
+    Crée une tile end
+    """
+
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
         super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('end'), **kwargs)
 
 
 class BackwardPusher(Tile):
+    """
+    Crée une tile backward jumper
+    """
+
     def __init__(self, screen_x, screen_y, world_x, world_y, group, facing: int = 0, **kwargs):
         super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('backward_jumper', facing=facing), facing=facing, **kwargs)
 
 
 class InfoBlock(Tile):
+    """
+    Crée une tile info block
+    """
+
     def __init__(self, screen_x, screen_y, world_x, world_y, group, text, **kwargs):
         super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('info_block'), **kwargs)
         self.text = text
 
 
 class GravInverter(Tile):
+    """
+    Crée une tile gravity inverter
+    """
+
     def __init__(self, screen_x, screen_y, world_x, world_y, group, facing: int = 0, **kwargs):
         super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('gravity_inverter', facing=facing), facing=facing, **kwargs)
 
 
 class Minimizer(Tile):
+    """
+    Crée une tile minimizer
+    """
+
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
         super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('minimizer'), **kwargs)
         self.disabled = False
 
 
 class PlayerSpawn(Tile):
+    """
+    Crée une tile player spawn
+    """
+
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
         super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('player_spawn'), **kwargs)
 
 
 class Checkpoint(Tile):
+    """
+    Crée une tile checkpoint
+    """
+
     def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
         super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('checkpoint'), **kwargs)
 
 
 # key must match the name of its sprite in Background_Sprites/
-
 building_tiles = {"tile": Tile, 'jumper': Jumper, 'end': EndTile, "backward_jumper": BackwardPusher,
                   'info_block': InfoBlock, 'gravity_inverter': GravInverter, "spike": Spike,
                   'minimizer': Minimizer, 'player_spawn': PlayerSpawn, 'checkpoint': Checkpoint}
