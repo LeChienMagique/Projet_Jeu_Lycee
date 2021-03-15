@@ -47,6 +47,9 @@ else:
     sc_width = sc_height = settings['window_size']
 
 screen = pg.display.set_mode((sc_width, sc_height))
+window_icon = pg.transform.scale(pg.image.load(os.path.join('assets', 'Blocks_Sprites', 'player_spawn.png')), (32, 32))
+pg.display.set_icon(window_icon)
+pg.display.set_caption('Galaxy Jumper')
 
 customSizeFont = lambda n: pg.font.SysFont('Alef', n)
 myFont = pg.font.SysFont('Alef', 25)
@@ -127,27 +130,30 @@ def get_sprite(sprite_name, facing=0, icon=False):
 
 def load_sprite(sprite_name, facing=0, icon=False, custom_side: int = None):
     if custom_side is None:
-        if sprite_name == 'player':
-            side = player_side
-        else:
-            side = tile_side
+        side = tile_side
     else:
         side = custom_side
+
     if icon:
-        path = os.path.join('Icons', sprite_name + '.png')
+        path = os.path.join('assets', 'Icons', sprite_name + '.png')
     else:
-        path = os.path.join('Blocks_Sprites', sprite_name + '.png')
+        path = os.path.join('assets', 'Blocks_Sprites', sprite_name + '.png')
     image = pg.transform.scale(pg.image.load(path), (side, side))
     return pg.transform.rotate(image, 45 * facing)
 
 
-sprites = {'backward_jumper': load_sprite('backward_jumper'), 'checkpoint': load_sprite('checkpoint'), 'player': load_sprite('player'),
+def load_player_sprite(sprite_name):
+    path = os.path.join('assets', 'Player_Animations', sprite_name + '.png')
+    return pg.transform.scale(pg.image.load(path), (player_side, player_side))
+
+
+sprites = {'backward_jumper': load_sprite('backward_jumper'), 'checkpoint': load_sprite('checkpoint'),
            'tile': load_sprite('tile'), 'jumper': load_sprite('jumper'), 'end': load_sprite('end'),
            'info_block': load_sprite('info_block'), 'gravity_inverter': load_sprite('gravity_inverter'), 'minimizer': load_sprite('minimizer'),
            'spike0': load_sprite('spike0'), 'spike1': load_sprite('spike1'), 'spike2': load_sprite('spike2'),
            'spike3': load_sprite('spike3'), 'spike4': load_sprite('spike4'),
            'spike5': load_sprite('spike5'), 'spike6': load_sprite('spike6'), 'spike7': load_sprite('spike7'),
-           'spike': load_sprite('spike'), 'player_spawn': load_sprite('player', custom_side=tile_side)}
+           'spike': load_sprite('spike'), 'player_spawn': load_sprite('player_spawn', custom_side=tile_side)}
 
 icons = {'checkmark': load_sprite('checkmark', icon=True), 'cross': load_sprite('cross', icon=True),
          'home': load_sprite('home', icon=True), 'plus': load_sprite('plus', icon=True),
@@ -155,6 +161,10 @@ icons = {'checkmark': load_sprite('checkmark', icon=True), 'cross': load_sprite(
          'right': load_sprite('right', icon=True), 'save': load_sprite('save', icon=True),
          'trashcan': load_sprite('trashcan', icon=True), 'warning': load_sprite('warning', icon=True),
          'wrench': load_sprite('wrench', icon=True)}
+
+player_animations = {'jump': [load_player_sprite('jump' + str(i)) for i in range(2)], 'idle': [load_player_sprite('idle' + str(i)) for i in range(3)]}
+
+smol_player_animations = {k: [pg.transform.scale(image, (player_side // 2, player_side // 2)) for image in v] for k, v in player_animations.items()}
 
 
 def display_infos(screen: pg.Surface, x: int, y: int, *args):
@@ -199,7 +209,7 @@ class BackgroundLayer(pg.sprite.Sprite):
 def make_background_group():
     # return pg.transform.scale(pg.image.load('city.png'), (sc_width, sc_height))
     sprites = []
-    path = os.path.join('Backgrounds', 'mountain_layers')
+    path = os.path.join('assets', 'Backgrounds', 'mountain_layers')
     images = []
     max_height = -1
     for file in os.listdir(path):

@@ -317,11 +317,11 @@ class Game:
         pg.display.flip()
 
     def main(self, framerate: int):
-        clock = pg.time.Clock()
+        self.clock = pg.time.Clock()
         self.reset_all_vars()
         self.make_pause_menu()
         while self.running:
-            self.timer += clock.tick(framerate) * self.timer_active
+            self.timer += self.clock.tick(framerate) * self.timer_active
 
             if self.level_ended:
                 if self.timer > 1000:
@@ -348,8 +348,8 @@ class Game:
                                                 f"onGround : {self.player.onGround}")
             """
 
-            const.display_infos(self.sc, 15, 15, str(clock.get_fps()))
-            # const.display_infos(self.sc, 15, 15, str(self.player.dy))
+            # const.display_infos(self.sc, 15, 15, str(self.clock.get_fps()))
+            const.display_infos(self.sc, 15, 15, str(self.player.dy))
             self.player_group.draw(self.sc)
             self.tile_group.draw(self.sc)
             if self.paused:
@@ -365,11 +365,13 @@ class Game:
 class Player(pg.sprite.DirtySprite):
     def __init__(self, game: Game):
         super().__init__()
-        self.game = game  # Référence au l'instance du jeu
+        self.game = game  # Référence à l'instance du jeu
         # self.image = pg.Surface([self.image_side, self.image_side])
         # self.image.fill(pg.Color(255, 255, 255))
-        self.normal_image = const.get_sprite('player')
-        self.smol_image = pg.transform.scale(self.normal_image, (const.player_side // 2, const.player_side // 2))
+        self.animation_number = 0
+        self.animation_name = 'idle'
+        self.normal_image = const.player_animations[self.animation_name][self.animation_number]
+        self.smol_image = const.smol_player_animations[self.animation_name][self.animation_number]
         self.image = self.normal_image
         self.rect = self.image.get_rect()
         self.mask = pg.mask.from_surface(self.image)
@@ -379,7 +381,9 @@ class Player(pg.sprite.DirtySprite):
         self.colliding_right_flag = False
         self.minimized = False
 
-    def kill(self):
+        self.frame_counter = 0
+
+    def kill_player(self):
         """
         Tue le joueur, donc recommence le niveau au dernier checkpoint ou passe au niveau d'après si le joueur meurt après avoir fini le niveau
         :return:
@@ -407,6 +411,45 @@ class Player(pg.sprite.DirtySprite):
         if self.onGround:
             self.dy = const.jump_height
             self.onGround = False
+            self.change_animation('jump')
+
+    def change_animation(self, animation_name: str, tick: int = 0):
+        """
+        Change le cycle d'anination du sprite du joueur
+        :param animation_name:
+        :param tick:
+        :return:
+        """
+        self.animation_name = animation_name
+        if self.minimized:
+            self.image = const.smol_player_animations[self.animation_name][tick]
+        else:
+            self.image = const.player_animations[self.animation_name][tick]
+        if self.game.gravity_is_inversed:
+            self.image = pg.transform.flip(self.image, False, True)
+
+        self.frame_counter = 0
+
+    def tick_animation(self, animation_number: int = None):
+        """
+        Update le cycle d'animation du sprite du joueur
+        :param animation_number:
+        :return:
+        """
+        if animation_number is None:
+            self.animation_number += 1
+            self.animation_number %= 3
+        else:
+            self.animation_number = animation_number
+
+        if self.minimized:
+            self.image = const.smol_player_animations[self.animation_name][self.animation_number]
+        else:
+            self.image = const.player_animations[self.animation_name][self.animation_number]
+        if self.game.gravity_is_inversed:
+            self.image = pg.transform.flip(self.image, False, True)
+
+        self.frame_counter = 0
 
     def tick_movement(self):
         """
@@ -418,9 +461,17 @@ class Player(pg.sprite.DirtySprite):
 
         if self.rect.y > self.game.low_dead_line.rect.y + const.tile_side * 15 or \
                 self.rect.y < self.game.high_dead_line.rect.y - const.tile_side * 15:
-            self.kill()
+            self.kill_player()
         if self.rect.x < 0:
-            self.kill()
+            self.kill_player()
+
+        if self.onGround:
+            self.frame_counter += 1
+            if self.frame_counter == 25:
+                if self.animation_name == 'jump':
+                    self.change_animation('idle')
+                else:
+                    self.tick_animation()
 
     def handle_y_axis_collisions(self):
         """
@@ -445,14 +496,17 @@ class Player(pg.sprite.DirtySprite):
 
             if collidedS.rect.top <= self.rect.top <= collidedS.rect.bottom and not falling:  # Quand le joueur tape sa tête sur une Tile
                 self.rect.top = collidedS.rect.bottom
-                if self.game.gravity_is_inversed:
-                    self.onGround = True
+
+                if self.game.gravity_is_inversed:  # Quand la gravité est inversée
+                    if not self.onGround:
+                        self.onGround = True
+                        self.tick_animation(animation_number=1)
                     if not const.scrolling_forward:
                         self.game.set_scrolling(True)
 
                 if isinstance(collidedS, ent.Spike):  # Collisions avec les spikes
                     if collidedS.facing != 0:
-                        self.kill()
+                        self.kill_player()
                 elif isinstance(collidedS, ent.InfoBlock):  # Collisions avec les info_blocks
                     self.game.info_block_pause = True
                     self.game.start_timer()
@@ -471,14 +525,16 @@ class Player(pg.sprite.DirtySprite):
             elif collidedS.rect.top < self.rect.bottom < collidedS.rect.bottom and falling:  # Quand le joueur aterri sur une Tile
                 self.rect.bottom = collidedS.rect.top
                 if not self.game.gravity_is_inversed:
-                    self.onGround = True
+                    if not self.onGround:
+                        self.onGround = True
+                        self.tick_animation(animation_number=1)
                     if not const.scrolling_forward:
                         self.game.set_scrolling(True)
 
                 if collidedS.rect.left < self.rect.centerx:
                     if isinstance(collidedS, ent.Spike):  # Collisions avec les spikes
                         if collidedS.facing != 4:
-                            self.kill()
+                            self.kill_player()
 
                     if collidedS.facing == 0:
                         if isinstance(collidedS, ent.Jumper):  # Collisions avec les Jumpers
@@ -518,9 +574,9 @@ class Player(pg.sprite.DirtySprite):
 
             if isinstance(collidedS, ent.Spike):  # Collisions avec les spikes
                 if collidedS.facing != 2 and const.scrolling_forward:
-                    self.kill()
+                    self.kill_player()
                 elif collidedS.facing != 6 and not const.scrolling_forward:
-                    self.kill()
+                    self.kill_player()
 
             if not const.scrolling_forward:
                 const.scrolling_forward = True
@@ -571,4 +627,5 @@ class Player(pg.sprite.DirtySprite):
         self.rect.y = self.game.last_checkpoint_pos[1] * const.tile_side
         self.dy = 0
         self.onGround = True
+        self.change_animation('idle')
         self.colliding_right_flag = False
