@@ -11,7 +11,6 @@
     "13": "tile",
     "2": "tile",
     "1": "tile",
-    "6": "tile",
     "12": "tile",
     "10": "tile",
     "14": "tile",
@@ -25,14 +24,14 @@
     "22": "tile",
     "23": "tile",
     "24": "tile",
-    "25": "tile"
+    "25": "tile",
+    "6": "tile"
   },
   "11": {
     "11": "minimizer",
     "25": "tile"
   },
   "7": {
-    "1": "player_spawn",
     "25": "tile"
   },
   "10": {
@@ -42,7 +41,8 @@
     "25": "tile"
   },
   "8": {
-    "25": "tile"
+    "25": "tile",
+    "1": "player_spawn"
   },
   "6": {
     "25": "tile",
@@ -159,7 +159,7 @@
     "63": "tile",
     "64": "tile",
     "65": "tile",
-    "66": "backward_jumper0",
+    "66": "backward_jumper4",
     "67": "tile",
     "68": "tile",
     "70": "tile",
@@ -250,7 +250,10 @@
   "misc": {
     "spawnpoint": [
       1,
-      7
+      8
     ]
+  },
+  "13": {
+    "5": "tile"
   }
 }

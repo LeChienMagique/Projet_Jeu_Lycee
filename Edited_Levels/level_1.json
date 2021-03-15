@@ -150,7 +150,8 @@
     "199": "jumper0"
   },
   "5": {
-    "49": "tile"
+    "49": "tile",
+    "12": "info_block"
   },
   "-9": {
     "60": "tile",
@@ -200,7 +201,7 @@
     "134": "spike4",
     "135": "spike4",
     "136": "spike4",
-    "171": "spike0"
+    "172": "spike0"
   },
   "-7": {
     "77": "tile",
@@ -217,7 +218,8 @@
     "204": "end",
     "205": "end",
     "206": "end",
-    "207": "end"
+    "207": "end",
+    "172": "tile"
   },
   "-6": {
     "77": "tile"
@@ -251,6 +253,25 @@
     "spawnpoint": [
       1,
       6
-    ]
+    ],
+    "info_block_text": {
+      "5": {
+        "12": [
+          "zkzkzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+          "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+          "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+          "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+          "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+          "zzzzzaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "aaaaaaaaa                               ",
+          "                                        ",
+          "                                        ",
+          "            eeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        ]
+      }
+    }
   }
 }

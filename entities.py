@@ -21,25 +21,21 @@ class Tile(pg.sprite.DirtySprite):
         self.visible = 0
         self.dirty = 0
 
-
     def update(self, *args, **kwargs) -> None:
-        if self.rect.right < 0:
+        if self.rect.right < 0 or self.rect.top > const.sc_height or self.rect.bottom < 0:
             self.dirty = 0
             self.visible = 0
-        elif self.rect.left < const.sc_width + const.tile_side:
+        else:
             self.visible = 1
             self.dirty = 2
 
         if self.editing:
-            if 0 < self.rect.top < 16 * (const.tile_side + 1) + 1:
+            if 0 < self.rect.bottom <= 21 * const.tile_side + 1:
                 self.visible = 1
                 self.dirty = 2
             else:
                 self.visible = 0
                 self.dirty = 0
-
-    def flip_horizontally(self):
-        self.image = pg.transform.flip(self.image, False, True)
 
 
 class Jumper(Tile):
@@ -53,48 +49,6 @@ class Spike(Tile):
         side : n s e w
         """
         super().__init__(screen_x, screen_y, world_x, world_y, group, image=const.get_sprite('spike', facing=facing), facing=facing, **kwargs)
-
-
-"""class Spike_N(Spike):
-    def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, 0, group, **kwargs)
-
-
-class Spike_W(Spike):
-    def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, 2, group, **kwargs)
-
-
-class Spike_E(Spike):
-    def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, 6, group, **kwargs)
-
-
-class Spike_S(Spike):
-    def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, 4, group, **kwargs)
-
-
-class Spike_NE(Spike):
-    def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, 1, group, **kwargs)
-
-
-class Spike_NW(Spike):
-    def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, 7, group, **kwargs)
-
-
-class Spike_SE(Spike):
-    def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, 3, group, **kwargs)
-
-
-class Spike_SW(Spike):
-    def __init__(self, screen_x, screen_y, world_x, world_y, group, **kwargs):
-        super().__init__(screen_x, screen_y, world_x, world_y, 5, group, **kwargs)
-
-"""
 
 
 class EndTile(Tile):
@@ -135,11 +89,6 @@ class Checkpoint(Tile):
 
 
 # key must match the name of its sprite in Background_Sprites/
-"""building_tiles = {"tile": Tile, 'jumper': Jumper, 'spike0': Spike_N, 'spike2': Spike_W, 'spike4': Spike_E,
-                  'spike6': Spike_S, 'spike1': Spike_NE, 'spike7': Spike_NW, 'spike3': Spike_SE, 'spike5': Spike_SW,
-                  'end': EndTile, "backward_jumper": BackwardPusher, 'info_block': InfoBlock, 'gravity_inverter': GravInverter,
-                  'minimizer': Minimizer, 'player_spawn': PlayerSpawn, 'checkpoint': Checkpoint}
-"""
 
 building_tiles = {"tile": Tile, 'jumper': Jumper, 'end': EndTile, "backward_jumper": BackwardPusher,
                   'info_block': InfoBlock, 'gravity_inverter': GravInverter, "spike": Spike,

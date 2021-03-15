@@ -11,7 +11,7 @@ class LevelEditor:
         self.sc = screen
         self.worldx = 0  # les coordonnées du coin en haut à gauche de l'éditeur
         self.worldy = 0
-        self.grid_square_side = const.tile_side + 1  # + 1 pour laisser la place aux lignes de la grille
+        self.grid_square_side = const.tile_side  # + 1 pour laisser la place aux lignes de la grille
         self.level_number = -1
 
         self.background_group = pg.sprite.LayeredUpdates(const.background)
@@ -26,7 +26,7 @@ class LevelEditor:
         self.building_tiles_names = list(self.building_tiles.keys())
         self.selected_building_tile = "tile"
         self.selected_building_tile_facing = 0
-        self.grid = self.create_grid_background()
+        self.placing_area = pg.Surface((25 * self.grid_square_side, 21 * self.grid_square_side))
         self.make_gui()
         self.level = {}  # Dictionnaire contenant les données du niveau quand il est chargé en mémoire
         self.info_block_editor_active = False
@@ -34,28 +34,6 @@ class LevelEditor:
 
         self.confirm_delete_level_active = False
         self.make_delete_confirm_menu()
-
-    def create_grid_background(self):
-        """
-        Retourne la grille de 25x16 carreaux.
-        :return:
-        """
-        back = pg.Surface((25 * self.grid_square_side, 16 * self.grid_square_side))
-        self.draw_grid(back)
-        return back
-
-    def draw_grid(self, surf):
-        """
-        Dessine la grille de 25x16 carreaux
-        :param surf:
-        :return:
-        """
-        for col in range(25):
-            pg.draw.line(surf, pg.Color(220, 220, 220), (col * self.grid_square_side, 0),
-                         (col * self.grid_square_side, self.sc.get_height()))
-        for row in range(16):
-            pg.draw.line(surf, pg.Color(220, 220, 220), (0, row * self.grid_square_side),
-                         (self.sc.get_width(), row * self.grid_square_side))
 
     def create_button(self, x: int, y: int, w: int, h: int, rectColor: pg.Color, onHoverRectColor: pg.Color, callback, group: pg.sprite.Group = None, **kwargs):
         """
@@ -108,7 +86,7 @@ class LevelEditor:
         :return:
         """
         square_screeny, world_x, world_y = self.get_square_on_pos(mousepos)[1:]
-        if square_screeny < self.grid.get_rect().bottom:
+        if square_screeny < self.placing_area.get_rect().bottom:
             self.place_block_at(world_x, world_y, self.selected_building_tile)
 
     def make_info_block_editor_menu(self, block_x, block_y):
@@ -124,6 +102,12 @@ class LevelEditor:
         gray_rectangle = pg.Surface((rect_w, rect_h))
         gray_rectangle.fill(pg.Color(150, 150, 150))
 
+        border_width = 15
+        pg.draw.line(gray_rectangle, (0, 0, 0), (0, 0), (rect_w, 0), width=border_width)
+        pg.draw.line(gray_rectangle, (0, 0, 0), (0, 0), (0, rect_h), width=border_width)
+        pg.draw.line(gray_rectangle, (0, 0, 0), (0, rect_h - 1), (rect_w - 1, rect_h - 1), width=border_width)
+        pg.draw.line(gray_rectangle, (0, 0, 0), (rect_w - 1, 0), (rect_w - 1, rect_h), width=border_width)
+
         input_box = pg.sprite.Sprite()
         input_box.image = gray_rectangle
         input_box.rect = input_box.image.get_rect()
@@ -131,11 +115,11 @@ class LevelEditor:
         input_box.rect.top = rect_y
 
         self.info_block_editor.add(input_box)
-        self.create_button(8, 12, 5, 3, pg.Color(0, 0, 200), pg.Color(0, 200, 0), lambda x=block_x, y=block_y: self.validate_text_input_info_block(x, y),
-                           text='Valider', textColor=pg.Color(0, 0, 0), group=self.info_block_editor)
-        self.create_button(14, 12, 5, 3, pg.Color(0, 0, 200), pg.Color(0, 200, 0),
+        self.create_button(6, 12, 5, 3, pg.Color(0, 200, 0), pg.Color(0, 150, 0), lambda x=block_x, y=block_y: self.validate_text_input_info_block(x, y),
+                           image=const.get_sprite('checkmark', icon=True), group=self.info_block_editor)
+        self.create_button(14, 12, 5, 3, pg.Color(200, 0, 0), pg.Color(150, 0, 0),
                            lambda x=block_x, y=block_y: self.validate_text_input_info_block(x, y, canceled=True),
-                           text='Annuler', textColor=pg.Color(0, 0, 0), group=self.info_block_editor)
+                           image=const.get_sprite('cross', icon=True), group=self.info_block_editor)
 
     def draw_info_block_editor(self):
         """
@@ -143,9 +127,11 @@ class LevelEditor:
         :return:
         """
         self.info_block_editor.draw(self.sc)
+        border_width = 15
         for line in range(len(self.input_text)):
             txt_surf = const.myFont.render(self.input_text[line], True, (255, 255, 255))
-            self.sc.blit(txt_surf, (self.info_block_editor_text_input_dims[0] + 5, self.info_block_editor_text_input_dims[1] + 5 + line * 25))
+            self.sc.blit(txt_surf, (self.info_block_editor_text_input_dims[0] + 5 + border_width,
+                                    self.info_block_editor_text_input_dims[1] + 5 + line * 25 + border_width))
 
     def prompt_info_block_editor(self):
         """
@@ -280,10 +266,10 @@ class LevelEditor:
                     sys.exit()
 
             if self.confirm_delete_level_active:  # Quand le menu pop up de confirmation de suppression du niveau est à l'écran
-                if e.type == pg.MOUSEMOTION:
-                    self.confirm_delete_level_menu.update(pg.mouse.get_pos(), False)
-                elif e.type == pg.MOUSEBUTTONDOWN:
+                if e.type == pg.MOUSEBUTTONDOWN:
                     self.confirm_delete_level_menu.update(pg.mouse.get_pos(), True)
+                elif e.type == pg.MOUSEMOTION:
+                    self.confirm_delete_level_menu.update(pg.mouse.get_pos(), False)
                 return
 
             if self.info_block_editor_active:  # Quand le menu pop up d'édtion de texte pour le block info_block est à l'écran
@@ -352,7 +338,7 @@ class LevelEditor:
         :return:
         """
         squarex, squarey = self.get_square_on_pos(mousepos)[0:2]
-        if squarey < self.grid.get_rect().bottom:
+        if squarey < self.placing_area.get_rect().bottom:
             sprite = const.get_sprite(self.selected_building_tile, facing=self.selected_building_tile_facing)
             self.sc.blit(sprite, (squarex, squarey))
 
@@ -383,13 +369,11 @@ class LevelEditor:
         Crée tous les boutons du gui et les ajoute au group des boutons
         :return:
         """
-        gui_surf = pg.Surface((self.sc.get_width(), 8 * self.grid_square_side))
-        gui_surf.fill(pg.Color(255, 255, 255))
         tiles_sprites = self.building_tiles_names
         ind = 0
         # Crée un bouton pour chaque tile existante et map self.change_selected_building_tile à chacun d'eux avec la tile correspondante
-        for y in range(16, 22, 2):
-            for x in range(0, 20, 2):
+        for y in range(21, 25, 2):
+            for x in range(5, 20, 2):
                 if ind >= len(tiles_sprites):
                     break
                 sprite = const.get_sprite(tiles_sprites[ind])
@@ -397,37 +381,26 @@ class LevelEditor:
                                    image=sprite)
                 ind += 1
 
-        self.create_button(20, 16, 4, 2, pg.Color(0, 255, 0), pg.Color(0, 255, 255), lambda: self.save_level(), image=const.get_sprite('save', icon=True))
+        self.create_button(21, 23, 4, 2, pg.Color(0, 255, 0), pg.Color(0, 255, 255), lambda: self.save_level(), image=const.get_sprite('save', icon=True))
 
-        self.create_button(20, 18, 4, 2, pg.Color(0, 0, 255), pg.Color(255, 0, 255), lambda: self.change_mode('playing'),
+        self.create_button(21, 21, 4, 2, pg.Color(0, 0, 255), pg.Color(255, 0, 255), lambda: self.change_mode('playing'),
                            image=const.get_sprite('right', icon=True))
 
-        self.create_button(20, 22, 4, 2, pg.Color(150, 0, 255), pg.Color(50, 0, 175), lambda: self.change_mode('level_selection'),
+        self.create_button(0, 21, 4, 2, pg.Color(150, 0, 255), pg.Color(50, 0, 175), lambda: self.change_mode('level_selection'),
                            image=const.get_sprite('home', icon=True))
 
-        self.create_button(20, 20, 4, 2, pg.Color(255, 0, 0), pg.Color(255, 75, 0), lambda: self.prompt_confirm_delete_level(),
+        self.create_button(0, 23, 4, 2, pg.Color(255, 0, 0), pg.Color(255, 75, 0), lambda: self.prompt_confirm_delete_level(),
                            image=const.get_sprite('trashcan', icon=True))
-
-        """self.create_button(20, 16, 4, 2, pg.Color(0, 255, 0), pg.Color(0, 255, 255), lambda: self.save_level(), text='Save', textColor=pg.Color(0, 0, 0))
-
-        self.create_button(20, 18, 4, 2, pg.Color(0, 0, 255), pg.Color(255, 0, 255), lambda: self.change_mode('playing'), text='Play',
-                           textColor=pg.Color(0, 0, 0))
-
-        self.create_button(20, 22, 4, 2, pg.Color(150, 0, 255), pg.Color(50, 0, 175), lambda: self.change_mode('level_selection'), text='Quitter',
-                           textColor=pg.Color(0, 0, 0))
-
-        self.create_button(20, 20, 4, 2, pg.Color(255, 0, 0), pg.Color(255, 75, 0), lambda: self.prompt_confirm_delete_level(), text='Suppr level',
-                           textColor=pg.Color(0, 0, 0))"""
 
     def make_delete_confirm_menu(self):
         """
         Crée les boutons du menu de confirmation de suppression du niveau et les ajoute au groupe correspondant
         :return:
         """
-        self.create_button(5, 8, 5, 3, pg.Color(255, 0, 0), pg.Color(150, 0, 0), lambda: self.delete_level(), text='Oui', textColor=pg.Color(0, 0, 0),
-                           group=self.confirm_delete_level_menu)
-        self.create_button(13, 8, 5, 3, pg.Color(0, 255, 0), pg.Color(0, 150, 0), lambda: self.delete_level(cancel=True),
-                           text='Non', textColor=pg.Color(0, 0, 0), group=self.confirm_delete_level_menu)
+        self.create_button(6, 8, 5, 3, pg.Color(255, 0, 0), pg.Color(150, 0, 0), lambda: self.delete_level(),
+                           image=const.get_sprite('checkmark', icon=True), group=self.confirm_delete_level_menu)
+        self.create_button(14, 8, 5, 3, pg.Color(0, 255, 0), pg.Color(0, 150, 0), lambda: self.delete_level(cancel=True),
+                           image=const.get_sprite('cross', icon=True), group=self.confirm_delete_level_menu)
 
     def prompt_confirm_delete_level(self):
         """
@@ -435,7 +408,7 @@ class LevelEditor:
         :return:
         """
         self.confirm_delete_level_active = True
-        const.display_infos(self.sc, const.sc_width // 4, const.sc_height // 4, "Voulez-vous vraiment supprimer le niveau ?")
+        const.display_infos(self.sc, "Voulez-vous vraiment supprimer le niveau ?", font=const.bigFont, center=True, y=const.sc_height // 5)
 
     def delete_level(self, cancel=False):
         """
@@ -543,15 +516,17 @@ class LevelEditor:
                 self.confirm_delete_level_menu.draw(self.sc)
 
             else:
-                self.background_group.draw(self.grid)  # Dessine le fond d'écran
-                self.sc.blit(self.grid, (0, 0), pg.rect.Rect(0, 0, self.sc.get_width(), 16 * self.grid_square_side))  # Dessine la grille
+                self.background_group.draw(self.placing_area)  # Dessine le fond d'écran
+                # self.sc.blit(self.placing_area, (0, 0), pg.rect.Rect(0, 0, self.sc.get_width(), 18 * self.grid_square_side))  # Dessine la grille
+                self.sc.blit(self.placing_area, (0, 1))
                 self.ghost_selected_tile_on_cursor(pg.mouse.get_pos())
 
                 self.tiles.update()
                 self.tiles.draw(self.sc)  # Dessine les blocs
                 self.buttons.draw(self.sc)  # Dessine les boutons
                 hovered_square_pos = self.get_square_on_pos(pg.mouse.get_pos())[2:]
-                const.display_infos(self.sc, 15, 15, f"x : {hovered_square_pos[0]}, y : {hovered_square_pos[1]}")  # Affiche des informations sur la position
+                const.display_infos(self.sc, f"x : {hovered_square_pos[0]}, y : {hovered_square_pos[1]}", x=15,
+                                    y=15)  # Affiche des informations sur la position
                 # du curseur
 
             pg.display.flip()

@@ -311,8 +311,6 @@ class Game:
         self.player.handle_x_offset()
 
         self.sc.fill((0, 0, 0))
-        const.display_infos(self.sc, 15, 15,
-                            f"x : {self.player.rect.x}, y : {self.player.rect.y}, dy : {round(self.player.dy, 1)}, dx : {self.player.dx}, onGround : {self.player.onGround}")
         self.player_group.draw(self.sc)
         self.tile_group.draw(self.sc)
         pg.display.flip()
@@ -350,7 +348,7 @@ class Game:
             """
 
             # const.display_infos(self.sc, 15, 15, str(self.clock.get_fps()))
-            const.display_infos(self.sc, 15, 15, str(self.player.dy))
+            # const.display_infos(self.sc, 15, 15, str(self.player.dy))
             self.player_group.draw(self.sc)
             self.tile_group.draw(self.sc)
             if self.paused:

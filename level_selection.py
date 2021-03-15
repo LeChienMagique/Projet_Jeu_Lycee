@@ -1,5 +1,4 @@
 import sys
-
 import pygame as pg
 import const
 from const import Button

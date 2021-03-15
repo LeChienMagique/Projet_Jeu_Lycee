@@ -47,13 +47,13 @@ else:
     sc_width = sc_height = settings['window_size']
 
 screen = pg.display.set_mode((sc_width, sc_height))
-window_icon = pg.transform.scale(pg.image.load(os.path.join('assets', 'Blocks_Sprites', 'player_spawn.png')), (32, 32))
+window_icon = pg.image.load(os.path.join('assets', 'Icons', 'game_icon.png'))
 pg.display.set_icon(window_icon)
 pg.display.set_caption('Galaxy Jumper')
 
 customSizeFont = lambda n: pg.font.SysFont('Alef', n)
 myFont = pg.font.SysFont('Alef', 25)
-bigFont = pg.font.SysFont('Alef', 60)
+bigFont = pg.font.SysFont('Alef', 40)
 
 level = 1
 
@@ -121,10 +121,10 @@ def get_sprite(sprite_name, facing=0, icon=False):
     if icon:
         return icons[sprite_name]
     if facing != 0:
-        if "spike" not in sprite_name:
-            return pg.transform.rotate(sprites[sprite_name], 45 * facing)
-        else:
+        if "spike" in sprite_name:
             return sprites['spike' + str(facing)]
+        else:
+            return pg.transform.rotate(sprites[sprite_name], 45 * facing)
     return sprites[sprite_name]
 
 
@@ -167,10 +167,15 @@ player_animations = {'jump': [load_player_sprite('jump' + str(i)) for i in range
 smol_player_animations = {k: [pg.transform.scale(image, (player_side // 2, player_side // 2)) for image in v] for k, v in player_animations.items()}
 
 
-def display_infos(screen: pg.Surface, x: int, y: int, *args):
+def display_infos(surf: pg.Surface, *args, font: pg.font = myFont, center: bool = False, x: int = None, y: int = None):
     infos = "".join(args)
-    textsurf = myFont.render(infos, True, (255, 255, 255))
-    screen.blit(textsurf, (x, y))
+    textsurf = font.render(infos, True, (255, 255, 255))
+    if not center:
+        surf.blit(textsurf, (x, y))
+    else:
+        x = surf.get_width() // 2 - textsurf.get_width() // 2 if x is None else x
+        y = surf.get_height() // 2 - textsurf.get_height() // 2 if y is None else y
+        surf.blit(textsurf, (x, y))
 
 
 def change_mode(mode_name: str):
@@ -208,8 +213,8 @@ class BackgroundLayer(pg.sprite.Sprite):
 
 def make_background_group():
     # return pg.transform.scale(pg.image.load('city.png'), (sc_width, sc_height))
-    sprites = []
-    path = os.path.join('assets', 'Backgrounds', 'mountain_layers')
+    background_sprites = []
+    path = os.path.join('assets', 'Backgrounds', 'industrial_layers')
     images = []
     max_height = -1
     for file in os.listdir(path):
@@ -226,8 +231,8 @@ def make_background_group():
 
         scaled_img = pg.transform.scale(image[0], (new_width, new_height))
 
-        sprites.extend([BackgroundLayer(image[1], 0, scaled_img), BackgroundLayer(image[1], 1, scaled_img)])
-    return sprites
+        background_sprites.extend([BackgroundLayer(image[1], 0, scaled_img), BackgroundLayer(image[1], 1, scaled_img)])
+    return background_sprites
 
 
 background = make_background_group()
