@@ -248,6 +248,7 @@
     "189": "spike2"
   },
   "misc": {
+    "background_name": "industrial_layers",
     "spawnpoint": [
       1,
       7

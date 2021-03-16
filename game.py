@@ -19,7 +19,8 @@ class Game:
 
         self.player_group = pg.sprite.GroupSingle(self.player)
         self.tile_group = pg.sprite.LayeredDirty()
-        self.backround_group = pg.sprite.LayeredUpdates(const.background)
+        self.background_name = 'industrial_layers'
+        self.background_group = pg.sprite.LayeredUpdates(const.make_background_group(self.background_name))
         self.pause_menu = pg.sprite.Group()
 
         self.paused = False
@@ -65,8 +66,7 @@ class Game:
             elif e.type == pg.KEYDOWN:
                 if self.info_block_pause:  # Quand le menu pop up du bloc info_block est affiché
                     if self.timer > 1000:  # Pour empêcher que le menu se ferme juste après s'être ouvert
-                        self.info_block_pause = False
-                        self.stop_timer()
+                        self.quit_info_block_pause()
                 elif e.key == pg.K_UP:
                     self.player.jump()  # Fait sauter le joueur
                 elif e.key == pg.K_r:
@@ -75,6 +75,7 @@ class Game:
                     self.change_mode('editing')  # Repasse en mode édition si le niveau est éditable
             elif e.type == pg.KEYUP:
                 if e.key == pg.K_ESCAPE:
+                    self.quit_info_block_pause()
                     self.toggle_pause()  # Met le jeu en pause et affiche le menu de pause
 
     def start_timer(self):
@@ -102,6 +103,26 @@ class Game:
             textsurf = const.myFont.render(self.info_block_text[line], True, pg.Color(255, 255, 255))
             self.sc.blit(textsurf, (const.sc_width // 2 - textsurf.get_rect().width // 2, const.sc_height // 10 + line * 25))
 
+    def prompt_info_block_pause(self, text: str):
+        """
+        Affiche le menu pop up du bloc info_block avec le texte correspondant
+        :return:
+        """
+        info_block_box_dims = [3 * const.tile_side, 2 * const.tile_side, 19 * const.tile_side, 9 * const.tile_side]
+        pg.draw.rect(self.sc, pg.Color(50, 50, 50), info_block_box_dims, 15)
+
+        self.info_block_text = text
+        self.info_block_pause = True
+        self.start_timer()
+
+    def quit_info_block_pause(self):
+        """
+        Quitte le menu pop up du bloc info_block
+        :return:
+        """
+        self.info_block_pause = False
+        self.stop_timer()
+
     def toggle_pause(self):
         """
         Alterne entre met le jeu en pause et arrête la pause
@@ -118,15 +139,15 @@ class Game:
         button_w = const.sc_width // 3
         button_h = const.sc_height // 6
         button_x = const.sc_width // 2 - button_w // 2
-        self.pause_menu.add(const.Button(button_x, button_h + 10, button_w, button_h, pg.Color(0, 0, 255), pg.Color(0, 255, 0), lambda: self.toggle_pause(),
+        self.pause_menu.add(const.Button(button_x, button_h + 10, button_w, button_h, lambda: self.toggle_pause(),
                                          image=const.get_sprite('right', icon=True)),
-                            const.Button(button_x, button_h * 2 + 20, button_w, button_h, pg.Color(0, 0, 255), pg.Color(0, 255, 0), lambda: self.reset_level(),
+                            const.Button(button_x, button_h * 2 + 20, button_w, button_h, lambda: self.reset_level(),
                                          image=const.get_sprite('return', icon=True)),
-                            const.Button(button_x, button_h * 3 + 30, button_w, button_h, pg.Color(0, 0, 255), pg.Color(0, 255, 0),
-                                         lambda: self.change_mode('level_selection'), image=const.get_sprite('home', icon=True)))
+                            const.Button(button_x, button_h * 3 + 30, button_w, button_h, lambda: self.change_mode('level_selection'),
+                                         image=const.get_sprite('home', icon=True)))
         if const.previous_mode == 'editing':
-            self.pause_menu.add(const.Button(button_x, button_h * 4 + 40, button_w, button_h, pg.Color(0, 0, 255), pg.Color(0, 255, 0),
-                                             lambda: self.change_mode('editing'), image=const.get_sprite('wrench', icon=True)))
+            self.pause_menu.add(const.Button(button_x, button_h * 4 + 40, button_w, button_h, lambda: self.change_mode('editing'), image=const.get_sprite(
+                'wrench', icon=True)))
 
     def set_scrolling(self, forward: bool):
         """
@@ -244,6 +265,16 @@ class Game:
         self.start_pos = lvl_design['misc']['spawnpoint']
         self.last_checkpoint_pos = lvl_design['misc']['spawnpoint']
 
+        if lvl_design['misc']['background_name'] != self.background_name:
+            self.background_name = lvl_design['misc']['background_name']
+            self.background_group.empty()
+            self.background_group.add(const.make_background_group(self.background_name))
+
+        if self.background_name == 'space_layers':
+            const.gravity = const.space_gravity
+        else:
+            const.gravity = const.normal_gravity
+
         x: str
         row: dict
         y: str
@@ -347,9 +378,9 @@ class Game:
                 self.player.handle_x_axis_collisions()
                 self.player.handle_x_offset()
 
-                self.backround_group.update()
+                self.background_group.update()
 
-            self.backround_group.draw(self.sc)
+            self.background_group.draw(self.sc)
 
             if const.show_fps:
                 const.display_infos(self.sc, str(self.clock.get_fps().__round__(2)), center=True, y=15)
@@ -360,6 +391,8 @@ class Game:
                 textsurf = const.boldFont.render('PAUSE', True, pg.Color(255, 255, 255))
                 self.sc.blit(textsurf, (const.sc_width // 2 - textsurf.get_rect().width // 2, const.sc_height // 10))
             elif self.info_block_pause:
+                pg.draw.rect(self.sc, pg.Color(50, 50, 50), (3 * const.tile_side, 2 * const.tile_side, 19 * const.tile_side, 9 * const.tile_side),
+                             border_radius=15)
                 self.draw_info_block_text()
 
             pg.display.flip()
@@ -373,8 +406,6 @@ class Player(pg.sprite.DirtySprite):
     def __init__(self, game: Game):
         super().__init__()
         self.game = game  # Référence à l'instance du jeu
-        # self.image = pg.Surface([self.image_side, self.image_side])
-        # self.image.fill(pg.Color(255, 255, 255))
         self.animation_number = 0
         self.animation_name = 'idle'
         self.normal_image = const.player_animations[self.animation_name][self.animation_number]
@@ -519,9 +550,7 @@ class Player(pg.sprite.DirtySprite):
                     if collidedS.facing != 0:
                         self.kill_player()
                 elif isinstance(collidedS, ent.InfoBlock):  # Collisions avec les info_blocks
-                    self.game.info_block_pause = True
-                    self.game.start_timer()
-                    self.game.info_block_text = collidedS.text
+                    self.game.prompt_info_block_pause(collidedS.text)
 
                 if self.game.gravity_is_inversed and collidedS.rect.left < self.rect.centerx:  # Collisions quand la gravité est inversée
                     if collidedS.facing == 4:

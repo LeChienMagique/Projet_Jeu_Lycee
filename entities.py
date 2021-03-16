@@ -31,7 +31,7 @@ class Tile(pg.sprite.DirtySprite):
         :param args:
         :param kwargs:
         """
-        if self.rect.right < 0 or self.rect.top > const.sc_height or self.rect.bottom < 0:
+        if self.rect.right < 0 or self.rect.left > const.sc_height or self.rect.top > const.sc_height or self.rect.bottom < 0:
             self.dirty = 0
             self.visible = 0
         else:
@@ -39,7 +39,7 @@ class Tile(pg.sprite.DirtySprite):
             self.dirty = 2
 
         if self.editing:
-            if 0 < self.rect.bottom <= 21 * const.tile_side + 1:
+            if 0 < self.rect.bottom <= 21 * const.tile_side + 1 or self.rect.right < 0 or self.rect.left > const.sc_width:
                 self.visible = 1
                 self.dirty = 2
             else:
@@ -134,7 +134,7 @@ class Checkpoint(Tile):
 
 
 # key must match the name of its sprite in Background_Sprites/
-building_tiles = {"tile": Tile, 'jumper': Jumper, 'end': EndTile, "backward_jumper": BackwardPusher,
+building_tiles = {"tile": Tile, 'jumper': Jumper, "backward_jumper": BackwardPusher, 'end': EndTile,
                   'info_block': InfoBlock, 'gravity_inverter': GravInverter, "spike": Spike,
-                  'minimizer': Minimizer, 'player_spawn': PlayerSpawn, 'checkpoint': Checkpoint}
+                  'minimizer': Minimizer, 'checkpoint': Checkpoint, 'player_spawn': PlayerSpawn}
 non_rotating_tiles = ["tile", 'info_block', 'player_spawn', 'checkpoint', 'minimizer', 'end']

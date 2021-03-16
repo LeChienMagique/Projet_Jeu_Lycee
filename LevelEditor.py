@@ -14,7 +14,9 @@ class LevelEditor:
         self.grid_square_side = const.tile_side  # + 1 pour laisser la place aux lignes de la grille
         self.level_number = -1
 
-        self.background_group = pg.sprite.LayeredUpdates(const.background)
+        self.background_pointer = 0
+        self.background_name = 'industrial_layers'
+        self.background_group = pg.sprite.LayeredUpdates(const.make_background_group(self.background_name))
         self.buttons = pg.sprite.Group()
         self.tiles = pg.sprite.LayeredDirty()
         self.info_block_editor = pg.sprite.Group()
@@ -35,7 +37,7 @@ class LevelEditor:
         self.confirm_delete_level_active = False
         self.make_delete_confirm_menu()
 
-    def create_button(self, x: int, y: int, w: int, h: int, rectColor: pg.Color, onHoverRectColor: pg.Color, callback, group: pg.sprite.Group = None, **kwargs):
+    def create_button(self, x: int, y: int, w: int, h: int, callback, group: pg.sprite.Group = None, **kwargs):
         """
         Permet de créer un bouton avec des dimensions en fonction de la taille des carreaux de la grille.
         :param x:
@@ -53,7 +55,7 @@ class LevelEditor:
         y *= self.grid_square_side
         w *= self.grid_square_side
         h *= self.grid_square_side
-        new_button = Button(x, y, w, h, rectColor, onHoverRectColor, callback, **kwargs)
+        new_button = Button(x, y, w, h, callback, **kwargs)
         if group is None:
             self.buttons.add(new_button)
         else:
@@ -102,11 +104,7 @@ class LevelEditor:
         gray_rectangle = pg.Surface((rect_w, rect_h))
         gray_rectangle.fill(pg.Color(150, 150, 150))
 
-        border_width = 15
-        pg.draw.line(gray_rectangle, (0, 0, 0), (0, 0), (rect_w, 0), width=border_width)
-        pg.draw.line(gray_rectangle, (0, 0, 0), (0, 0), (0, rect_h), width=border_width)
-        pg.draw.line(gray_rectangle, (0, 0, 0), (0, rect_h - 1), (rect_w - 1, rect_h - 1), width=border_width)
-        pg.draw.line(gray_rectangle, (0, 0, 0), (rect_w - 1, 0), (rect_w - 1, rect_h), width=border_width)
+        pg.draw.rect(gray_rectangle, pg.Color(50, 50, 50), (0, 0, rect_w, rect_h), 20)
 
         input_box = pg.sprite.Sprite()
         input_box.image = gray_rectangle
@@ -115,10 +113,9 @@ class LevelEditor:
         input_box.rect.top = rect_y
 
         self.info_block_editor.add(input_box)
-        self.create_button(6, 12, 5, 3, pg.Color(0, 200, 0), pg.Color(0, 150, 0), lambda x=block_x, y=block_y: self.validate_text_input_info_block(x, y),
+        self.create_button(6, 12, 5, 3, lambda x=block_x, y=block_y: self.validate_text_input_info_block(x, y),
                            image=const.get_sprite('checkmark', icon=True), group=self.info_block_editor)
-        self.create_button(14, 12, 5, 3, pg.Color(200, 0, 0), pg.Color(150, 0, 0),
-                           lambda x=block_x, y=block_y: self.validate_text_input_info_block(x, y, canceled=True),
+        self.create_button(14, 12, 5, 3, lambda x=block_x, y=block_y: self.validate_text_input_info_block(x, y, canceled=True),
                            image=const.get_sprite('cross', icon=True), group=self.info_block_editor)
 
     def draw_info_block_editor(self):
@@ -342,6 +339,9 @@ class LevelEditor:
                 elif e.key == pg.K_0:
                     self.change_selected_building_tile(self.building_tiles_names[9])
 
+                elif e.key == pg.K_F2:
+                    pg.image.save(self.sc, 'screenshot.png')
+
     def ghost_selected_tile_on_cursor(self, mousepos):
         """
         Affiche sous la souris le bloc sélectionné mais ne le place pas
@@ -375,6 +375,18 @@ class LevelEditor:
         self.selected_building_tile = tile_name
         self.selected_building_tile_facing = 0
 
+    def cycle_backgrounds(self):
+        """
+        Change le background, passe au suivant
+        """
+        self.background_pointer += 1
+        self.background_pointer %= 4
+        self.background_name = const.background_group_names[self.background_pointer]
+        self.background_group.empty()
+        self.background_group.add(const.make_background_group(self.background_name))
+
+        self.level['misc']['background_name'] = self.background_name
+
     def make_gui(self):
         """
         Crée tous les boutons du gui et les ajoute au group des boutons
@@ -388,20 +400,19 @@ class LevelEditor:
                 if ind >= len(tiles_sprites):
                     break
                 sprite = const.get_sprite(tiles_sprites[ind])
-                self.create_button(x, y, 2, 2, pg.Color(0, 0, 0), pg.Color(50, 50, 50), lambda i=ind: self.change_selected_building_tile(tiles_sprites[i]),
+                self.create_button(x, y, 2, 2, lambda i=ind: self.change_selected_building_tile(tiles_sprites[i]),
                                    image=sprite)
                 ind += 1
 
-        self.create_button(21, 23, 4, 2, pg.Color(0, 255, 0), pg.Color(0, 255, 255), lambda: self.save_level(), image=const.get_sprite('save', icon=True))
+        self.create_button(21, 23, 4, 2, lambda: self.save_level(), image=const.get_sprite('save', icon=True))
 
-        self.create_button(21, 21, 4, 2, pg.Color(0, 0, 255), pg.Color(255, 0, 255), lambda: self.change_mode('playing'),
-                           image=const.get_sprite('right', icon=True))
+        self.create_button(21, 21, 4, 2, lambda: self.change_mode('playing'), image=const.get_sprite('right', icon=True))
 
-        self.create_button(0, 21, 4, 2, pg.Color(150, 0, 255), pg.Color(50, 0, 175), lambda: self.change_mode('level_selection'),
-                           image=const.get_sprite('home', icon=True))
+        self.create_button(0, 21, 4, 2, lambda: self.change_mode('level_selection'), image=const.get_sprite('home', icon=True))
 
-        self.create_button(0, 23, 4, 2, pg.Color(255, 0, 0), pg.Color(255, 75, 0), lambda: self.prompt_confirm_delete_level(),
-                           image=const.get_sprite('trashcan', icon=True))
+        self.create_button(0, 23, 4, 2, lambda: self.prompt_confirm_delete_level(), image=const.get_sprite('trashcan', icon=True))
+
+        self.create_button(17, 23, 4, 2, lambda: self.cycle_backgrounds(), image=const.get_sprite('change_background', icon=True))
 
     def make_delete_confirm_menu(self):
         """
@@ -427,10 +438,10 @@ class LevelEditor:
         const.display_infos(self.confirm_delete_box, "supprimer le niveau ?", font=const.boldFont, center=True,
                             y=self.confirm_delete_box.get_height() // 2 + const.font_size, textColor=pg.Color(200, 0, 0))
 
-        self.create_button(6, 12, 5, 3, pg.Color(255, 0, 0), pg.Color(150, 0, 0), lambda: self.delete_level(),
-                           image=const.get_sprite('checkmark', icon=True), group=self.confirm_delete_level_menu)
-        self.create_button(14, 12, 5, 3, pg.Color(0, 255, 0), pg.Color(0, 150, 0), lambda: self.delete_level(cancel=True),
-                           image=const.get_sprite('cross', icon=True), group=self.confirm_delete_level_menu)
+        self.create_button(6, 12, 5, 3, lambda: self.delete_level(), image=const.get_sprite('checkmark', icon=True),
+                           group=self.confirm_delete_level_menu)
+        self.create_button(14, 12, 5, 3, lambda: self.delete_level(cancel=True), image=const.get_sprite('cross', icon=True),
+                           group=self.confirm_delete_level_menu)
 
     def prompt_confirm_delete_level(self):
         """
@@ -498,15 +509,20 @@ class LevelEditor:
 
         self.level_number = n
 
-        self.worldx = 0
-        self.worldy = 0
-
         self.tiles.empty()
         self.level = {}
 
         with open(f"Edited_Levels/level_{n}.json", "r") as lvl:
             lvl_design: dict = json.load(lvl)
             self.level = lvl_design.copy()
+
+        self.worldx, self.worldy = lvl_design['misc']['spawnpoint']
+
+        if lvl_design['misc']['background_name'] != self.background_name:
+            self.background_name = lvl_design['misc']['background_name']
+            self.background_pointer = const.background_group_names.index(self.background_name)
+            self.background_group.empty()
+            self.background_group.add(const.make_background_group(self.background_name))
 
         x: str
         row: dict

@@ -173,6 +173,7 @@
     "90": "tile"
   },
   "misc": {
+    "background_name": "space_layers",
     "spawnpoint": [
       5,
       6

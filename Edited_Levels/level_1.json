@@ -32,7 +32,17 @@
   },
   "11": {
     "25": "tile",
-    "12": "minimizer"
+    "12": "minimizer",
+    "14": "spike0",
+    "15": "spike0",
+    "16": "spike0",
+    "17": "spike0",
+    "18": "spike0",
+    "19": "spike0",
+    "20": "spike0",
+    "21": "spike0",
+    "22": "spike0",
+    "23": "spike0"
   },
   "10": {
     "25": "tile"
@@ -241,6 +251,7 @@
     "189": "spike2"
   },
   "misc": {
+    "background_name": "industrial_layers",
     "spawnpoint": [
       1,
       8

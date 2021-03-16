@@ -4,5 +4,5 @@
   "gravity": "190%",
   "window_size": 1300,
   "ask_window_size": true,
-  "show_fps": false
+  "show_fps": true
 }

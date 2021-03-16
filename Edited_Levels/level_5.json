@@ -1,0 +1,52 @@
+{
+  "misc": {
+    "background_name": "industrial_layers",
+    "spawnpoint": [
+      10,
+      3
+    ],
+    "info_block_text": {
+      "3": {
+        "0": [
+          "hello world !"
+        ]
+      }
+    }
+  },
+  "3": {
+    "-8": "tile",
+    "-6": "jumper0",
+    "-4": "backward_jumper0",
+    "-2": "end",
+    "0": "info_block",
+    "2": "gravity_inverter0",
+    "4": "spike0",
+    "6": "minimizer",
+    "8": "checkpoint",
+    "10": "player_spawn"
+  },
+  "4": {
+    "2": "gravity_inverter4",
+    "-6": "jumper4",
+    "-4": "backward_jumper4",
+    "4": "spike1"
+  },
+  "5": {
+    "4": "spike2"
+  },
+  "6": {
+    "4": "spike3"
+  },
+  "7": {
+    "4": "spike4"
+  },
+  "8": {
+    "4": "spike5"
+  },
+  "9": {
+    "4": "spike6"
+  },
+  "10": {
+    "4": "spike7"
+  }
+}

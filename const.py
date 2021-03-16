@@ -75,7 +75,7 @@ normal_player_side = sc_width // 28
 smol_player_side = normal_player_side // 2
 player_side = normal_player_side
 
-start_worldx = 2
+start_worldx = 3
 startx = start_worldx * tile_side
 
 scrolling_speed_modifier = int(settings['scrolling_speed'][:-1]) / 100
@@ -86,7 +86,9 @@ scrolling_speed = int(tile_side * 0.25 * scrolling_speed_modifier)
 normal_jump_height = -(tile_side * 0.5) * jump_height_modifier
 smol_jump_height = normal_jump_height * 1.2
 jump_height = normal_jump_height
-gravity = (0.026 * tile_side) * gravity_modifier
+normal_gravity = (0.026 * tile_side) * gravity_modifier
+space_gravity = normal_gravity * 0.65
+gravity = normal_gravity
 
 tile_side = int(tile_side)
 
@@ -95,7 +97,7 @@ mode = 'level_selection'
 
 scrolling_forward = True
 
-blank_level_data = '''{"misc": {"spawnpoint": [0,0]}, "0":{"0":"player_spawn"}}'''
+blank_level_data = '''{"misc": {"background_name": "industrial_layers", "spawnpoint": [0,0]}, "0":{"0":"player_spawn"}}'''
 
 show_fps = settings['show_fps']
 
@@ -123,7 +125,7 @@ def next_level():
     Passe au niveau suivant
     :return:
     """
-    global level
+    global level, background_pointer
     if level + 1 <= number_of_levels:
         level += 1
         return True
@@ -203,7 +205,7 @@ icons = {'checkmark': load_sprite('checkmark', icon=True), 'cross': load_sprite(
          'right': load_sprite('right', icon=True), 'save': load_sprite('save', icon=True),
          'trashcan': load_sprite('trashcan', icon=True), 'warning': load_sprite('warning', icon=True),
          'wrench': load_sprite('wrench', icon=True), 'button_unpressed': load_sprite('button_unpressed', icon=True),
-         'button_pressed': load_sprite('button_pressed', icon=True)}
+         'button_pressed': load_sprite('button_pressed', icon=True), 'change_background': load_sprite('contrast', icon=True)}
 
 player_animations = {'jump': [load_player_sprite('jump' + str(i)) for i in range(2)], 'idle': [load_player_sprite('idle' + str(i)) for i in range(3)]}
 
@@ -278,14 +280,13 @@ class BackgroundLayer(pg.sprite.Sprite):
                 self.rect.right = 0
 
 
-def make_background_group():
+def make_background_group(background_group_name: str):
     """
     Créé les backgrounds et les renvoie
     :return:
     """
-    # return pg.transform.scale(pg.image.load('city.png'), (sc_width, sc_height))
     background_sprites = []
-    path = os.path.join('assets', 'Backgrounds', 'industrial_layers')
+    path = os.path.join('assets', 'Backgrounds', background_group_name)
     images = []
     max_height = -1
     for file in os.listdir(path):
@@ -306,7 +307,21 @@ def make_background_group():
     return background_sprites
 
 
-background = make_background_group()
+def get_background_for_level(n: int):
+    """
+    Retourne le background à afficher pour un niveau donné
+    :param n:
+    :return:
+    """
+    n -= 1
+    n %= 16
+    return make_background_group(background_group_names[n // 4])
+
+
+background_group_names = ['industrial_layers', 'forest_layers', 'mountain_layers', 'space_layers']
+
+
+# backgrounds = [make_background_group(back_name) for back_name in background_group_names]
 
 
 class Button(pg.sprite.Sprite):
@@ -314,11 +329,8 @@ class Button(pg.sprite.Sprite):
     Class permettant de créer un bouton avec des options de customisation
     """
 
-    def __init__(self, x: int, y: int, w: int, h: int, rectColor: pg.Color, onHoverRectColor: pg.Color, callback,
-                 text=None, textColor=pg.Color(0, 0, 0), image: pg.Surface = None, font=myFont):
+    def __init__(self, x: int, y: int, w: int, h: int, callback, text=None, textColor=pg.Color(0, 0, 0), image: pg.Surface = None, font=myFont):
         super().__init__()
-        self.onHoverRectColor = onHoverRectColor
-        self.rectColor = rectColor
         self.callback = callback
         self.width = w
         self.height = h

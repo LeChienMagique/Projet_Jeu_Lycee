@@ -13,8 +13,7 @@ class LevelSelection:
         self.edit_buttons = pg.sprite.Group()
         self.mode = 'play'
 
-    def create_button(self, group: str, x: int, y: int, w: int, h: int, rectColor: pg.Color, onHoverRectColor: pg.Color, callback,
-                      **kwargs):
+    def create_button(self, group: str, x: int, y: int, w: int, h: int, callback, **kwargs):
         """
         Permet de créer un bouton.
         :param group:
@@ -28,7 +27,7 @@ class LevelSelection:
         :param kwargs:
         :return:
         """
-        new_button = Button(x, y, w, h, rectColor, onHoverRectColor, callback, **kwargs)
+        new_button = Button(x, y, w, h, callback, **kwargs)
         if group == 'play':
             self.play_buttons.add(new_button)
         elif group == 'edit':
@@ -48,14 +47,14 @@ class LevelSelection:
         button_width = const.sc_width // 4
         button_height = const.sc_height // 10
 
-        self.create_button('gui', 2 * const.sc_width // 8, button_height // 2, button_width, button_height,
-                           pg.Color(0, 100, 255), pg.Color(0, 200, 0), lambda: self.change_mode('play'), image=const.get_sprite('right', icon=True))
+        self.create_button('gui', 2 * const.sc_width // 8, button_height // 2, button_width, button_height, lambda: self.change_mode('play'),
+                           image=const.get_sprite('right', icon=True))
 
-        self.create_button('gui', 4 * const.sc_width // 8, button_height // 2, button_width, button_height,
-                           pg.Color(0, 100, 255), pg.Color(0, 200, 0), lambda: self.change_mode('edit'), image=const.get_sprite('wrench', icon=True))
+        self.create_button('gui', 4 * const.sc_width // 8, button_height // 2, button_width, button_height, lambda: self.change_mode('edit'),
+                           image=const.get_sprite('wrench', icon=True))
 
-        self.create_button('gui', 6 * const.sc_width // 8, button_height // 2, button_width, button_height,
-                           pg.Color(150, 0, 255), pg.Color(0, 200, 0), lambda: self.create_level_to_edit(), image=const.get_sprite('plus', icon=True))
+        self.create_button('gui', 6 * const.sc_width // 8, button_height // 2, button_width, button_height, lambda: self.create_level_to_edit(),
+                           image=const.get_sprite('plus', icon=True))
 
         self.make_buttons()
 
@@ -79,8 +78,7 @@ class LevelSelection:
                 elif level == 16:
                     x_to_draw = right_column_x
                 self.create_button(group, x_to_draw, button_height // 2 + (button_height + 10) * (level % 8 if level % 8 != 0 else 1), button_width,
-                                   button_height, pg.Color(255, 0, 0), pg.Color(0, 200, 0), lambda n=level, m=mode: self.select_level(n, m),
-                                   text=f'{text} {level}', textColor=pg.Color(0, 0, 0))
+                                   button_height, lambda n=level, m=mode: self.select_level(n, m), text=f'{text} {level}', textColor=pg.Color(0, 0, 0))
 
     def create_level_to_edit(self):
         """
