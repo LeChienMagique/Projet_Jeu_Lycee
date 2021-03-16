@@ -2,7 +2,7 @@ import sys
 import pygame as pg
 import const
 from const import Button
-
+from random import choice
 
 class LevelSelection:
     def __init__(self, screen: pg.Surface):
@@ -11,6 +11,7 @@ class LevelSelection:
         self.gui_buttons = pg.sprite.Group()
         self.play_buttons = pg.sprite.Group()
         self.edit_buttons = pg.sprite.Group()
+        self.background = pg.sprite.LayeredUpdates(const.make_background_group(choice(const.background_group_names)))
         self.mode = 'play'
 
     def create_button(self, group: str, x: int, y: int, w: int, h: int, callback, **kwargs):
@@ -148,11 +149,14 @@ class LevelSelection:
         """
         clock = pg.time.Clock()
         self.make_gui()
+        self.background.empty()
+        self.background.add(const.make_background_group(choice(const.background_group_names)))
         while self.running:
             clock.tick(framerate)
             self.handle_keys()
 
-            self.sc.fill(pg.Color(0, 0, 0))
+            self.background.update()
+            self.background.draw(self.sc)
 
             # Dessine les boutons
             self.gui_buttons.draw(self.sc)

@@ -516,7 +516,8 @@ class LevelEditor:
             lvl_design: dict = json.load(lvl)
             self.level = lvl_design.copy()
 
-        self.worldx, self.worldy = lvl_design['misc']['spawnpoint']
+        self.worldx = lvl_design['misc']['spawnpoint'][0]
+        self.worldy = -lvl_design['misc']['spawnpoint'][1]
 
         if lvl_design['misc']['background_name'] != self.background_name:
             self.background_name = lvl_design['misc']['background_name']

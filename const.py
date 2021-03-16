@@ -262,7 +262,7 @@ class BackgroundLayer(pg.sprite.Sprite):
         self.rect.left = self.rect.width * self.number
         self.rect.bottom = sc_height
         self._layer = layer
-        self.scrolling_speed = int(layer * (scrolling_speed / 4))
+        self.scrolling_speed = int(layer * (scrolling_speed / 6))
 
     def update(self, ntimes=1, forward=True) -> None:
         """
