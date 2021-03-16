@@ -30,9 +30,11 @@ F (debug) : avance de 1 frame
 
 Z Q S D pour se déplacer
 
-clic gauche : pose le bloc sélectionné sous la souris
+clic gauche : pose le bloc en main sous la souris
 
 clic droit : détruit le bloc sous la souris
+
+R : fait tourner le bloc en main
 
 P : passe en mode jeu
 
