@@ -4,6 +4,7 @@ import const
 from const import Button
 import entities as ent
 import sys
+from PIL import Image
 
 
 class LevelEditor:
@@ -387,6 +388,13 @@ class LevelEditor:
 
         self.level['misc']['background_name'] = self.background_name
 
+    def show_help_image(self):
+        """
+        Affiche l'aide de l'éditeur.
+        :return:
+        """
+        Image.open('editor_help.png').show()
+
     def make_gui(self):
         """
         Crée tous les boutons du gui et les ajoute au group des boutons
@@ -413,6 +421,8 @@ class LevelEditor:
         self.create_button(0, 23, 4, 2, lambda: self.prompt_confirm_delete_level(), image=const.get_sprite('trashcan', icon=True))
 
         self.create_button(17, 23, 4, 2, lambda: self.cycle_backgrounds(), image=const.get_sprite('change_background', icon=True))
+
+        self.create_button(15, 23, 2, 2, lambda: self.show_help_image(), image=const.get_sprite('information', icon=True))
 
     def make_delete_confirm_menu(self):
         """

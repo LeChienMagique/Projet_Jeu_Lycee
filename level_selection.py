@@ -4,6 +4,7 @@ import const
 from const import Button
 from random import choice
 
+
 class LevelSelection:
     def __init__(self, screen: pg.Surface):
         self.sc = screen
@@ -57,6 +58,11 @@ class LevelSelection:
         self.create_button('gui', 6 * const.sc_width // 8, button_height // 2, button_width, button_height, lambda: self.create_level_to_edit(),
                            image=const.get_sprite('plus', icon=True))
 
+        power_button_width = button_width // 4
+        power_button_height = button_height // 2
+        self.create_button('gui', const.sc_width - power_button_width, const.sc_height - power_button_height, power_button_width, power_button_height,
+                           lambda: sys.exit(), image=const.get_sprite('power', icon=True))
+
         self.make_buttons()
 
     def make_buttons(self):
@@ -73,19 +79,21 @@ class LevelSelection:
             right_column_x = const.sc_width - left_column_x - button_width
             x_to_draw = left_column_x
             level_number = const.number_of_levels if mode == 'playing' else const.number_of_edited_levels
-            for level in range(1, level_number + 1):
-                if level == 8:
+            for level in range(0, level_number):
+                if level == 7:
                     x_to_draw = mid_column_x
-                elif level == 16:
+                elif level == 14:
                     x_to_draw = right_column_x
-                self.create_button(group, x_to_draw, button_height // 2 + (button_height + 10) * (level % 8 if level % 8 != 0 else 1), button_width,
-                                   button_height, lambda n=level, m=mode: self.select_level(n, m), text=f'{text} {level}', textColor=pg.Color(0, 0, 0))
+                self.create_button(group, x_to_draw, button_height // 2 + (button_height + 10) * (level % 7 + 1), button_width,
+                                   button_height, lambda n=level + 1, m=mode: self.select_level(n, m), text=f'{text} {level + 1}', textColor=pg.Color(0, 0, 0))
 
     def create_level_to_edit(self):
         """
         Créé un nouveau niveau éditable dans Edited_Levels/
         :return:
         """
+        if const.number_of_edited_levels >= 21:
+            return
         f = open(f'Edited_Levels/level_{const.number_of_edited_levels + 1}.json', 'x')
         f.write(const.blank_level_data)
         self.change_mode('edit')
@@ -130,10 +138,7 @@ class LevelSelection:
         for e in pg.event.get():
             if e.type == pg.QUIT:  # Quand l'utilisateur clique sur la X de la fenêtre de jeu
                 sys.exit()
-            elif e.type == pg.KEYDOWN:
-                if e.key == pg.K_ESCAPE:  # Raccourci pour fermer le jeu
-                    sys.exit()
-            elif e.type == pg.MOUSEBUTTONDOWN:  # Pour limiter les appels à la méthode update des boutons, le fait que quand la souris bouge ou que le bouton de
+            elif e.type == pg.MOUSEBUTTONDOWN:  # Pour limiter les appels à la méthode update des boutons, update que quand la souris bouge ou que le bouton de
                 # la souris est appuyée
                 if e.button == 1:
                     self.update_buttons_group(pg.mouse.get_pos(), True)

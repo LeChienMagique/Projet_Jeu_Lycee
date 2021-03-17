@@ -6,7 +6,7 @@ import level_selection
 
 if __name__ == '__main__':
     screen = const.screen
-    framerate = 65
+    framerate = 60
     g = game.Game(screen)
     le = LevelEditor.LevelEditor(screen)
     le_select = level_selection.LevelSelection(screen)

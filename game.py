@@ -177,8 +177,8 @@ class Game:
         """
         player_y = self.player.rect.centery
         divider = 3
-        up_limit = const.sc_height / divider
-        bottom_limit = const.sc_height - (const.sc_height / divider)
+        up_limit = const.sc_height // divider
+        bottom_limit = const.sc_height - (const.sc_height // divider)
         if player_y < up_limit:  # Si le joueur est trop haut
             offset = up_limit - player_y
             self.player.rect.centery = up_limit
@@ -437,6 +437,7 @@ class Player(pg.sprite.DirtySprite):
         :return:
         """
         self.dy += const.gravity
+
         grav_inv = (-1 + 2 * (self.dy > const.tile_side))
         if abs(self.dy) > const.tile_side:
             self.dy = const.tile_side * grav_inv
@@ -562,7 +563,7 @@ class Player(pg.sprite.DirtySprite):
                         elif isinstance(collidedS, ent.GravInverter):  # Collisions avec les inverseurs de gravité
                             self.game.invert_gravity()
 
-            elif collidedS.rect.top < self.rect.bottom < collidedS.rect.bottom and falling:  # Quand le joueur aterri sur une Tile
+            elif collidedS.rect.top < self.rect.bottom <= collidedS.rect.bottom and falling:  # Quand le joueur aterri sur une Tile
                 self.rect.bottom = collidedS.rect.top
                 if not self.game.gravity_is_inversed:
                     if not self.onGround:

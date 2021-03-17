@@ -173,10 +173,13 @@
     "90": "tile"
   },
   "misc": {
-    "background_name": "space_layers",
+    "background_name": "mountain_layers",
     "spawnpoint": [
       5,
       6
     ]
+  },
+  "25": {
+    "18": "tile"
   }
 }

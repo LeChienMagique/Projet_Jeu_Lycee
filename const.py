@@ -2,7 +2,7 @@ import pygame as pg
 import tkinter as tk
 import os
 import sys
-import json
+from configparser import ConfigParser
 
 pg.init()
 
@@ -17,11 +17,12 @@ def define_window_size(size: int, root: tk.Tk):
     :return:
     """
     global sc_width, sc_height
-    print(size)
     sc_width = sc_height = int(size)
-    settings_dict = json.load(open('settings.json', 'r'))
+    settings['Window']['window_size'] = str(size)
+    settings.write(open('settings.ini', 'w'))
+    """settings_dict = json.load(open('settings.json', 'r'))
     settings_dict['window_size'] = int(size)
-    json.dump(settings_dict, open('settings.json', 'w'), indent=4)
+    json.dump(settings_dict, open('settings.json', 'w'), indent=4)"""
     root.destroy()
 
 
@@ -30,6 +31,8 @@ def ask_window_size():
     Créé un pop-up permettant de choisir la taille de la fenêtre du jeu
     """
     root = tk.Tk()
+    root.title('Soup Slime')
+    root.iconbitmap(os.path.join('assets', 'Icons', 'game_icon.ico'))
     w, h = root.winfo_screenwidth(), root.winfo_screenheight()
     root.geometry(f'{int(w * 0.3)}x{int(h * 0.3)}')
 
@@ -48,17 +51,19 @@ def ask_window_size():
     root.mainloop()
 
 
-settings = json.load(open("settings.json", 'r'))
+settings = ConfigParser()
+settings.read_file(open('settings.ini'))
+settings.read('settings.ini')
 
-if settings['ask_window_size']:
+if settings['Window'].getboolean('ask_window_size'):
     ask_window_size()
 else:
-    sc_width = sc_height = settings['window_size']
+    sc_width = sc_height = settings['Window']['window_size']
 
 screen = pg.display.set_mode((sc_width, sc_height))
-window_icon = pg.image.load(os.path.join('assets', 'Icons', 'game_icon.png'))
+window_icon = pg.image.load(os.path.join('assets', 'Icons', 'game_icon.ico'))
 pg.display.set_icon(window_icon)
-pg.display.set_caption('Galaxy Jumper')
+pg.display.set_caption('Soup Slime')
 
 font_size = sc_width // 40
 myFont = pg.font.Font('assets/PixelCountdown-Yaj4.ttf', font_size)
@@ -78,9 +83,9 @@ player_side = normal_player_side
 start_worldx = 3
 startx = start_worldx * tile_side
 
-scrolling_speed_modifier = int(settings['scrolling_speed'][:-1]) / 100
-jump_height_modifier = int(settings['jump_height'][:-1]) / 100
-gravity_modifier = int(settings['gravity'][:-1]) / 100
+scrolling_speed_modifier = int(settings['Physics']['scrolling_speed']) / 100
+jump_height_modifier = int(settings['Physics']['jump_height']) / 100
+gravity_modifier = int(settings['Physics']['gravity']) / 100
 
 scrolling_speed = int(tile_side * 0.25 * scrolling_speed_modifier)
 normal_jump_height = -(tile_side * 0.5) * jump_height_modifier
@@ -99,7 +104,7 @@ scrolling_forward = True
 
 blank_level_data = '''{"misc": {"background_name": "industrial_layers", "spawnpoint": [0,0]}, "0":{"0":"player_spawn"}}'''
 
-show_fps = settings['show_fps']
+show_fps = settings['Game'].getboolean('show_fps')
 
 
 def delete_edited_level():
@@ -205,7 +210,8 @@ icons = {'checkmark': load_sprite('checkmark', icon=True), 'cross': load_sprite(
          'right': load_sprite('right', icon=True), 'save': load_sprite('save', icon=True),
          'trashcan': load_sprite('trashcan', icon=True), 'warning': load_sprite('warning', icon=True),
          'wrench': load_sprite('wrench', icon=True), 'button_unpressed': load_sprite('button_unpressed', icon=True),
-         'button_pressed': load_sprite('button_pressed', icon=True), 'change_background': load_sprite('contrast', icon=True)}
+         'button_pressed': load_sprite('button_pressed', icon=True), 'change_background': load_sprite('contrast', icon=True),
+         'information': load_sprite('information', icon=True)}
 
 player_animations = {'jump': [load_player_sprite('jump' + str(i)) for i in range(2)], 'idle': [load_player_sprite('idle' + str(i)) for i in range(3)]}
 
