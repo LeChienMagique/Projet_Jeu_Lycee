@@ -34,12 +34,16 @@ def ask_window_size():
     root.title('Soup Slime')
     root.iconbitmap(os.path.join('assets', 'Icons', 'game_icon.ico'))
     w, h = root.winfo_screenwidth(), root.winfo_screenheight()
+
+    if w < 600 or h < 600:
+        raise Exception("Votre écran est trop petit pour le jeu.")
+
     root.geometry(f'{int(w * 0.3)}x{int(h * 0.3)}')
 
     infos = tk.Label(root, text="Sélectionnez la taille de la fenêtre")
     infos.pack(anchor=tk.N)
 
-    size_options = [s for s in range(400, h + 1, 100)]
+    size_options = [s for s in range(600, h + 1, 100)]
     size_var = tk.StringVar()
     size_var.set(size_options[0])
     for item in size_options:
@@ -58,7 +62,7 @@ settings.read('settings.ini')
 if settings['Window'].getboolean('ask_window_size'):
     ask_window_size()
 else:
-    sc_width = sc_height = settings['Window']['window_size']
+    sc_width = sc_height = int(settings['Window']['window_size'])
 
 screen = pg.display.set_mode((sc_width, sc_height))
 window_icon = pg.image.load(os.path.join('assets', 'Icons', 'game_icon.ico'))

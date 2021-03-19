@@ -2,8 +2,8 @@
   "misc": {
     "background_name": "industrial_layers",
     "spawnpoint": [
-      124,
-      -17
+      -4,
+      1
     ],
     "info_block_text": {
       "1": {
@@ -58,7 +58,8 @@
     "32": "tile",
     "33": "tile",
     "34": "tile",
-    "35": "tile"
+    "35": "tile",
+    "-5": "tile"
   },
   "-4": {
     "58": "tile",
@@ -68,17 +69,22 @@
   },
   "1": {
     "15": "info_block",
-    "35": "tile"
+    "35": "tile",
+    "-4": "player_spawn",
+    "-5": "tile"
   },
   "4": {
     "26": "minimizer",
-    "35": "tile"
+    "35": "tile",
+    "-5": "tile"
   },
   "3": {
-    "35": "tile"
+    "35": "tile",
+    "-5": "tile"
   },
   "2": {
-    "35": "tile"
+    "35": "tile",
+    "-5": "tile"
   },
   "0": {
     "35": "tile"
@@ -284,7 +290,6 @@
     "223": "minimizer",
     "224": "minimizer",
     "225": "tile",
-    "124": "player_spawn",
     "148": "spike5"
   },
   "-18": {
@@ -511,7 +516,6 @@
     "117": "tile",
     "124": "tile",
     "145": "tile",
-    "179": "spike4",
     "180": "spike4",
     "181": "spike4",
     "182": "spike4",
@@ -522,7 +526,8 @@
     "187": "spike4",
     "190": "tile",
     "188": "spike4",
-    "189": "spike5"
+    "189": "spike5",
+    "179": "spike4"
   },
   "-29": {
     "61": "tile",
@@ -554,7 +559,19 @@
     "117": "tile",
     "124": "tile",
     "145": "tile",
-    "153": "tile"
+    "153": "tile",
+    "179": "spike0",
+    "180": "spike0",
+    "181": "spike0",
+    "182": "spike0",
+    "183": "spike0",
+    "184": "spike0",
+    "185": "spike0",
+    "186": "spike0",
+    "187": "spike0",
+    "188": "spike0",
+    "189": "spike0",
+    "190": "spike0"
   },
   "-31": {
     "61": "tile",
