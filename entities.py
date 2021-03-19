@@ -2,7 +2,7 @@ import pygame as pg
 import const
 
 
-class Tile(pg.sprite.DirtySprite):
+class Tile(pg.sprite.Sprite):
     """
     Classe mère de toutes les types de blocs, est aussi la classe du bloc de construction de base
     """
@@ -22,29 +22,6 @@ class Tile(pg.sprite.DirtySprite):
         self.rect.y = screen_y
         self.x = world_x
         self.y = world_y
-        self.visible = 0
-        self.dirty = 0
-
-    def update(self, *args, **kwargs) -> None:
-        """
-        Actualise la tile, la rend invisible quand elle ne doit pas être visible
-        :param args:
-        :param kwargs:
-        """
-        if self.rect.right < 0 or self.rect.left > const.sc_height or self.rect.top > const.sc_height or self.rect.bottom < 0:
-            self.dirty = 0
-            self.visible = 0
-        else:
-            self.visible = 1
-            self.dirty = 2
-
-        if self.editing:
-            if 0 < self.rect.bottom <= 21 * const.tile_side + 1 or self.rect.right < 0 or self.rect.left > const.sc_width:
-                self.visible = 1
-                self.dirty = 2
-            else:
-                self.visible = 0
-                self.dirty = 0
 
 
 class Jumper(Tile):

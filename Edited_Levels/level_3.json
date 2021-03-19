@@ -23,21 +23,6 @@
     "23": "tile",
     "24": "tile",
     "25": "tile",
-    "26": "tile",
-    "27": "tile",
-    "28": "tile",
-    "29": "tile",
-    "30": "tile",
-    "31": "tile",
-    "32": "tile",
-    "33": "tile",
-    "39": "tile",
-    "34": "tile",
-    "35": "tile",
-    "36": "tile",
-    "37": "tile",
-    "38": "tile",
-    "40": "tile",
     "67": "tile",
     "68": "tile",
     "69": "tile",
@@ -61,7 +46,11 @@
     "87": "tile",
     "88": "tile",
     "89": "tile",
-    "90": "tile"
+    "90": "tile",
+    "27": "tile",
+    "28": "tile",
+    "26": "tile",
+    "29": "tile"
   },
   "0": {
     "17": "tile",
@@ -120,17 +109,58 @@
     "70": "tile"
   },
   "6": {
-    "5": "player_spawn"
+    "5": "player_spawn",
+    "28": "tile",
+    "29": "tile"
   },
   "1": {
     "39": "spike4",
     "53": "tile"
   },
   "2": {
-    "53": "tile"
+    "53": "tile",
+    "113": "tile",
+    "114": "tile",
+    "115": "tile",
+    "116": "tile",
+    "117": "tile",
+    "118": "tile",
+    "119": "tile",
+    "120": "tile",
+    "121": "tile",
+    "122": "tile",
+    "123": "tile",
+    "124": "tile",
+    "125": "tile",
+    "126": "tile",
+    "127": "tile",
+    "128": "tile",
+    "129": "gravity_inverter4",
+    "144": "tile",
+    "145": "tile",
+    "146": "tile",
+    "147": "tile",
+    "148": "tile",
+    "149": "tile",
+    "150": "tile",
+    "151": "tile",
+    "152": "tile",
+    "153": "tile",
+    "154": "tile",
+    "155": "tile",
+    "156": "tile",
+    "157": "tile",
+    "158": "tile",
+    "159": "tile",
+    "160": "tile",
+    "161": "tile",
+    "162": "tile",
+    "163": "jumper4"
   },
   "3": {
-    "53": "spike4"
+    "53": "spike4",
+    "123": "spike4",
+    "153": "tile"
   },
   "9": {
     "67": "spike0",
@@ -146,7 +176,32 @@
     "100": "tile",
     "101": "tile",
     "102": "tile",
-    "103": "tile"
+    "103": "tile",
+    "28": "spike6",
+    "29": "tile",
+    "104": "tile",
+    "105": "tile",
+    "106": "tile",
+    "107": "tile",
+    "108": "tile",
+    "109": "tile",
+    "110": "tile",
+    "111": "tile",
+    "112": "gravity_inverter0",
+    "129": "tile",
+    "130": "tile",
+    "131": "tile",
+    "132": "tile",
+    "133": "tile",
+    "134": "tile",
+    "135": "tile",
+    "136": "tile",
+    "137": "tile",
+    "138": "tile",
+    "139": "tile",
+    "140": "tile",
+    "141": "tile",
+    "142": "gravity_inverter0"
   },
   "10": {
     "67": "tile",
@@ -158,7 +213,9 @@
     "73": "tile",
     "74": "spike2",
     "89": "tile",
-    "90": "tile"
+    "90": "tile",
+    "28": "spike6",
+    "29": "tile"
   },
   "11": {
     "67": "tile",
@@ -170,16 +227,105 @@
     "73": "tile",
     "74": "spike2",
     "89": "tile",
-    "90": "tile"
+    "90": "tile",
+    "28": "spike6",
+    "29": "tile"
   },
   "misc": {
-    "background_name": "mountain_layers",
+    "background_name": "industrial_layers",
     "spawnpoint": [
       5,
       6
     ]
   },
-  "25": {
-    "18": "tile"
+  "8": {
+    "28": "spike6",
+    "29": "tile",
+    "138": "spike0",
+    "101": "checkpoint"
+  },
+  "7": {
+    "28": "spike6",
+    "29": "tile"
+  },
+  "5": {
+    "153": "spike4"
+  },
+  "4": {
+    "153": "tile"
+  },
+  "14": {
+    "178": "tile",
+    "179": "tile",
+    "180": "tile",
+    "181": "tile",
+    "182": "tile",
+    "177": "tile",
+    "176": "tile",
+    "175": "tile",
+    "183": "tile",
+    "184": "tile",
+    "185": "tile",
+    "186": "gravity_inverter4",
+    "194": "gravity_inverter4",
+    "195": "gravity_inverter4",
+    "196": "gravity_inverter4",
+    "197": "gravity_inverter4",
+    "198": "gravity_inverter4",
+    "199": "gravity_inverter4",
+    "200": "gravity_inverter4",
+    "201": "gravity_inverter4",
+    "202": "gravity_inverter4",
+    "203": "gravity_inverter4",
+    "204": "gravity_inverter4",
+    "205": "gravity_inverter4",
+    "206": "gravity_inverter4",
+    "207": "gravity_inverter4",
+    "208": "gravity_inverter4",
+    "209": "gravity_inverter4",
+    "210": "gravity_inverter4",
+    "211": "gravity_inverter4",
+    "212": "gravity_inverter4",
+    "213": "gravity_inverter4",
+    "214": "gravity_inverter4",
+    "215": "gravity_inverter4"
+  },
+  "17": {
+    "187": "tile",
+    "186": "tile",
+    "188": "tile",
+    "189": "tile",
+    "190": "tile",
+    "191": "tile",
+    "192": "tile",
+    "193": "tile",
+    "194": "gravity_inverter0",
+    "195": "gravity_inverter0",
+    "196": "gravity_inverter0",
+    "197": "gravity_inverter0",
+    "198": "gravity_inverter0",
+    "199": "gravity_inverter0",
+    "200": "gravity_inverter0",
+    "201": "gravity_inverter0",
+    "202": "gravity_inverter0",
+    "203": "gravity_inverter0",
+    "204": "gravity_inverter0",
+    "205": "gravity_inverter0",
+    "206": "gravity_inverter0",
+    "207": "gravity_inverter0",
+    "208": "gravity_inverter0",
+    "209": "gravity_inverter0",
+    "210": "gravity_inverter0",
+    "211": "gravity_inverter0",
+    "212": "gravity_inverter0",
+    "213": "gravity_inverter0",
+    "214": "gravity_inverter0",
+    "215": "gravity_inverter0"
+  },
+  "15": {
+    "205": "end"
+  },
+  "16": {
+    "205": "end"
   }
 }

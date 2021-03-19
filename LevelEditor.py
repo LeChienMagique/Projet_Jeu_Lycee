@@ -19,7 +19,7 @@ class LevelEditor:
         self.background_name = 'industrial_layers'
         self.background_group = pg.sprite.LayeredUpdates(const.make_background_group(self.background_name))
         self.buttons = pg.sprite.Group()
-        self.tiles = pg.sprite.LayeredDirty()
+        self.tiles = pg.sprite.Group()
         self.info_block_editor = pg.sprite.Group()
         self.info_block_editor_text_input_dims = [3 * self.grid_square_side, 2 * self.grid_square_side, 19 * self.grid_square_side, 9 * self.grid_square_side]
         self.confirm_delete_level_menu = pg.sprite.Group()
@@ -574,16 +574,21 @@ class LevelEditor:
 
             else:
                 self.background_group.draw(self.placing_area)  # Dessine le fond d'écran
-                # self.sc.blit(self.placing_area, (0, 0), pg.rect.Rect(0, 0, self.sc.get_width(), 18 * self.grid_square_side))  # Dessine la grille
+                self.sc.fill(pg.Color(0, 0, 0))
                 self.sc.blit(self.placing_area, (0, 1))
                 self.ghost_selected_tile_on_cursor(pg.mouse.get_pos())
 
-                self.tiles.update()
-                self.tiles.draw(self.sc)  # Dessine les blocs
+                for tile in self.tiles:
+                    tile: ent.Tile
+                    x, y = tile.rect.left, tile.rect.top
+                    # Ne render que les tiles visibles à l'écran pour optimiser les appels coûteux à la méthode draw/blit
+                    if -const.tile_side < x < const.sc_width and -const.tile_side < y < self.placing_area.get_rect().bottom:
+                        self.sc.blit(tile.image, (tile.rect.x, tile.rect.y))
                 self.buttons.draw(self.sc)  # Dessine les boutons
+
                 hovered_square_pos = self.get_square_on_pos(pg.mouse.get_pos())[2:]
                 const.display_infos(self.sc, f"x : {hovered_square_pos[0]}, y : {hovered_square_pos[1]}", x=15,
-                                    y=15)  # Affiche des informations sur la position
-                # du curseur
+                                    y=15)  # Affiche des informations sur la position du curseur
+                const.display_infos(self.sc, str(clock.get_fps().__round__(2)), center=True, y=15)
 
             pg.display.flip()

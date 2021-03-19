@@ -18,7 +18,7 @@ class Game:
         self.player.rect.y = 0
 
         self.player_group = pg.sprite.GroupSingle(self.player)
-        self.tile_group = pg.sprite.LayeredDirty()
+        self.tile_group = pg.sprite.Group()
         self.background_name = 'industrial_layers'
         self.background_group = pg.sprite.LayeredUpdates(const.make_background_group(self.background_name))
         self.pause_menu = pg.sprite.Group()
@@ -178,7 +178,7 @@ class Game:
         player_y = self.player.rect.centery
         divider = 3
         up_limit = const.sc_height // divider
-        bottom_limit = const.sc_height - (const.sc_height // divider)
+        bottom_limit = const.sc_height - up_limit
         if player_y < up_limit:  # Si le joueur est trop haut
             offset = up_limit - player_y
             self.player.rect.centery = up_limit
@@ -204,14 +204,18 @@ class Game:
         Recommence le niveau depuis le dernier checkpoint
         :return:
         """
+        self.reset_all_vars()
+        # Fait en sorte que la position en y du joueur soit le plus bas possible (voir align_cam_on_player_y.bottom_limit) pour avoir
+        # une meilleure visibilité
+        y_offset = (const.sc_height - (const.sc_height // 3)) - (self.last_checkpoint_pos[1] * const.tile_side)
+        y_offset *= -1
+
         for tile in self.tile_group:
             tile: ent.Tile
             tile.rect.x = (tile.x - self.last_checkpoint_pos[0] + const.start_worldx) * const.tile_side
-            tile.rect.y = tile.y * const.tile_side
+            tile.rect.y = tile.y * const.tile_side - y_offset
             if isinstance(tile, ent.Minimizer):
                 tile.disabled = False
-        self.reset_all_vars()
-        # self.load_level(const.level)
 
     def reset_all_vars(self):
         """
@@ -250,7 +254,6 @@ class Game:
         :param n:
         :return:
         """
-        self.reset_all_vars()
 
         if const.previous_mode == 'editing':
             path = f"Edited_Levels/level_{n}.json"
@@ -264,6 +267,8 @@ class Game:
 
         self.start_pos = lvl_design['misc']['spawnpoint']
         self.last_checkpoint_pos = lvl_design['misc']['spawnpoint']
+
+        self.reset_all_vars()
 
         if lvl_design['misc']['background_name'] != self.background_name:
             self.background_name = lvl_design['misc']['background_name']
@@ -279,13 +284,17 @@ class Game:
         row: dict
         y: str
         tile_type: str
+        # Fait en sorte que la position en y du joueur soit le plus bas possible (voir align_cam_on_player_y.bottom_limit) pour avoir
+        # une meilleure visibilité
+        y_offset = (const.sc_height - (const.sc_height // 3)) - (self.last_checkpoint_pos[1] * const.tile_side)
+        y_offset *= -1
 
         for y, row in lvl_design.items():
             if y == 'misc':
                 continue
             for x, tile_type in row.items():
                 screenx = (int(x) - self.start_pos[0] + const.start_worldx) * const.tile_side
-                screeny = int(y) * const.tile_side
+                screeny = int(y) * const.tile_side - y_offset
                 if tile_type == 'info_block':
                     ent.building_tiles[tile_type](screenx, screeny, int(x), int(y), self.tile_group,
                                                   text=lvl_design['misc']['info_block_text'][str(y)][str(x)])
@@ -298,6 +307,8 @@ class Game:
                     except ValueError:
                         ent.building_tiles[tile_type](screenx, screeny, int(x), int(y), self.tile_group)
 
+        # Détermine 2 tiles : la plus haute et la plus basse du niveau pour créer des limites où le joueur
+        # meurt quand il les traverse
         self.low_dead_line: ent.Tile
         self.high_dead_line: ent.Tile
         lowest_tile = None
@@ -359,7 +370,9 @@ class Game:
         self.clock = pg.time.Clock()
         self.reset_all_vars()
         self.make_pause_menu()
+        self.timer_active = True
         while self.running:
+
             self.timer += self.clock.tick(framerate) * self.timer_active
 
             if self.level_ended:
@@ -374,7 +387,6 @@ class Game:
                 self.player.tick_movement()
                 self.player.handle_y_axis_collisions()
                 self.scroll_level(const.scrolling_forward)
-                self.tile_group.update()
                 self.player.handle_x_axis_collisions()
                 self.player.handle_x_offset()
 
@@ -382,10 +394,14 @@ class Game:
 
             self.background_group.draw(self.sc)
 
-            if const.show_fps:
-                const.display_infos(self.sc, str(self.clock.get_fps().__round__(2)), center=True, y=15)
             self.player_group.draw(self.sc)
-            self.tile_group.draw(self.sc)
+            for tile in self.tile_group:
+                tile: ent.Tile
+                x, y = tile.rect.left, tile.rect.top
+                # Ne render que les tiles visibles à l'écran pour optimiser les appels coûteux à la méthode draw/blit
+                if -const.tile_side < x < const.sc_width and -const.tile_side < y < const.sc_height:
+                    self.sc.blit(tile.image, (tile.rect.x, tile.rect.y))
+
             if self.paused:
                 self.pause_menu.draw(self.sc)
                 textsurf = const.boldFont.render('PAUSE', True, pg.Color(255, 255, 255))
@@ -394,6 +410,9 @@ class Game:
                 pg.draw.rect(self.sc, pg.Color(50, 50, 50), (3 * const.tile_side, 2 * const.tile_side, 19 * const.tile_side, 9 * const.tile_side),
                              border_radius=15)
                 self.draw_info_block_text()
+
+            if const.show_fps:
+                const.display_infos(self.sc, str(self.clock.get_fps().__round__(2)), center=True, y=15)
 
             pg.display.flip()
 
@@ -406,20 +425,27 @@ class Player(pg.sprite.DirtySprite):
     def __init__(self, game: Game):
         super().__init__()
         self.game = game  # Référence à l'instance du jeu
+
         self.animation_number = 0
         self.animation_name = 'idle'
+
         self.normal_image = const.player_animations[self.animation_name][self.animation_number]
         self.smol_image = const.smol_player_animations[self.animation_name][self.animation_number]
         self.image = self.normal_image
+
         self.rect = self.image.get_rect()
         self.mask = pg.mask.from_surface(self.image)
+
         self.dx = 0
         self.dy = 0
         self.onGround = False
         self.colliding_right_flag = False
+
         self.minimized = False
 
         self.frame_counter = 0
+
+        self.collided_end_tile = None
 
     def kill_player(self):
         """
@@ -501,7 +527,6 @@ class Player(pg.sprite.DirtySprite):
         """
         self.rect.x += self.dx
         self.rect.y += self.dy
-
         if (self.rect.y > self.game.low_dead_line.rect.y + const.tile_side * 15 and not self.game.gravity_is_inversed) or \
                 (self.rect.y < self.game.high_dead_line.rect.y - const.tile_side * 15 and self.game.gravity_is_inversed):
             self.kill_player()
@@ -510,7 +535,7 @@ class Player(pg.sprite.DirtySprite):
 
         if self.onGround:
             self.frame_counter += 1
-            if self.frame_counter == 25:
+            if self.frame_counter == 20:
                 if self.animation_name == 'jump':
                     self.change_animation('idle')
                 else:
@@ -525,6 +550,7 @@ class Player(pg.sprite.DirtySprite):
         if collidedS is not None:
             if isinstance(collidedS, ent.EndTile):  # Quand le joueur passe dans un bloc de fin de niveau
                 self.game.end_level()
+                collidedS.kill()
                 return
             elif isinstance(collidedS, ent.Minimizer):
                 self.toggle_minimize() if not collidedS.disabled else None
@@ -553,7 +579,7 @@ class Player(pg.sprite.DirtySprite):
                 elif isinstance(collidedS, ent.InfoBlock):  # Collisions avec les info_blocks
                     self.game.prompt_info_block_pause(collidedS.text)
 
-                if self.game.gravity_is_inversed and collidedS.rect.left < self.rect.centerx:  # Collisions quand la gravité est inversée
+                if self.game.gravity_is_inversed and collidedS.rect.left <= self.rect.centerx:  # Collisions quand la gravité est inversée
                     if collidedS.facing == 4:
                         if isinstance(collidedS, ent.Jumper):  # Collisions avec les Jumpers
                             self.jump(forced_dy=const.jump_height * 1.4)
@@ -572,11 +598,7 @@ class Player(pg.sprite.DirtySprite):
                     if not const.scrolling_forward:
                         self.game.set_scrolling(True)
 
-                if collidedS.rect.left < self.rect.centerx:
-                    if isinstance(collidedS, ent.Spike):  # Collisions avec les spikes
-                        if collidedS.facing != 4:
-                            self.kill_player()
-
+                if collidedS.rect.left <= self.rect.centerx:
                     if collidedS.facing == 0:
                         if isinstance(collidedS, ent.Jumper):  # Collisions avec les Jumpers
                             self.jump(forced_dy=const.jump_height * 1.4)
@@ -587,6 +609,10 @@ class Player(pg.sprite.DirtySprite):
                         elif isinstance(collidedS, ent.GravInverter):  # Collisions avec les inverseurs de gravité
                             self.game.invert_gravity()
 
+                    if isinstance(collidedS, ent.Spike):  # Collisions avec les spikes
+                        if collidedS.facing != 4:
+                            self.kill_player()
+
     def handle_x_axis_collisions(self):
         """
         Gère les collisions sur l'axe x du joueur avec les Tiles et applique l'effet des Tiles percutées
@@ -596,6 +622,7 @@ class Player(pg.sprite.DirtySprite):
         if collidedS is not None:
             if isinstance(collidedS, ent.EndTile):  # Quand le joueur passe dans un bloc de fin de niveau
                 self.game.end_level()
+                collidedS.kill()
                 return
             elif isinstance(collidedS, ent.Minimizer):
                 self.toggle_minimize() if not collidedS.disabled else None
@@ -665,8 +692,9 @@ class Player(pg.sprite.DirtySprite):
         self.image = self.normal_image
         self.rect = self.image.get_rect()
         self.rect.x = const.startx
-        self.rect.y = self.game.last_checkpoint_pos[1] * const.tile_side
+        self.rect.y = const.sc_height - (const.sc_height // 3)
         self.dy = 0
         self.onGround = True
         self.change_animation('idle')
         self.colliding_right_flag = False
+        self.collided_end_tile = None
