@@ -20,9 +20,6 @@ def define_window_size(size: int, root: tk.Tk):
     sc_width = sc_height = int(size)
     settings['Window']['window_size'] = str(size)
     settings.write(open('settings.ini', 'w'))
-    """settings_dict = json.load(open('settings.json', 'r'))
-    settings_dict['window_size'] = int(size)
-    json.dump(settings_dict, open('settings.json', 'w'), indent=4)"""
     root.destroy()
 
 
@@ -331,7 +328,6 @@ def get_background_for_level(n: int):
 background_group_names = ['industrial_layers', 'forest_layers', 'mountain_layers', 'space_layers']
 
 
-# backgrounds = [make_background_group(back_name) for back_name in background_group_names]
 
 
 class Button(pg.sprite.Sprite):
@@ -349,8 +345,6 @@ class Button(pg.sprite.Sprite):
         self.textColor = textColor
         self.spriteImg = image
 
-        # self.image = pg.Surface((w, h))
-        # self.image.fill(rectColor)
         self.pressed_image = pg.transform.scale(get_sprite('button_pressed', icon=True), (w, h))
         self.unpressed_image = pg.transform.scale(get_sprite('button_unpressed', icon=True), (w, h))
         self.hovered_image = self.unpressed_image.copy()

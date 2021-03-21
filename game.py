@@ -61,8 +61,6 @@ class Game:
                 elif e.type == pg.KEYUP:
                     if e.key == pg.K_ESCAPE:
                         self.toggle_pause()  # Arrête la pause
-                    elif e.key == pg.K_f:
-                        self.advance_frame()  # [DEBUG] Fait un cycle de la méthode principale
 
             elif e.type == pg.KEYDOWN:
                 if self.info_block_pause:  # Quand le menu pop up du bloc info_block est affiché
@@ -229,6 +227,7 @@ class Game:
             tile.rect.y = tile.y * const.tile_side - y_offset
             if isinstance(tile, ent.Minimizer):
                 tile.disabled = False
+
     def reset_all_vars(self):
         """
         Réinitialise toutes les variables de la classe
@@ -250,6 +249,7 @@ class Game:
         Passe au niveau d'après
         :return:
         """
+        print("next!")
         self.reset_all_vars()
         if const.previous_mode == 'playing' or const.previous_mode == 'level_selection':
             if const.next_level():
@@ -275,7 +275,7 @@ class Game:
         self.tile_group.empty()
         self.pass_through_tiles.empty()
 
-        with open(path, "r") as lvl:
+        with open(path, "r", encoding='utf-8') as lvl:
             lvl_design: dict = json.load(lvl)
 
         self.start_pos = lvl_design['misc']['spawnpoint']
@@ -363,25 +363,6 @@ class Game:
         const.gravity *= -1
         const.jump_height *= -1
         self.gravity_is_inversed = not self.gravity_is_inversed
-
-    def advance_frame(self):
-        """
-        [DEBUG] Fait un cycle de la méthode principale
-        ATTENTION : Certainement bugué
-        :return:
-        """
-        self.player.handle_gravity()
-        self.align_cam_on_player_y()
-        self.player.tick_movement()
-        self.player.handle_y_axis_collisions()
-        self.scroll_level(const.scrolling_forward)
-        self.player.handle_x_axis_collisions()
-        self.player.handle_x_offset()
-
-        self.sc.fill((0, 0, 0))
-        self.player_group.draw(self.sc)
-        self.tile_group.draw(self.sc)
-        pg.display.flip()
 
     def main(self, framerate: int):
         """
@@ -555,8 +536,8 @@ class Player(pg.sprite.DirtySprite):
         self.rect.x += self.dx
         self.rect.y += self.dy
 
-        if (self.rect.y > self.game.low_dead_line.rect.y + const.tile_side * 15 and not self.game.gravity_is_inversed) or \
-                (self.rect.y < self.game.high_dead_line.rect.y - const.tile_side * 15 and self.game.gravity_is_inversed):
+        if (self.rect.y > self.game.low_dead_line.rect.y + const.tile_side * 20 and not self.game.gravity_is_inversed) or \
+                (self.rect.y < self.game.high_dead_line.rect.y - const.tile_side * 20 and self.game.gravity_is_inversed):
             self.kill_player()
         if self.rect.x < 0:
             self.kill_player()
@@ -576,17 +557,17 @@ class Player(pg.sprite.DirtySprite):
         """
         collidedS = pg.sprite.spritecollideany(self, self.game.tile_group)
         no_collisions_S = pg.sprite.spritecollideany(self, self.game.pass_through_tiles)
+
+        if no_collisions_S is not None:
+            if isinstance(no_collisions_S, ent.EndTile):  # Quand le joueur passe dans un bloc de fin de niveau
+                self.game.end_level()
+            elif isinstance(no_collisions_S, ent.Minimizer):
+                self.toggle_minimize() if not no_collisions_S.disabled else None
+                no_collisions_S.disabled = True
+            elif isinstance(no_collisions_S, ent.Checkpoint):
+                self.game.last_checkpoint_pos = [no_collisions_S.x, no_collisions_S.y]
+
         if collidedS is not None:
-
-            if no_collisions_S is not None:
-                if isinstance(no_collisions_S, ent.EndTile):  # Quand le joueur passe dans un bloc de fin de niveau
-                    self.game.end_level()
-                elif isinstance(no_collisions_S, ent.Minimizer):
-                    self.toggle_minimize() if not no_collisions_S.disabled else None
-                    no_collisions_S.disabled = True
-                elif isinstance(no_collisions_S, ent.Checkpoint):
-                    self.game.last_checkpoint_pos = [no_collisions_S.x, no_collisions_S.y]
-
             falling = self.dy > 0
             self.dy = 0
 
@@ -645,18 +626,7 @@ class Player(pg.sprite.DirtySprite):
         :return:
         """
         collidedS = pg.sprite.spritecollideany(self, self.game.tile_group)
-        no_collisions_S = pg.sprite.spritecollideany(self, self.game.pass_through_tiles)
         if collidedS is not None:
-
-            if no_collisions_S is not None:
-                if isinstance(no_collisions_S, ent.EndTile):  # Quand le joueur passe dans un bloc de fin de niveau
-                    self.game.end_level()
-                elif isinstance(no_collisions_S, ent.Minimizer):
-                    self.toggle_minimize() if not no_collisions_S.disabled else None
-                    no_collisions_S.disabled = True
-                elif isinstance(no_collisions_S, ent.Checkpoint):
-                    self.game.last_checkpoint_pos = [no_collisions_S.x, no_collisions_S.y]
-
             if const.scrolling_forward:
                 if self.rect.right > collidedS.rect.left:  # Quand le joueur entre en collision avec un mur
                     self.rect.right = collidedS.rect.left

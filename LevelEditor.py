@@ -4,7 +4,7 @@ import const
 from const import Button
 import entities as ent
 import sys
-from PIL import Image
+from PIL import ImageTk, Image
 
 
 class LevelEditor:
@@ -45,8 +45,6 @@ class LevelEditor:
         :param y:
         :param w:
         :param h:
-        :param rectColor:
-        :param onHoverRectColor:
         :param callback:
         :param group:
         :param kwargs:
@@ -393,7 +391,15 @@ class LevelEditor:
         Affiche l'aide de l'éditeur.
         :return:
         """
-        Image.open('editor_help.png').show()
+        tk = const.tk
+        root = tk.Tk()
+        canvas = tk.Canvas(root, width=const.sc_width, height=const.sc_height)
+        canvas.pack()
+        img = Image.open('editor_help.png')
+        img = img.resize((const.sc_width, const.sc_height), Image.ANTIALIAS)
+        img = ImageTk.PhotoImage(img)
+        canvas.create_image(0, 0, anchor=tk.NW, image=img)
+        tk.mainloop()
 
     def make_gui(self):
         """
@@ -505,7 +511,7 @@ class LevelEditor:
         Sauvegarde le niveau dans un fichier .json dans Edited_Levels/
         :return:
         """
-        with open(f'Edited_Levels/level_{const.level}.json', 'w') as j:
+        with open(f'Edited_Levels/level_{const.level}.json', 'w', encoding='utf-8') as j:
             json.dump(self.level, j, indent=0)
 
     def load_level(self, n):
@@ -522,7 +528,7 @@ class LevelEditor:
         self.tiles.empty()
         self.level = {}
 
-        with open(f"Edited_Levels/level_{n}.json", "r") as lvl:
+        with open(f"Edited_Levels/level_{n}.json", "r", encoding='utf-8') as lvl:
             lvl_design: dict = json.load(lvl)
             self.level = lvl_design.copy()
 
