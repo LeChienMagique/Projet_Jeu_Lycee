@@ -24,8 +24,6 @@ bouton flèche tournante : recommence le niveau
 
 bouton triangle : arrete la pause
 
-F (debug) : avance de 1 frame
-
 ### EN EDITION:
 
 Z Q S D pour se déplacer
