@@ -21,7 +21,7 @@ class LevelEditor:
         self.buttons = pg.sprite.Group()
         self.tiles = pg.sprite.Group()
         self.info_block_editor = pg.sprite.Group()
-        self.info_block_editor_text_input_dims = [3 * self.grid_square_side, 2 * self.grid_square_side, 19 * self.grid_square_side, 9 * self.grid_square_side]
+        self.info_block_editor_text_input_dims = [3 * self.grid_square_side, 2 * self.grid_square_side, 19 * self.grid_square_side, 15 * self.grid_square_side]
         self.confirm_delete_level_menu = pg.sprite.Group()
 
         self.running = True
@@ -112,9 +112,9 @@ class LevelEditor:
         input_box.rect.top = rect_y
 
         self.info_block_editor.add(input_box)
-        self.create_button(6, 12, 5, 3, lambda x=block_x, y=block_y: self.validate_text_input_info_block(x, y),
+        self.create_button(6, 18, 5, 3, lambda x=block_x, y=block_y: self.validate_text_input_info_block(x, y),
                            image=const.get_sprite('checkmark', icon=True), group=self.info_block_editor)
-        self.create_button(14, 12, 5, 3, lambda x=block_x, y=block_y: self.validate_text_input_info_block(x, y, canceled=True),
+        self.create_button(14, 18, 5, 3, lambda x=block_x, y=block_y: self.validate_text_input_info_block(x, y, canceled=True),
                            image=const.get_sprite('cross', icon=True), group=self.info_block_editor)
 
     def draw_info_block_editor(self):

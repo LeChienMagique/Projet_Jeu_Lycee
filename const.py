@@ -67,6 +67,7 @@ pg.display.set_icon(window_icon)
 pg.display.set_caption('Soup Slime')
 
 font_size = sc_width // 40
+print(font_size)
 myFont = pg.font.Font('assets/PixelCountdown-Yaj4.ttf', font_size)
 boldFont = pg.font.Font('assets/PixelCountdown-Yaj4.ttf', font_size)
 boldFont.set_bold(True)

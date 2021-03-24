@@ -249,12 +249,10 @@ class Game:
         Passe au niveau d'après
         :return:
         """
-        print("next!")
         self.reset_all_vars()
         if const.previous_mode == 'playing' or const.previous_mode == 'level_selection':
             if const.next_level():
                 self.load_level(const.level)
-                print(f'next level : {const.level}')
             else:
                 self.change_mode('level_selection')
         elif const.previous_mode == 'editing':  # Si le niveau est un niveau éditable, revient juste au menu d'édition
@@ -333,14 +331,14 @@ class Game:
             if lowest_tile is None or tile.y > lowest_tile:
                 lowest_tile = tile.y
                 self.low_dead_line = tile
-            elif highest_tile is None or tile.y < highest_tile:
+            if highest_tile is None or tile.y < highest_tile:
                 highest_tile = tile.y
                 self.high_dead_line = tile
         for tile in self.pass_through_tiles:
             if lowest_tile is None or tile.y > lowest_tile:
                 lowest_tile = tile.y
                 self.low_dead_line = tile
-            elif highest_tile is None or tile.y < highest_tile:
+            if highest_tile is None or tile.y < highest_tile:
                 highest_tile = tile.y
                 self.high_dead_line = tile
 
@@ -416,9 +414,11 @@ class Game:
                 textsurf = const.boldFont.render('PAUSE', True, pg.Color(255, 255, 255))
                 self.sc.blit(textsurf, (const.sc_width // 2 - textsurf.get_rect().width // 2, const.sc_height // 10))
             elif self.info_block_pause:
-                pg.draw.rect(self.sc, pg.Color(50, 50, 50), (3 * const.tile_side, 2 * const.tile_side, 19 * const.tile_side, 9 * const.tile_side),
+                pg.draw.rect(self.sc, pg.Color(50, 50, 50), (3 * const.tile_side, 2 * const.tile_side, 19 * const.tile_side, 15 * const.tile_side),
                              border_radius=15)
                 self.draw_info_block_text()
+
+            const.display_infos(self.sc, 'Level ' + str(const.level), x=15, y=15)
 
             if const.show_fps:
                 const.display_infos(self.sc, str(self.clock.get_fps().__round__(2)), center=True, y=15)
