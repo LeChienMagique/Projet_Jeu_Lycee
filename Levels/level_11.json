@@ -1,0 +1,313 @@
+{
+  "misc": {
+    "background_name": "forest_layers",
+    "spawnpoint": [
+      -14,
+      -1
+    ]
+  },
+  "1": {
+    "-1": "spike4",
+    "0": "spike4",
+    "1": "spike4",
+    "2": "spike4",
+    "3": "spike4",
+    "4": "spike4",
+    "5": "spike4",
+    "6": "spike4",
+    "7": "spike4",
+    "8": "spike4",
+    "9": "spike4",
+    "10": "spike4",
+    "11": "spike4",
+    "-2": "spike4",
+    "-3": "spike4",
+    "-4": "spike4",
+    "-5": "spike4",
+    "-6": "spike4",
+    "-7": "spike4",
+    "-8": "spike4",
+    "-9": "spike4",
+    "-10": "spike4",
+    "-11": "spike4",
+    "-12": "spike4",
+    "-13": "spike4",
+    "-14": "spike4"
+  },
+  "-1": {
+    "17": "spike4",
+    "18": "spike4",
+    "19": "spike4",
+    "20": "spike4",
+    "-14": "player_spawn"
+  },
+  "-3": {
+    "27": "spike4",
+    "28": "spike4",
+    "29": "spike4"
+  },
+  "-6": {
+    "37": "spike4",
+    "38": "spike4"
+  },
+  "-8": {
+    "45": "spike4",
+    "59": "spike4"
+  },
+  "8": {
+    "56": "spike4",
+    "57": "spike4",
+    "58": "spike4",
+    "59": "spike4",
+    "60": "spike4",
+    "61": "spike4",
+    "62": "spike4",
+    "63": "spike4",
+    "64": "spike4",
+    "65": "spike4",
+    "66": "spike4",
+    "67": "spike4",
+    "68": "spike4",
+    "69": "spike4",
+    "70": "spike4",
+    "71": "spike4",
+    "72": "spike4",
+    "73": "spike4",
+    "74": "spike4",
+    "75": "spike4",
+    "132": "spike0",
+    "133": "spike0",
+    "134": "spike0",
+    "135": "spike0",
+    "136": "spike0",
+    "137": "spike0",
+    "138": "spike0",
+    "139": "spike0",
+    "140": "spike0",
+    "141": "spike0",
+    "142": "spike0",
+    "143": "spike0",
+    "131": "spike0",
+    "130": "spike0",
+    "144": "spike0",
+    "145": "spike0",
+    "146": "spike0",
+    "147": "spike0",
+    "148": "spike0",
+    "149": "spike0",
+    "150": "spike0",
+    "151": "spike0",
+    "152": "spike0",
+    "153": "spike0",
+    "154": "spike0",
+    "155": "spike0",
+    "156": "spike0",
+    "157": "spike0",
+    "158": "spike0",
+    "159": "spike0",
+    "160": "spike0",
+    "161": "spike0",
+    "162": "spike0",
+    "163": "spike0",
+    "164": "spike0",
+    "165": "spike0",
+    "166": "spike0",
+    "167": "spike0",
+    "168": "spike0",
+    "169": "spike0",
+    "170": "spike0",
+    "171": "gravity_inverter4"
+  },
+  "7": {
+    "72": "spike6",
+    "73": "spike2",
+    "75": "spike4"
+  },
+  "6": {
+    "72": "spike6",
+    "73": "spike2",
+    "75": "spike4",
+    "76": "spike4",
+    "77": "spike4",
+    "78": "spike4",
+    "79": "spike4",
+    "80": "spike4",
+    "81": "spike4",
+    "82": "spike4"
+  },
+  "5": {
+    "72": "spike6",
+    "73": "spike2"
+  },
+  "4": {
+    "72": "spike6",
+    "73": "spike2"
+  },
+  "10": {
+    "86": "spike4",
+    "149": "spike4",
+    "160": "spike4"
+  },
+  "14": {
+    "90": "spike4"
+  },
+  "18": {
+    "94": "gravity_inverter0",
+    "121": "spike4",
+    "122": "spike4",
+    "123": "spike4",
+    "124": "spike4",
+    "125": "spike4",
+    "126": "spike4",
+    "131": "gravity_inverter0",
+    "130": "spike4",
+    "129": "spike4",
+    "128": "spike4",
+    "127": "spike4",
+    "186": "spike0",
+    "195": "spike0",
+    "243": "end"
+  },
+  "22": {
+    "98": "spike4",
+    "231": "spike4"
+  },
+  "26": {
+    "102": "spike4",
+    "103": "spike4",
+    "104": "spike4",
+    "105": "spike4",
+    "106": "spike4",
+    "107": "spike4",
+    "108": "spike4",
+    "109": "spike4",
+    "110": "spike4",
+    "111": "spike4",
+    "112": "spike4",
+    "114": "jumper0",
+    "113": "spike4"
+  },
+  "9": {
+    "149": "spike4",
+    "160": "spike4"
+  },
+  "11": {
+    "149": "spike4"
+  },
+  "19": {
+    "170": "spike4",
+    "171": "spike4",
+    "172": "spike4",
+    "173": "spike4",
+    "174": "spike4",
+    "175": "spike4",
+    "176": "spike4",
+    "177": "spike4",
+    "178": "spike4",
+    "179": "spike4",
+    "180": "spike4",
+    "181": "spike4",
+    "182": "spike4",
+    "183": "spike4",
+    "184": "spike4",
+    "185": "spike4",
+    "187": "spike4",
+    "188": "spike4",
+    "189": "spike4",
+    "190": "spike4",
+    "191": "spike4",
+    "192": "spike4",
+    "193": "spike4",
+    "194": "spike4",
+    "195": "spike4",
+    "198": "spike4",
+    "199": "spike4",
+    "200": "spike4",
+    "201": "spike4",
+    "202": "spike4",
+    "203": "spike4",
+    "197": "spike4",
+    "196": "spike4",
+    "205": "spike0",
+    "204": "spike4",
+    "206": "spike4",
+    "207": "spike4",
+    "208": "spike4",
+    "209": "spike4",
+    "210": "spike4",
+    "211": "spike4",
+    "212": "spike4",
+    "213": "spike4",
+    "214": "spike4",
+    "215": "spike4",
+    "216": "spike4",
+    "217": "spike4",
+    "243": "end"
+  },
+  "-9": {
+    "59": "spike4",
+    "58": "spike4",
+    "60": "spike4"
+  },
+  "-10": {
+    "59": "spike4",
+    "57": "spike4",
+    "61": "spike4"
+  },
+  "-11": {
+    "59": "spike4"
+  },
+  "-12": {
+    "59": "spike4"
+  },
+  "-13": {
+    "59": "spike4"
+  },
+  "20": {
+    "217": "spike4",
+    "243": "end"
+  },
+  "21": {
+    "217": "spike4",
+    "231": "spike4",
+    "232": "spike4",
+    "233": "spike4",
+    "234": "spike4",
+    "235": "spike4",
+    "236": "spike4",
+    "237": "spike4",
+    "238": "spike4",
+    "239": "spike4",
+    "240": "spike4",
+    "241": "spike4",
+    "242": "spike4",
+    "243": "spike4"
+  },
+  "23": {
+    "223": "spike4",
+    "224": "spike4",
+    "225": "spike4",
+    "231": "spike4"
+  },
+  "17": {
+    "243": "end"
+  },
+  "16": {
+    "243": "end"
+  },
+  "15": {
+    "243": "spike4",
+    "242": "spike4",
+    "241": "spike4",
+    "240": "spike4",
+    "239": "spike4",
+    "238": "spike4",
+    "237": "spike4",
+    "236": "spike4",
+    "235": "spike4",
+    "234": "spike4",
+    "233": "spike4",
+    "232": "spike4",
+    "231": "spike4"
+  }
+}
