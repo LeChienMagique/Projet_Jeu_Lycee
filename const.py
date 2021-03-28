@@ -67,7 +67,6 @@ pg.display.set_icon(window_icon)
 pg.display.set_caption('Soup Slime')
 
 font_size = sc_width // 40
-print(font_size)
 myFont = pg.font.Font('assets/PixelCountdown-Yaj4.ttf', font_size)
 boldFont = pg.font.Font('assets/PixelCountdown-Yaj4.ttf', font_size)
 boldFont.set_bold(True)
@@ -108,6 +107,35 @@ blank_level_data = '''{"misc": {"background_name": "industrial_layers", "spawnpo
 
 show_fps = settings['Game'].getboolean('show_fps')
 
+sound_effects_enabled = settings['Game'].getboolean('sound_effects')
+music_enabled = settings['Game'].getboolean('music')
+
+
+def toggle_music():
+    """
+    Alterne entre musique activée et musique désactivée
+    :return:
+    """
+    global music_enabled
+    music_enabled = not music_enabled
+    settings['Game']['music'] = str(1 * music_enabled)
+    settings.write(open('settings.ini', 'w'))
+    if music_enabled:
+        pg.mixer.music.play(loops=-1)
+    else:
+        pg.mixer.music.stop()
+
+
+def toggle_sfx():
+    """
+    Alterne entre sfx activée et sfx désactivée
+    :return:
+    """
+    global sound_effects_enabled
+    sound_effects_enabled = not sound_effects_enabled
+    settings['Game']['sound_effects'] = str(1 * sound_effects_enabled)
+    settings.write(open('settings.ini', 'w'))
+
 
 def delete_edited_level():
     """
@@ -115,13 +143,10 @@ def delete_edited_level():
     """
     global number_of_edited_levels
     n = level
-    print(f'Level {n} va être supprimé')
     if os.path.exists(f'Edited_Levels/level_{n}.json'):
         os.remove(f'Edited_Levels/level_{n}.json')
-        print('Le niveau a été supprimé')
     for i in range(n + 1, number_of_edited_levels + 1):
         path = os.path.join('Edited_Levels', 'level_' + str(i) + '.json')
-        print(path)
         if os.path.exists(path):
             os.rename(path, os.path.join('Edited_Levels', 'level_' + str(i - 1) + '.json'))
     refresh_number_of_levels()
@@ -213,7 +238,8 @@ icons = {'checkmark': load_sprite('checkmark', icon=True), 'cross': load_sprite(
          'trashcan': load_sprite('trashcan', icon=True), 'warning': load_sprite('warning', icon=True),
          'wrench': load_sprite('wrench', icon=True), 'button_unpressed': load_sprite('button_unpressed', icon=True),
          'button_pressed': load_sprite('button_pressed', icon=True), 'change_background': load_sprite('contrast', icon=True),
-         'information': load_sprite('information', icon=True)}
+         'information': load_sprite('information', icon=True), 'music': load_sprite('music', icon=True),
+         'sfx': load_sprite('sfx', icon=True)}
 
 player_animations = {'jump': [load_player_sprite('jump' + str(i)) for i in range(2)], 'idle': [load_player_sprite('idle' + str(i)) for i in range(3)]}
 

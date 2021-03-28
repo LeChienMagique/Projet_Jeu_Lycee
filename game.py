@@ -37,6 +37,9 @@ class Game:
         self.start_pos = [2, 0]
         self.last_checkpoint_pos = self.start_pos
 
+        pg.mixer.music.load('assets/Sounds/music.mp3')
+        pg.mixer.music.set_volume(0.20)
+
     def handle_keys(self):
         """
         Gère les touches pressées par l'utilisateur
@@ -129,6 +132,24 @@ class Game:
         """
         self.paused = not self.paused
 
+    def toggle_music(self):
+        """
+        Alterne entre musique activée et musique désactivée
+        :return:
+        """
+        const.music_enabled = not const.music_enabled
+        if const.music_enabled:
+            pg.mixer.music.play(loops=-1)
+        else:
+            pg.mixer.music.stop()
+
+    def toggle_sfx(self):
+        """
+        Alterne entre sfx activée et sfx désactivée
+        :return:
+        """
+        const.sound_effects_enabled = not const.sound_effects_enabled
+
     def make_pause_menu(self):
         """
         Créé tous les boutons du menu de pause et les ajoute au group correspondant
@@ -143,7 +164,12 @@ class Game:
                             const.Button(button_x, button_h * 2 + 20, button_w, button_h, lambda: self.reset_level(),
                                          image=const.get_sprite('return', icon=True)),
                             const.Button(button_x, button_h * 3 + 30, button_w, button_h, lambda: self.change_mode('level_selection'),
-                                         image=const.get_sprite('home', icon=True)))
+                                         image=const.get_sprite('home', icon=True)),
+                            const.Button(10, const.sc_height - button_h - 10, button_w // 2, button_h, lambda: const.toggle_music(),
+                                         image=const.get_sprite('music', icon=True)),
+                            const.Button(10 + button_w // 2 + 5, const.sc_height - button_h - 10, button_w // 2, button_h, lambda: const.toggle_sfx(),
+                                         image=const.get_sprite('sfx', icon=True))
+                            )
         if const.previous_mode == 'editing':
             self.pause_menu.add(const.Button(button_x, button_h * 4 + 40, button_w, button_h, lambda: self.change_mode('editing'), image=const.get_sprite(
                 'wrench', icon=True)))
@@ -348,6 +374,7 @@ class Game:
         :param mode:
         :return:
         """
+        pg.mixer.music.stop()
         self.reset_all_vars()
         const.change_mode(mode)
         self.running = False
@@ -372,6 +399,8 @@ class Game:
         self.reset_all_vars()
         self.make_pause_menu()
         self.timer_active = True
+        if const.music_enabled:
+            pg.mixer.music.play(loops=-1)
         while self.running:
 
             self.timer += self.clock.tick(framerate) * self.timer_active
@@ -456,12 +485,20 @@ class Player(pg.sprite.DirtySprite):
 
         self.collided_end_tile = None
 
+        self.jump_sound = pg.mixer.Sound('assets/Sounds/jump.wav')
+        self.jump_sound.set_volume(0.1)
+        self.small_jump_sound = pg.mixer.Sound('assets/Sounds/small_jump.wav')
+        self.small_jump_sound.set_volume(0.1)
+        self.death_sound = pg.mixer.Sound('assets/Sounds/death.wav')
+        self.death_sound.set_volume(0.15)
+
     def kill_player(self):
         """
         Tue le joueur, donc recommence le niveau au dernier checkpoint ou passe au niveau d'après si le joueur meurt après avoir fini le niveau
         :return:
         """
         if not self.game.level_ended:
+            self.death_sound.play()
             self.game.reset_level()
         else:
             self.game.next_level()
@@ -482,10 +519,15 @@ class Player(pg.sprite.DirtySprite):
         Donne de l'accélération verticale au joueur pour simuler un saut.
         :return:
         """
+
         if forced_dy is not None:
+            if const.sound_effects_enabled:
+                self.jump_sound.play() if not self.minimized else self.small_jump_sound.play()
             self.dy = forced_dy
 
         elif self.onGround:
+            if const.sound_effects_enabled:
+                self.jump_sound.play() if not self.minimized else self.small_jump_sound.play()
             self.dy = const.jump_height
             self.onGround = False
         self.change_animation_to('jump')
@@ -653,7 +695,7 @@ class Player(pg.sprite.DirtySprite):
         :return:
         """
         if self.rect.x < const.startx and not self.colliding_right_flag:
-            self.dx = 1
+            self.dx = 3
         else:
             self.dx = 0
 
