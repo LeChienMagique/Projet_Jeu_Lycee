@@ -203,8 +203,12 @@ class LevelEditor:
         elif tile_type == 'info_block':
             if 'info_block_text' not in self.level['misc']:
                 self.level['misc']['info_block_text'] = {str(world_y): {str(world_x): info_block_text}}
+
             if str(world_y) not in self.level['misc']['info_block_text']:
+                print('in misc')
                 self.level['misc']['info_block_text'][str(world_y)] = {str(world_x): info_block_text}
+            else:
+                self.level['misc']['info_block_text'][str(world_y)][str(world_x)] = info_block_text
 
     def delete_block_at(self, position, overwrite_spawn_delete_protection=False):
         """
