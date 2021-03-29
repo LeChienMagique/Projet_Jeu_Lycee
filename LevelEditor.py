@@ -263,9 +263,8 @@ class LevelEditor:
         """
         for e in pg.event.get():
 
-            if e.type == pg.WINDOWEVENT:
-                if e.event == 14:  # Quand l'utilisateur clique sur la X de la fenêtre de jeu
-                    sys.exit()
+            if e.type == pg.QUIT:
+                sys.exit()  # Quand l'utilisateur clique sur la X de la fenêtre de jeu
 
             if self.confirm_delete_level_active:  # Quand le menu pop up de confirmation de suppression du niveau est à l'écran
                 if e.type == pg.KEYDOWN and e.key == pg.K_ESCAPE:
