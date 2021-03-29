@@ -69,7 +69,7 @@ class Game:
                 if self.info_block_pause:  # Quand le menu pop up du bloc info_block est affiché
                     if self.timer > 1000:  # Pour empêcher que le menu se ferme juste après s'être ouvert
                         self.quit_info_block_pause()
-                elif e.key == pg.K_UP:
+                elif e.key == pg.K_UP or e.key == pg.K_SPACE:
                     self.player.jump()  # Fait sauter le joueur
                 elif e.key == pg.K_r:
                     self.reset_level()  # Recommence le niveau depuis le dernier checkpoint
