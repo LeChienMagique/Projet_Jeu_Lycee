@@ -227,8 +227,9 @@ class Game:
         Déclenche la séquence de fin de niveau
         :return:
         """
-        self.level_ended = True
-        self.start_timer()
+        if not self.level_ended:
+            self.level_ended = True
+            self.start_timer()
 
     def reset_level(self):
         """

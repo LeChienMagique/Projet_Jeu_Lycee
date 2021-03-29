@@ -12,7 +12,7 @@ if __name__ == '__main__':
     le_select = level_selection.LevelSelection(screen)
     while True:
         if const.mode == "playing":
-            pg.key.set_repeat(1, 10)
+            pg.key.set_repeat(150, 10)
             g.running = True
             g.load_level(const.level)
             g.main(framerate)
