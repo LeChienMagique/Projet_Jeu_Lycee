@@ -499,7 +499,7 @@ class Player(pg.sprite.DirtySprite):
         :return:
         """
         if not self.game.level_ended:
-            self.death_sound.play()
+            self.death_sound.play() if const.sound_effects_enabled else None
             self.game.reset_level()
         else:
             self.game.next_level()

@@ -16,7 +16,6 @@ class Tile(pg.sprite.Sprite):
         else:
             self.image = image
         self.rect = self.image.get_rect()
-        self.mask = pg.mask.from_surface(self.image)
         self.editing = editing
         self.rect.x = screen_x
         self.rect.y = screen_y
